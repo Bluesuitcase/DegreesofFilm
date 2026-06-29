@@ -20,6 +20,8 @@ theming) are not built yet.
   from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
+- **Curation tests (Phase 2):** `python curation/build_rungs.test.py` — pure-logic tests for the
+  rung-ordering data layer (no network or API key needed), same PASS/FAIL + non-zero-exit style.
 
 ## Architecture — three zones
 
@@ -55,6 +57,11 @@ docs/                  The entire static site = what gets hosted.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
+curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.env, gitignored).
+  tmdb.py              Tiny stdlib TMDB v3 client (load_key + get).
+  build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
+  build_rungs.test.py  Tests for the ordering rules (python curation/build_rungs.test.py).
+  validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
 **Layering, keep it clean:** `match.js` has no imports. `game.js` imports only `match.js`.
