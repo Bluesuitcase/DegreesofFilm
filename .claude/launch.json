@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8000", "--directory", "docs"],
       "port": 8000
+    },
+    {
+      "name": "curation",
+      "runtimeExecutable": ".venv/Scripts/python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "app:app", "--app-dir", "curation", "--port", "8001"],
+      "port": 8001
     }
   ]
 }
