@@ -20,8 +20,9 @@ theming) are not built yet.
   from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
-- **Curation tests (Phase 2):** `python curation/build_rungs.test.py` — pure-logic tests for the
-  rung-ordering data layer (no network or API key needed), same PASS/FAIL + non-zero-exit style.
+- **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
+  `discover`) — pure-logic, no network or API key, same PASS/FAIL + non-zero-exit style. The CLI
+  modules (`discover.py`, `build_rungs.py`) hit live TMDB and need the key in `curation/.env`.
 
 ## Architecture — three zones
 
@@ -60,7 +61,10 @@ docs/                  The entire static site = what gets hosted.
 curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.env, gitignored).
   tmdb.py              Tiny stdlib TMDB v3 client (load_key + get).
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
-  build_rungs.test.py  Tests for the ordering rules (python curation/build_rungs.test.py).
+  discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
+  ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
+  used_films.json      Version-controlled ledger of films already turned into puzzles.
+  *.test.py            Pure-logic tests (build_rungs / ledger / discover); no network or key.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
