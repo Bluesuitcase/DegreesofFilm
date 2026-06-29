@@ -14,9 +14,16 @@ How many degrees deep can you go?
 
 **The ladder**
 - Rung 1 is special: name the **film** from a cropped frame (poster or still) with no title visible.
-- Rungs 2+ are the film's credits, **sorted by TMDB popularity** — most famous first, most
-  obscure deeper. Director is *not* locked to a fixed position; it floats by popularity
-  like everyone else (usually lands around rung 2–3 on mainstream films).
+- Rungs 2+ are the film's credits, ordered famous → obscure. **Cast is ordered by TMDB billing
+  order** (`cast[].order`, lead first), with person popularity only as a tiebreaker. Billing
+  encodes importance *in this film*; rolling popularity does not — it buries posthumous legends
+  (it put Heath Ledger's Joker at rung 13) and floats since-famous bit players. See the Phase 2
+  de-risk note in §5.
+- **Crew placement:** the **director** floats early — slotting in just after the top ~2 lead cast
+  (≈ rung 3–4) — while the technical crew (cinematographer, composer, editor, production designer)
+  form the **deepest** rungs, in a fixed role order.
+- This ordering is an auto-generated **draft**; the curator reviews and can reorder or trim the
+  long tail of bit-part cast before publishing (a star cameo billed low, an odd billing, etc.).
 
 **Answering**
 - Free text, lenient: ignores leading "the", tolerates typos, accepts alternate titles and
@@ -196,10 +203,14 @@ curation machine.** Phases are ordered so you're never blocked waiting on an unb
       cheaply, before investing in tooling.
 
 ### Phase 2 — The curation machine (build once fun is proven)
-- [ ] Data layer: pull a film clearing the pool floor + not in the ledger; pull credits;
-      sort by popularity into rungs. **Validate on several known films** — does popularity
-      sorting actually yield a sane easy→obscure ladder? This is the riskiest data
-      assumption; prove it before building UI around it.
+- [x] **De-risk (done):** validate that credits auto-sort into a sane easy→obscure ladder.
+      Result: **pure popularity-sort fails** — it buried Heath Ledger's Joker at rung 13 and sank
+      Tommy Lee Jones below a one-scene bit player, because TMDB `popularity` is a rolling/current
+      metric, not fame-for-this-film. **Fix (adopted):** order cast by billing order (popularity
+      only as tiebreaker), float the director early, push technical crew to the deepest rungs, and
+      keep a human reorder step. Evidence: `curation/validate_ladder.py`.
+- [ ] Data layer: pull a film clearing the pool floor (`vote_count ≥ 800 AND vote_average ≥ 6.5`)
+      that isn't in the ledger; pull credits; build the rung draft using the ordering in §1.
 - [ ] Backend endpoints (Flask/FastAPI): discover-unused-film, build-rungs, crop→3 tiers (Pillow).
 - [ ] Crop UI: show poster/still, drag the crop box, preview tiers, approve, write puzzle
       JSON + images + append to ledger. Now you can manufacture real puzzles at will.
@@ -221,9 +232,9 @@ curation machine.** Phases are ordered so you're never blocked waiting on an unb
       TMDB" notice. Mandatory; don't ship without it.
 - [ ] Polish + depth-hero share card.
 
-**The two things that decide whether it's fun** (de-risk these earliest): does
-popularity-sorting credits produce good ladders, and is the matching forgiving enough to
-feel fair? Everything else is execution.
+**The two things that decide whether it's fun** (de-risk these earliest): does the credit
+ordering produce good ladders (✓ resolved — use billing order, not popularity; see Phase 2), and
+is the matching forgiving enough to feel fair? Everything else is execution.
 
 ---
 
