@@ -68,8 +68,12 @@ that puzzle. Archive = a render of the manifest. See DESIGN §4.
 
 ## v1 ruleset (as implemented in `game.js`)
 
-- **The ladder:** rung 1 names the **film** from the cropped frame; rungs 2+ are credits sorted
-  by TMDB popularity (famous → obscure). Director floats by popularity, not a fixed slot.
+- **The ladder:** rung 1 names the **film** from the cropped frame; rungs 2+ are credits ordered
+  famous → obscure. **Cast by TMDB billing order** (lead first; popularity only as a tiebreaker —
+  rolling popularity buries posthumous legends, e.g. it put the Joker at rung 13). **Director
+  floats early** (≈ rung 3–4, after the top lead cast); technical crew (DP/composer/editor/PD) are
+  the deepest rungs. The curation tool emits this as a draft; a human reorders edge cases. The
+  ordering was de-risked in `curation/validate_ladder.py`; see DESIGN §1 / §5.
 - **Attempts:** 3 per rung (`MAX_ATTEMPTS`). The 3rd wrong guess is a strike-out and **ends the
   run**; score and depth freeze where they are.
 - **Skip:** advances a rung for **−1 point**, max 5 per game (`MAX_SKIPS`). A skip *beyond* the
