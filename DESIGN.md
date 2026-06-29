@@ -28,9 +28,9 @@ How many degrees deep can you go?
 
 **Assists — two lifelines, used in whatever order the player prefers**
 - **I Need Help** (3× per game): converts the current rung to multiple choice (built from
-  `decoys`, see §4) and caps its value at **0**. You still pick from the options; a wrong pick
-  burns an attempt and strike-out still applies. *(Open sub-decision: "wrong pick burns an
-  attempt" is the default — flip to a guaranteed pass if you'd rather Need-Help never risk the run.)*
+  `decoys`, see §4) and caps its value at **0**. You still pick from the options; **a wrong pick
+  burns an attempt and strike-out still applies** — the lifeline narrows the odds but never removes
+  the risk of ending the run. *(Decided: wrong pick burns an attempt, not a guaranteed pass.)*
 - **Skip** (5× per game): total blank, no help — advances you for **−1 point**. A skip beyond
   the 5th ends the run.
 - Both advance you a rung, so they add depth but not points — consistent with depth = how far,
@@ -148,8 +148,12 @@ free — a past puzzle is just an old file that still exists.)
 }
 ```
 
-`images` are pre-cropped reveal tiers (most-zoomed first). `answers` arrays — alternate titles
-and language variants from TMDB — are frozen in at curation time. Two fields are new:
+`images` are pre-cropped reveal tiers (most-zoomed first). **The curation tool authors 3 tiers per
+puzzle, but the v1 client renders only tier 1** (`images[0]`) — the progressive-crop-reveal hint
+was cut (assists are now *I Need Help* + *Skip*), so tiers 2–3 are authored-ahead for a future
+reveal mechanic (e.g. reveal-on-wrong-guess; see Phase 3) rather than consumed today. `answers`
+arrays — alternate titles and language variants from TMDB — are frozen in at curation time.
+Two fields are new:
 
 - **`theme.accent`** — a hex colour sampled from the still at curation time, used as the page
   accent. The ink base and bone text stay fixed for legibility; only the accent shifts. Clamp
@@ -158,6 +162,15 @@ and language variants from TMDB — are frozen in at curation time. Two fields a
   directors for a director rung, other actors for a cast rung), generated at curation. Consumed
   by **I Need Help**'s multiple choice in Cinephile, and by all of Poser later. So MC support is
   a v1 schema + curation requirement, not deferred.
+
+**Daily selection — a `manifest.json` index.** The client never guesses filenames. The curation
+tool maintains `docs/puzzles/manifest.json`: an array of `{ date, id, file, title, accent }`, one
+entry per published puzzle, appended atomically with the puzzle file + ledger. The client fetches
+the manifest, picks the entry whose `date` matches today's canonical date (a single global
+rollover, **not** the player's local clock — avoids timezone desync), then fetches that puzzle
+file. The archive browser is then a free render of the manifest, and the archive list can show
+title/accent without fetching every puzzle. Puzzle files stay date-stamped for readability;
+`app.js`'s current hard-coded `fetch('puzzles/001.json')` is the Phase-1 placeholder this replaces.
 
 > v1 ships answers in plaintext (a player can read them in devtools). Acceptable with no
 > leaderboard. See v2 parking lot.
@@ -199,7 +212,11 @@ curation machine.** Phases are ordered so you're never blocked waiting on an unb
 - [ ] **Home page** — "Welcome to Degrees of Film," rotating short film quotes (keep them short —
       copyright), a script display face. Personality lives here; the play screen stays quiet.
 - [ ] **Mode-select screen** — Cinephile lit, Poser + Movie Buff shown "coming soon" with funny blurbs.
-- [ ] Daily mechanism (which puzzle is "today") + archive browser.
+- [ ] Daily mechanism — `manifest.json` index (`date` → puzzle file), client picks today's
+      canonical date; archive browser renders the manifest. Replaces app.js's hard-coded
+      `fetch('puzzles/001.json')`. Manifest entry: `{ date, id, file, title, accent }`.
+- [ ] *(Optional)* Reveal mechanic that spends image tiers 2–3 (e.g. a wider crop after a wrong
+      guess). Tiers are already authored by the cropper; this only wires them into the client.
 - [ ] **TMDB attribution UI** — logo + "uses the TMDB API but is not endorsed/certified by
       TMDB" notice. Mandatory; don't ship without it.
 - [ ] Polish + depth-hero share card.

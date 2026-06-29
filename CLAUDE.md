@@ -62,7 +62,9 @@ docs/                  The entire static site = what gets hosted.
 tests can import them directly. Don't leak rendering into `game.js`/`match.js` or rules into `app.js`.
 
 `app.js` currently hard-codes `fetch('puzzles/001.json')` — the daily/archive selection mechanism
-is Phase 3.
+is Phase 3. **Decided:** that mechanism is a `manifest.json` index (`{ date, id, file, title,
+accent }` per puzzle); the client fetches the manifest, picks today's canonical date, then fetches
+that puzzle. Archive = a render of the manifest. See DESIGN §4.
 
 ## v1 ruleset (as implemented in `game.js`)
 
@@ -82,6 +84,7 @@ is Phase 3.
 
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
 - **I Need Help** lifeline (3×): converts a rung to multiple choice from `decoys`, caps its value at 0.
+  A wrong pick **burns an attempt** (can still strike you out) — decided, not a guaranteed pass.
 - **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
   autocomplete; needs the v2 server move) are deferred.
 - Daily mechanism + archive browser, localStorage stats/streak, dynamic accent theming, home page,
@@ -92,7 +95,9 @@ is Phase 3.
 Each day is one self-contained JSON plus its images, under `docs/puzzles/`.
 
 **As implemented today** (`001.json`): `id`, `images` (array of pre-cropped reveal tiers,
-most-zoomed first — though 001 ships only one), and `rungs[]` where each rung is
+most-zoomed first — though 001 ships only one; **decided:** the curation tool authors 3 tiers,
+but the v1 client renders only `images[0]` — tiers 2–3 are authored-ahead for a future reveal
+mechanic), and `rungs[]` where each rung is
 `{ role, prompt, answers[] }`. `answers` is the list of accepted strings (alternate titles,
 language variants, name forms); the matcher accepts any of them.
 
