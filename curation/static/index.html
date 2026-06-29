@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Degrees of Film — Curation</title>
+<style>
+  :root{
+    --ink:#121013; --ink2:#1a171c; --bone:#ece7dd; --muted:#8c867b;
+    --amber:#eba53c; --line:#2a262d; --red:#c2543f; --good:#6fbf73;
+    --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--bone);font-family:var(--font);
+       -webkit-font-smoothing:antialiased}
+  header{padding:16px 24px;border-bottom:1px solid var(--line);display:flex;
+         align-items:center;gap:18px}
+  .wordmark{text-transform:uppercase;letter-spacing:.26em;font-size:12px;font-weight:600}
+  .tag{color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+  main{max-width:1060px;margin:0 auto;padding:22px 24px 60px;display:grid;
+       grid-template-columns:1fr;gap:22px}
+  h2{font-size:13px;text-transform:uppercase;letter-spacing:.18em;color:var(--amber);
+     margin:0 0 10px}
+  button{font-family:inherit;cursor:pointer}
+  .btn{background:var(--amber);color:#1a1206;border:none;padding:9px 16px;border-radius:6px;
+       font-weight:600;font-size:14px}
+  .btn.ghost{background:transparent;color:var(--bone);border:1px solid var(--line)}
+  .btn:disabled{opacity:.4;cursor:not-allowed}
+  select,input[type=date],textarea{background:var(--ink2);color:var(--bone);
+       border:1px solid var(--line);border-radius:6px;font-family:inherit;font-size:13px;padding:8px 10px}
+  .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px}
+  .card{background:var(--ink2);border:1px solid var(--line);border-radius:8px;overflow:hidden;
+        cursor:pointer;text-align:left;color:var(--bone);padding:0}
+  .card:hover{border-color:var(--amber)}
+  .card .thumb{width:100%;height:96px;object-fit:cover;display:block;background:#000}
+  .card .meta{padding:8px 10px}
+  .card .t{font-size:13px;font-weight:600;line-height:1.2}
+  .card .s{font-size:11px;color:var(--muted);margin-top:3px}
+  .panel{background:var(--ink2);border:1px solid var(--line);border-radius:10px;padding:18px}
+  .stills{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+  .stills img{height:64px;border-radius:4px;border:2px solid transparent;cursor:pointer;flex:0 0 auto}
+  .stills img.sel{border-color:var(--amber)}
+  .stage{position:relative;display:inline-block;margin-top:12px;max-width:100%;
+         user-select:none;line-height:0}
+  .stage img{max-width:100%;max-height:460px;display:block;border-radius:6px}
+  .sel-box{position:absolute;border:2px solid var(--amber);background:rgba(235,165,60,.16);
+           pointer-events:none;display:none}
+  .grid2{display:grid;grid-template-columns:1.4fr 1fr;gap:20px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  textarea{width:100%;min-height:300px;font-family:var(--mono);font-size:12px;line-height:1.5;resize:vertical}
+  label.inl{font-size:13px;color:var(--muted);display:flex;align-items:center;gap:7px}
+  .hint{font-size:12px;color:var(--muted);margin:6px 0 0}
+  #result{font-family:var(--mono);font-size:12px;white-space:pre-wrap;margin-top:12px}
+  .ok{color:var(--good)} .err{color:var(--red)}
+  .hidden{display:none}
+</style>
+</head>
+<body>
+<header>
+  <span class="wordmark">Degrees of Film</span>
+  <span class="tag">Curation · localhost</span>
+</header>
+
+<main>
+  <section>
+    <h2>1 · Discover an unused film</h2>
+    <div class="row">
+      <select id="sort">
+        <option value="vote_count.desc">Most-voted (canonical)</option>
+        <option value="popularity.desc">Most popular (recent)</option>
+        <option value="vote_average.desc">Highest rated</option>
+      </select>
+      <button class="btn" id="find">Find films</button>
+      <span class="hint" id="dstatus"></span>
+    </div>
+    <div class="cards" id="cards" style="margin-top:12px"></div>
+  </section>
+
+  <section id="film" class="hidden">
+    <h2>2 · Crop & review — <span id="ftitle"></span></h2>
+    <div class="grid2">
+      <div class="panel">
+        <div class="hint">Pick a still, then drag a box over it (the tight crop = reveal tier 1).</div>
+        <div class="stills" id="stills"></div>
+        <div class="stage" id="stage">
+          <img id="still" alt="" />
+          <div class="sel-box" id="selbox"></div>
+        </div>
+        <p class="hint" id="boxinfo">No crop box yet.</p>
+      </div>
+      <div class="panel">
+        <div class="hint">Rungs draft (edit/reorder the JSON freely before approving):</div>
+        <textarea id="rungs" spellcheck="false"></textarea>
+        <div class="row" style="margin-top:12px">
+          <label class="inl"><input type="checkbox" id="ovr" /> override accent</label>
+          <input type="color" id="accent" value="#eba53c" disabled />
+          <input type="date" id="date" />
+        </div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="approve">Approve &amp; write puzzle</button>
+          <button class="btn ghost" id="reset">Clear</button>
+        </div>
+        <div id="result"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const $ = s => document.querySelector(s);
+const state = { film:null, stillUrl:null, box:null };
+
+$('#date').value = new Date().toISOString().slice(0,10);
+$('#ovr').onchange = e => $('#accent').disabled = !e.target.checked;
+
+async function jget(url){ const r = await fetch(url); if(!r.ok) throw new Error((await r.json()).detail||r.status); return r.json(); }
+
+$('#find').onclick = async () => {
+  $('#dstatus').textContent = 'searching…';
+  try{
+    const films = await jget('/api/discover?sort='+$('#sort').value);
+    $('#cards').innerHTML = '';
+    films.forEach(f => {
+      const c = document.createElement('button'); c.className='card';
+      c.innerHTML = `<img class="thumb" src="${f.backdrop||''}" alt=""/>
+        <div class="meta"><div class="t">${f.title}</div>
+        <div class="s">${f.year} · ${f.vote_average}★ · ${f.vote_count} votes</div></div>`;
+      c.onclick = () => loadFilm(f.id);
+      $('#cards').appendChild(c);
+    });
+    $('#dstatus').textContent = films.length+' candidates';
+  }catch(e){ $('#dstatus').textContent = 'error: '+e.message; }
+};
+
+async function loadFilm(id){
+  $('#dstatus').textContent = 'loading film…';
+  const f = await jget('/api/film/'+id);
+  state.film = f; state.stillUrl=null; state.box=null;
+  $('#ftitle').textContent = f.title + (f.release_date? ' ('+f.release_date.slice(0,4)+')':'');
+  $('#rungs').value = JSON.stringify(f.rungs, null, 2);
+  $('#stills').innerHTML='';
+  f.stills.forEach((u,i) => {
+    const im = document.createElement('img'); im.src=u;
+    im.onclick = () => selectStill(u, im);
+    $('#stills').appendChild(im);
+    if(i===0) selectStill(u, im);
+  });
+  $('#film').classList.remove('hidden');
+  $('#result').textContent=''; $('#boxinfo').textContent='No crop box yet.';
+  $('#dstatus').textContent = f.stills.length+' stills';
+  $('#film').scrollIntoView({behavior:'smooth'});
+}
+
+function selectStill(url, el){
+  state.stillUrl = url; state.box=null;
+  document.querySelectorAll('#stills img').forEach(i=>i.classList.remove('sel'));
+  el.classList.add('sel');
+  $('#still').src = url; $('#selbox').style.display='none';
+  $('#boxinfo').textContent='No crop box yet.';
+}
+
+// --- drag-to-crop on the stage ---
+const stage=$('#stage'), still=$('#still'), selbox=$('#selbox');
+let drag=null;
+stage.addEventListener('mousedown', e=>{
+  if(!state.stillUrl) return;
+  const r = still.getBoundingClientRect();
+  drag = { x:e.clientX, y:e.clientY, r };
+  selbox.style.display='block';
+  e.preventDefault();
+});
+window.addEventListener('mousemove', e=>{
+  if(!drag) return;
+  const r=drag.r;
+  const x0=Math.min(drag.x,e.clientX), y0=Math.min(drag.y,e.clientY);
+  const x1=Math.max(drag.x,e.clientX), y1=Math.max(drag.y,e.clientY);
+  const L=Math.max(x0,r.left), T=Math.max(y0,r.top);
+  const R=Math.min(x1,r.right), B=Math.min(y1,r.bottom);
+  selbox.style.left=(L-r.left)+'px'; selbox.style.top=(T-r.top)+'px';
+  selbox.style.width=Math.max(0,R-L)+'px'; selbox.style.height=Math.max(0,B-T)+'px';
+});
+window.addEventListener('mouseup', e=>{
+  if(!drag) return;
+  const r=drag.r;
+  const L=Math.max(Math.min(drag.x,e.clientX),r.left), T=Math.max(Math.min(drag.y,e.clientY),r.top);
+  const R=Math.min(Math.max(drag.x,e.clientX),r.right), B=Math.min(Math.max(drag.y,e.clientY),r.bottom);
+  const box={ x:(L-r.left)/r.width, y:(T-r.top)/r.height,
+              w:(R-L)/r.width, h:(B-T)/r.height };
+  drag=null;
+  if(box.w<0.02||box.h<0.02){ state.box=null; $('#boxinfo').textContent='Box too small — drag again.'; return; }
+  state.box=box;
+  $('#boxinfo').textContent=`crop: x ${box.x.toFixed(2)} y ${box.y.toFixed(2)} w ${box.w.toFixed(2)} h ${box.h.toFixed(2)}`;
+});
+
+$('#reset').onclick = ()=>{ state.box=null; selbox.style.display='none'; $('#boxinfo').textContent='No crop box yet.'; };
+
+$('#approve').onclick = async ()=>{
+  const res=$('#result'); res.className=''; res.textContent='';
+  if(!state.stillUrl){ res.className='err'; res.textContent='Pick a still first.'; return; }
+  if(!state.box){ res.className='err'; res.textContent='Drag a crop box first.'; return; }
+  let rungs;
+  try{ rungs=JSON.parse($('#rungs').value); }
+  catch(e){ res.className='err'; res.textContent='Rungs JSON is invalid: '+e.message; return; }
+  const body={ film_id:state.film.id, image_url:state.stillUrl,
+    box:[state.box.x,state.box.y,state.box.w,state.box.h], rungs,
+    date:$('#date').value, accent: $('#ovr').checked? $('#accent').value : null };
+  $('#approve').disabled=true; res.textContent='writing…';
+  try{
+    const r=await fetch('/api/approve',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.detail||r.status);
+    res.className='ok';
+    res.textContent=`✓ wrote ${j.file} (id ${j.id}, accent ${j.accent})\n  + tier images, ledger, manifest updated.`;
+  }catch(e){ res.className='err'; res.textContent='error: '+e.message; }
+  finally{ $('#approve').disabled=false; }
+};
+</script>
+</body>
+</html>

@@ -3,6 +3,8 @@
 #   .venv/Scripts/python -m pip install -r curation/requirements.txt   (Windows)
 #   .venv/bin/python    -m pip install -r curation/requirements.txt    (macOS/Linux)
 #
-# Only the image step (curation/images.py) needs a dependency; everything else is
-# stdlib. A web framework (Flask/FastAPI) will be added here when the crop UI lands.
+# The image step (curation/images.py) needs Pillow; the crop tool (curation/app.py)
+# adds FastAPI + uvicorn. Everything else is stdlib.
 pillow>=10,<12
+fastapi>=0.110
+uvicorn>=0.29

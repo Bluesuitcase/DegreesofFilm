@@ -27,6 +27,11 @@ theming) are not built yet.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
   `.venv` with `pillow` (`pip install -r curation/requirements.txt`). The box/colour math is pure;
   the crop/sample tests use Pillow.
+- **Curation crop tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
+  then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
+  `curation/.env`. Flow: discover an unused film → pick a still and drag a crop box → review the
+  drafted rungs/decoys → **Approve**, which writes `docs/puzzles/NNN.json` + tier images, appends
+  the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in the modules above.)
 
 ## Architecture — three zones
 
@@ -63,16 +68,19 @@ docs/                  The entire static site = what gets hosted.
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
 curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.env, gitignored).
+  app.py               FastAPI crop tool: backend endpoints + serves the crop page. The capstone.
+  static/index.html    Localhost crop UI (discover -> crop a still -> review rungs/decoys -> approve).
   tmdb.py              Tiny stdlib TMDB v3 client (load_key + get).
-  build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
-  ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
+  build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
-  manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   images.py            Reveal-tier cropping + theme.accent sampling (Pillow) + CLI. Needs the venv.
-  requirements.txt     Curation pip deps (currently just Pillow) for the repo-root .venv.
+  publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest.
+  ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
+  manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
+  requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest pure; images needs Pillow).
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish pure; images=Pillow).
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
