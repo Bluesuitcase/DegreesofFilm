@@ -24,6 +24,9 @@ theming) are not built yet.
   `discover`, `decoys`, `manifest`) — pure-logic, no network or API key, same PASS/FAIL +
   non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`) hit live TMDB
   and need the key in `curation/.env`.
+- **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
+  `.venv` with `pillow` (`pip install -r curation/requirements.txt`). The box/colour math is pure;
+  the crop/sample tests use Pillow.
 
 ## Architecture — three zones
 
@@ -66,8 +69,10 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
+  images.py            Reveal-tier cropping + theme.accent sampling (Pillow) + CLI. Needs the venv.
+  requirements.txt     Curation pip deps (currently just Pillow) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest); pure, no network or key.
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest pure; images needs Pillow).
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 

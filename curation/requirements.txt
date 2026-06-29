@@ -1,0 +1,8 @@
+# Curation tooling dependencies (Phase 2). Install into a venv at the repo root:
+#   python -m venv .venv
+#   .venv/Scripts/python -m pip install -r curation/requirements.txt   (Windows)
+#   .venv/bin/python    -m pip install -r curation/requirements.txt    (macOS/Linux)
+#
+# Only the image step (curation/images.py) needs a dependency; everything else is
+# stdlib. A web framework (Flask/FastAPI) will be added here when the crop UI lands.
+pillow>=10,<12
