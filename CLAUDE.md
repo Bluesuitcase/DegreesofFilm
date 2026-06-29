@@ -21,8 +21,9 @@ theming) are not built yet.
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
-  `discover`) — pure-logic, no network or API key, same PASS/FAIL + non-zero-exit style. The CLI
-  modules (`discover.py`, `build_rungs.py`) hit live TMDB and need the key in `curation/.env`.
+  `discover`, `decoys`, `manifest`) — pure-logic, no network or API key, same PASS/FAIL +
+  non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`) hit live TMDB
+  and need the key in `curation/.env`.
 
 ## Architecture — three zones
 
@@ -63,8 +64,10 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
+  decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
+  manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Pure-logic tests (build_rungs / ledger / discover); no network or key.
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest); pure, no network or key.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
