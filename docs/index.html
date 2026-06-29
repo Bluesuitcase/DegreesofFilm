@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Degrees of Film</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="wordmark">Degrees of Film</div>
+    <div class="stats">
+      <span class="stat"><b id="depth">0</b><span>depth</span></span>
+      <span class="stat"><b id="score">0</b><span>score</span></span>
+    </div>
+  </header>
+
+  <main class="stage">
+    <aside class="rail" id="rail" aria-hidden="true"></aside>
+
+    <section class="play" id="play">
+      <figure class="frame">
+        <img id="frame-img" alt="A frame from the film, with the title hidden" />
+      </figure>
+      <div class="rung">
+        <p class="eyebrow" id="role">&nbsp;</p>
+        <h1 class="prompt" id="prompt">Loading…</h1>
+      </div>
+      <div class="controls">
+        <div class="guessrow">
+          <input id="guess" type="text" autocomplete="off" autocapitalize="off"
+                 spellcheck="false" placeholder="Name it…" />
+          <button id="guess-btn">Guess</button>
+        </div>
+        <div class="meta">
+          <div class="attempts" id="attempts" aria-label="Attempts remaining"></div>
+          <button id="skip-btn" class="skip">Skip</button>
+        </div>
+        <p class="feedback" id="feedback" role="status">&nbsp;</p>
+      </div>
+    </section>
+
+    <section class="end hidden" id="end"></section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

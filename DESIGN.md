@@ -23,10 +23,18 @@ How many degrees deep can you go?
   language variants.
 - **3 attempts** per rung. The 3rd wrong guess is a strike-out.
 
-**Failure & skips**
+**Failure**
 - Strike-out (3 wrong on one rung) **ends the run.** Score freezes at depth reached.
-- Skips: blank on a rung you don't know, forfeit it, keep climbing. Each skip costs **−1 point**.
-- Up to **5 skips** total. Needing a skip beyond the 5th ends the run.
+
+**Assists — two lifelines, used in whatever order the player prefers**
+- **I Need Help** (3× per game): converts the current rung to multiple choice (built from
+  `decoys`, see §4) and caps its value at **0**. You still pick from the options; a wrong pick
+  burns an attempt and strike-out still applies. *(Open sub-decision: "wrong pick burns an
+  attempt" is the default — flip to a guaranteed pass if you'd rather Need-Help never risk the run.)*
+- **Skip** (5× per game): total blank, no help — advances you for **−1 point**. A skip beyond
+  the 5th ends the run.
+- Both advance you a rung, so they add depth but not points — consistent with depth = how far,
+  points = how clean. A player naturally spends the 3 cheaper Need-Helps before the 5 Skips.
 
 **Scoring**
 - Hero stat: **depth** (rungs reached). The brag number.
@@ -47,12 +55,20 @@ How many degrees deep can you go?
   dials, tuned against each other.)
 - Never repeat a film (enforced by a master used-films ledger).
 
-**Modes**
-- Daily puzzle (the hook) + replayable archive of past dailies. No practice/endless in v1.
+**Modes — v1 ships Cinephile only; the other two are sequenced fast-follows**
+- **Cinephile** — the rules above, the full dig. **This is v1.**
+- **Poser** *(fast-follow)* — all multiple choice, drops the obscure deep rungs, flat **+1**
+  per correct answer. A lighter, easier game. Reuses the `decoys` system. No architecture change.
+- **Movie Buff** *(fast-follow, gated on the v2 server move)* — Cinephile rules plus a title
+  autocomplete on the film rung drawing from **all** TMDB titles (so the dropdown doesn't leak
+  which films are eligible). This is the one feature that needs a backend or a large prebaked
+  title index — a live TMDB call from the browser would expose the key — so it's tied to the
+  server move. See parking lot.
+- The **mode-select screen** ships in v1 with Cinephile lit and the other two shown as
+  "coming soon," each with a short, funny cinema-term rules blurb.
 
-**Open detail to finalize:** hint cost. Two hint tiers exist — progressive crop reveal
-(show more of the frame), then multiple-choice options. Recommendation: hints cost points,
-and the share card carries a clean/assisted flag so the depth brag stays honest.
+**Daily & archive**
+- Daily puzzle (the hook) + replayable archive of past dailies. No practice/endless in v1.
 
 ---
 
@@ -113,18 +129,35 @@ free — a past puzzle is just an old file that still exists.)
 {
   "id": 142,
   "date": "2026-06-25",
+  "theme": { "accent": "#c98a3d" },
   "images": ["frame-zoom3.jpg", "frame-zoom2.jpg", "frame-full.jpg"],
   "rungs": [
-    { "role": "Film",            "answers": ["Pan's Labyrinth", "El laberinto del fauno"] },
-    { "role": "Director",        "answers": ["Guillermo del Toro"] },
-    { "role": "Cinematographer", "answers": ["Guillermo Navarro"] }
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": ["Pan's Labyrinth", "El laberinto del fauno"],
+      "decoys": ["The Shape of Water", "Crimson Peak", "The Orphanage"]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": ["Guillermo del Toro"],
+      "decoys": ["Alfonso Cuarón", "Alejandro Iñárritu", "Pedro Almodóvar"]
+    }
   ]
 }
 ```
 
-`images` are pre-cropped reveal tiers (most-zoomed first). `answers` arrays — including
-alternate titles and language variants from TMDB — are frozen in at curation time. The
-client just shows tier 1, then 2, then 3 as reveal hints are spent.
+`images` are pre-cropped reveal tiers (most-zoomed first). `answers` arrays — alternate titles
+and language variants from TMDB — are frozen in at curation time. Two fields are new:
+
+- **`theme.accent`** — a hex colour sampled from the still at curation time, used as the page
+  accent. The ink base and bone text stay fixed for legibility; only the accent shifts. Clamp
+  sampled colours to a saturation/contrast floor, and let the curator override an ugly auto-pick.
+- **`decoys`** — ~3 plausible wrong answers per rung, same category as the answer (other
+  directors for a director rung, other actors for a cast rung), generated at curation. Consumed
+  by **I Need Help**'s multiple choice in Cinephile, and by all of Poser later. So MC support is
+  a v1 schema + curation requirement, not deferred.
 
 > v1 ships answers in plaintext (a player can read them in devtools). Acceptable with no
 > leaderboard. See v2 parking lot.
@@ -160,7 +193,12 @@ curation machine.** Phases are ordered so you're never blocked waiting on an unb
 
 ### Phase 3 — Make it a daily game
 - [ ] Stats + localStorage: best depth, depth histogram, daily streak.
-- [ ] Hint tiers: progressive crop reveal, then multiple-choice options (+ finalize cost).
+- [ ] **I Need Help** lifeline (3×): convert the rung → multiple choice from `decoys`, value 0.
+      Requires decoys in puzzles, so add decoy generation to the curation tool.
+- [ ] **Dynamic accent theming** from `theme.accent` (ink base + text fixed; contrast floor).
+- [ ] **Home page** — "Welcome to Degrees of Film," rotating short film quotes (keep them short —
+      copyright), a script display face. Personality lives here; the play screen stays quiet.
+- [ ] **Mode-select screen** — Cinephile lit, Poser + Movie Buff shown "coming soon" with funny blurbs.
 - [ ] Daily mechanism (which puzzle is "today") + archive browser.
 - [ ] **TMDB attribution UI** — logo + "uses the TMDB API but is not endorsed/certified by
       TMDB" notice. Mandatory; don't ship without it.
@@ -174,6 +212,11 @@ feel fair? Everything else is execution.
 
 ## 6. v2 parking lot (deliberately deferred)
 
+- **Poser mode** (fast-follow) — all-MC, trimmed ladder, flat +1. Reuses the `decoys` schema;
+  no architecture change. Closest of the deferred items.
+- **Movie Buff mode** — all-TMDB title autocomplete on the film rung. Needs a prebaked
+  popular-title index or a backend search proxy; gated behind the server move, since a live
+  TMDB call from the browser would expose the API key.
 - Accounts + database → cross-device stats, global leaderboards.
 - Server-side matching → answers never leave the backend (clean fix for the plaintext wart).
 - Light obfuscation of client answers (base64/cipher) as an interim anti-snoop measure.
