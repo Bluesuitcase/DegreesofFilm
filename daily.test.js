@@ -1,4 +1,4 @@
-import { pickPuzzle, todayISO } from './docs/daily.js';
+import { pickPuzzle, pickById, todayISO } from './docs/daily.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
@@ -27,6 +27,11 @@ check('non-array -> null', pickPuzzle(undefined, '2026-06-29'), null);
 // todayISO formatting
 check('todayISO zero-pads', todayISO(new Date(2026, 0, 5)), '2026-01-05');
 check('todayISO month/day', todayISO(new Date(2026, 11, 31)), '2026-12-31');
+
+// pickById for archive links
+check('pickById finds the entry', pickById(manifest, 2).file, '002.json');
+check('pickById missing -> null', pickById(manifest, 99), null);
+check('pickById non-array -> null', pickById(null, 2), null);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
