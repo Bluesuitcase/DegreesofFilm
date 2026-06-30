@@ -4,5 +4,17 @@
     "title": "No Country for Old Men",
     "year": 2007,
     "puzzle": 1
+  },
+  {
+    "id": 157336,
+    "title": "Interstellar",
+    "year": "2014",
+    "puzzle": 2
+  },
+  {
+    "id": 13,
+    "title": "Forrest Gump",
+    "year": "1994",
+    "puzzle": 3
   }
 ]

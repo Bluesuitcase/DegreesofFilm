@@ -1,5 +1,7 @@
 {
   "id": 1,
+  "date": "2026-06-28",
+  "theme": { "accent": "#734621" },
   "images": ["images/001.jpg"],
   "rungs": [
     {
