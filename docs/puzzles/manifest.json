@@ -1,0 +1,23 @@
+[
+  {
+    "date": "2026-06-28",
+    "id": 1,
+    "file": "001.json",
+    "title": "No Country for Old Men",
+    "accent": "#734621"
+  },
+  {
+    "date": "2026-06-29",
+    "id": 2,
+    "file": "002.json",
+    "title": "Interstellar",
+    "accent": "#9f7357"
+  },
+  {
+    "date": "2026-06-30",
+    "id": 3,
+    "file": "003.json",
+    "title": "Forrest Gump",
+    "accent": "#735d3f"
+  }
+]

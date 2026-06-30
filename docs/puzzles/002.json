@@ -1,0 +1,158 @@
+{
+  "id": 2,
+  "date": "2026-06-29",
+  "theme": {
+    "accent": "#9f7357"
+  },
+  "images": [
+    "images/002-1.jpg",
+    "images/002-2.jpg",
+    "images/002-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "Interstellar"
+      ],
+      "decoys": [
+        "Avengers: Endgame",
+        "The Creator",
+        "Star Trek"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Cooper?",
+      "answers": [
+        "Matthew McConaughey"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Brand?",
+      "answers": [
+        "Anne Hathaway"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "Christopher Nolan"
+      ],
+      "decoys": [
+        "Steven Spielberg",
+        "J.J. Abrams",
+        "Joe Russo"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Professor Brand?",
+      "answers": [
+        "Michael Caine"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Murph?",
+      "answers": [
+        "Jessica Chastain"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Tom?",
+      "answers": [
+        "Casey Affleck"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Doyle?",
+      "answers": [
+        "Wes Bentley"
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Brad Pitt",
+        "Dwayne Johnson"
+      ]
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "Hoyte van Hoytema"
+      ],
+      "decoys": [
+        "Janusz Kamiński",
+        "Greig Fraser",
+        "David Tattersall"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "Hans Zimmer"
+      ],
+      "decoys": [
+        "Michael Giacchino",
+        "John Williams",
+        "Alan Silvestri"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "Lee Smith"
+      ],
+      "decoys": [
+        "Michael Kahn",
+        "Jeffrey Ford",
+        "Hank Corwin"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "Nathan Crowley"
+      ],
+      "decoys": [
+        "Charles Wood",
+        "Rick Carter",
+        "Harold Michelson"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,158 @@
+{
+  "id": 3,
+  "date": "2026-06-30",
+  "theme": {
+    "accent": "#735d3f"
+  },
+  "images": [
+    "images/003-1.jpg",
+    "images/003-2.jpg",
+    "images/003-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "Forrest Gump"
+      ],
+      "decoys": [
+        "The Curious Case of Benjamin Button",
+        "Jerry Maguire",
+        "The Apartment"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Forrest Gump?",
+      "answers": [
+        "Tom Hanks"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Jenny Curran?",
+      "answers": [
+        "Robin Wright"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "Robert Zemeckis"
+      ],
+      "decoys": [
+        "David Fincher",
+        "Kevin Smith",
+        "Chris Weitz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Lieutenant Dan Taylor?",
+      "answers": [
+        "Gary Sinise"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Mrs. Gump?",
+      "answers": [
+        "Sally Field"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Bubba Blue?",
+      "answers": [
+        "Mykelti Williamson"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Young Forrest Gump?",
+      "answers": [
+        "Michael Conner Humphreys"
+      ],
+      "decoys": [
+        "Brad Pitt",
+        "Tom Cruise",
+        "Rachel Weisz"
+      ]
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "Don Burgess"
+      ],
+      "decoys": [
+        "Emmanuel Lubezki",
+        "Janusz Kamiński",
+        "Claudio Miranda"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "Alan Silvestri"
+      ],
+      "decoys": [
+        "Alexandre Desplat",
+        "Nancy Wilson",
+        "Patrick Doyle"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "Arthur Schmidt"
+      ],
+      "decoys": [
+        "Kevin Smith",
+        "Scott Mosier",
+        "Kirk Baxter"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "Rick Carter"
+      ],
+      "decoys": [
+        "Jim Clay",
+        "Donald Graham Burt",
+        "Stephen J. Lineweaver"
+      ]
+    }
+  ]
+}
