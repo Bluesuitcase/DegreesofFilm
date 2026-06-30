@@ -85,7 +85,7 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
-  images.py            Reveal-tier cropping + theme.accent sampling (Pillow) + CLI. Needs the venv.
+  images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
   publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
                        next_date() defaults publish dates to the next free day (no manifest collisions).
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
@@ -151,8 +151,11 @@ mechanic), and `rungs[]` where each rung is
 language variants, name forms); the matcher accepts any of them.
 
 **Full spec adds two fields (DESIGN §4), required once the curation tool exists:**
-- `theme.accent` — a hex colour sampled from the still, used as the page accent (ink base + bone
-  text stay fixed for legibility). Clamped to a saturation/contrast floor; curator can override.
+- `theme` — `{ accent, bg, bg2 }` sampled from the still. `accent` recolors the highlights (the
+  guess-button text auto-contrasts via `theme.js`); `bg`/`bg2` are deep, film-hued tones that tint
+  the surfaces and a top→bottom background gradient (`applyTheme` in app.js). Only **bone text stays
+  fixed** for legibility; the dark base now leans into the film's palette. Curator can override the
+  accent. (Sampled by `images.py` `derive_background`/`sample_accent`.)
 - `decoys[]` per rung — ~3 plausible same-category wrong answers, generated at curation. Feeds the
   I-Need-Help multiple choice (and all of Poser later). It's a v1 *schema* requirement even though
   the hand-authored 001 puzzle omits it.

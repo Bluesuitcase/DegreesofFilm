@@ -115,13 +115,14 @@ def api_approve(body: Approve):
     box = (round(x * src.width), round(y * src.height),
            round((x + w) * src.width), round((y + h) * src.height))
     tiers = images_mod.crop_tiers(src, box)
-    accent = body.accent or images_mod.sample_accent(tiers[0])
+    theme = {"accent": body.accent or images_mod.sample_accent(tiers[0]),
+             **images_mod.derive_background(tiers[0])}
 
     pid = publish_mod.next_id()
     stem = publish_mod.puzzle_stem(pid)
     names = images_mod.save_tiers(tiers, os.path.join(publish_mod.PUZZLES_DIR, "images"), stem)
-    res = publish_mod.publish(movie, body.rungs, accent=accent,
+    res = publish_mod.publish(movie, body.rungs, theme=theme,
                               image_files=[f"images/{n}" for n in names],
                               date=body.date, puzzle_id=pid)
-    res["accent"] = accent
+    res["theme"] = theme
     return res

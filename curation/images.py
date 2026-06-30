@@ -53,6 +53,24 @@ def clamp_accent(rgb, *, min_sat=0.45, min_val=0.45, max_val=0.92):
     return "#{:02x}{:02x}{:02x}".format(round(r * 255), round(g * 255), round(b * 255))
 
 
+def _hex(rgb):
+    return "#{:02x}{:02x}{:02x}".format(*(max(0, min(255, round(c))) for c in rgb))
+
+
+def saturation(rgb):
+    return colorsys.rgb_to_hsv(*(c / 255 for c in rgb))[1]
+
+
+def to_background(rgb, *, value=0.12, max_sat=0.55):
+    """A deep but visibly film-hued tone for the page background: keep the hue,
+    push saturation so the colour reads, and hold brightness low enough that bone
+    text stays legible. Pure."""
+    h, s, _ = colorsys.rgb_to_hsv(*(c / 255 for c in rgb))
+    s = min(max(s, 0.42), max_sat)
+    r, g, b = colorsys.hsv_to_rgb(h, s, value)
+    return _hex((r * 255, g * 255, b * 255))
+
+
 # --- Pillow-backed pixel work -------------------------------------------------
 
 def load_image(path):
@@ -77,6 +95,22 @@ def sample_accent(image, **clamp_opts):
     n = len(pixels)
     avg = tuple(sum(p[i] for p in pixels) // n for i in range(3))
     return clamp_accent(avg, **clamp_opts)
+
+
+def sample_palette(image, colors=8):
+    """Dominant colours of the still as [(r,g,b), ...], most frequent first."""
+    q = image.convert("RGB").resize((128, 128)).quantize(colors=colors)
+    pal = q.getpalette()
+    return [tuple(pal[i * 3: i * 3 + 3]) for _, i in sorted(q.getcolors(), reverse=True)]
+
+
+def derive_background(image):
+    """Two deep, film-hued background tones (for a gradient) from the still's
+    palette: the most dominant colour darkened, plus a second for depth."""
+    palette = sample_palette(image)
+    second = palette[1] if len(palette) > 1 else palette[0]
+    return {"bg": to_background(palette[0], value=0.14),
+            "bg2": to_background(second, value=0.28)}
 
 
 def save_tiers(tiers, out_dir, stem, *, quality=85):

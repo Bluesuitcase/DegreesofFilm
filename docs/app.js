@@ -38,7 +38,7 @@ async function init() {
   puzzleId = puzzle.id ?? entry.id ?? 1;
   puzzleDate = puzzle.date || entry.date || todayISO();
   game = new Game(puzzle);
-  applyAccent(puzzle.theme && puzzle.theme.accent);
+  applyTheme(puzzle.theme);
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
@@ -111,14 +111,24 @@ function fmtDate(iso) {
   return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
-// Recolor the page accent from the puzzle's theme.accent. Ink base + bone text
-// stay fixed; the guess-button text flips to whatever reads on the accent.
-function applyAccent(accent) {
-  if (!accent) return;
+// Theme the page from the puzzle: accent on highlights (button text auto-
+// contrasts), plus deep film-hued background tones (theme.bg/bg2) tinting the
+// surfaces and a subtle gradient. Bone text stays fixed for legibility.
+function applyTheme(theme) {
+  if (!theme) return;
   const s = document.documentElement.style;
-  s.setProperty('--amber', accent);
-  s.setProperty('--amber-deep', accent);
-  s.setProperty('--on-accent', onAccentText(accent));
+  if (theme.accent) {
+    s.setProperty('--amber', theme.accent);
+    s.setProperty('--amber-deep', theme.accent);
+    s.setProperty('--on-accent', onAccentText(theme.accent));
+  }
+  if (theme.bg) s.setProperty('--ink', theme.bg);
+  if (theme.bg2) s.setProperty('--ink2', theme.bg2);
+  if (theme.bg) {
+    const top = theme.bg2 || theme.bg;
+    document.body.style.background = `linear-gradient(180deg, ${top} 0%, ${theme.bg} 55%)`;
+    document.body.style.backgroundAttachment = 'fixed';
+  }
 }
 
 function buildRail(n) {
