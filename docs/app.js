@@ -10,6 +10,9 @@ let manifest = [], isArchive = false;
 
 async function init() {
   const params = new URLSearchParams(location.search);
+  if (params.has('modes')) return renderModes();
+  if (!params.has('play') && !params.has('id') && !params.has('archive')) return renderHome();
+
   try {
     // Date-key the manifest fetch so a cached copy can't freeze the daily rotation.
     manifest = await (await fetch('puzzles/manifest.json?d=' + todayISO())).json();
@@ -36,7 +39,7 @@ async function init() {
   puzzleDate = puzzle.date || entry.date || todayISO();
   game = new Game(puzzle);
   applyAccent(puzzle.theme && puzzle.theme.accent);
-  if (isArchive) { const l = $('archive-link'); l.textContent = '← Today'; l.href = '?'; }
+  if (isArchive) { const l = $('archive-link'); l.textContent = '← Today'; l.href = '?play'; }
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
@@ -47,11 +50,41 @@ async function init() {
   render();
 }
 
-function renderArchiveView() {
+// Short, iconic one-liners — kept brief, and from films that aren't in the
+// puzzle set (no spoilers). Rotates by day.
+const QUOTES = [
+  ['“Round up the usual suspects.”', 'Casablanca'],
+  ['“I’ll be back.”', 'The Terminator'],
+  ['“You talkin’ to me?”', 'Taxi Driver'],
+  ['“Why so serious?”', 'The Dark Knight'],
+  ['“There is no spoon.”', 'The Matrix'],
+  ['“To infinity and beyond!”', 'Toy Story'],
+];
+
+function enterLobby() {
+  document.body.classList.add('lobby');     // hides the game-only header stats
   $('play').classList.add('hidden');
   $('end').classList.add('hidden');
   $('rail').style.display = 'none';
-  const l = $('archive-link'); l.textContent = '← Today'; l.href = '?';
+  ['home', 'modes', 'archive'].forEach((s) => $(s).classList.add('hidden'));
+}
+
+function renderHome() {
+  enterLobby();
+  const day = Math.floor(Date.parse(todayISO() + 'T00:00:00Z') / 86400000);
+  const [q, film] = QUOTES[((day % QUOTES.length) + QUOTES.length) % QUOTES.length];
+  $('quote').innerHTML = `${q}<cite>— ${film}</cite>`;
+  $('home').classList.remove('hidden');
+}
+
+function renderModes() {
+  enterLobby();
+  $('modes').classList.remove('hidden');
+}
+
+function renderArchiveView() {
+  enterLobby();
+  const l = $('archive-link'); l.textContent = '← Home'; l.href = '?';
   $('archive').classList.remove('hidden');
   buildArchive();
 }
@@ -61,7 +94,7 @@ function buildArchive() {
   list.innerHTML = '';
   const today = document.createElement('a');
   today.className = 'arc';
-  today.href = '?';
+  today.href = '?play';
   today.innerHTML = `<span class="arc-d">Today</span><span class="arc-n">daily →</span>`;
   list.appendChild(today);
   // most recent first; date + number + accent swatch, never the film title (no spoilers)
