@@ -1,29 +1,42 @@
 // DOM glue for Degrees of Film. All rules live in game.js; this just renders.
 import { Game, MAX_ATTEMPTS } from './game.js';
-import { pickPuzzle, todayISO } from './daily.js';
+import { pickPuzzle, pickById, todayISO } from './daily.js';
 import { onAccentText } from './theme.js';
 import { loadStats, saveStats, recordResult } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null;
+let manifest = [], isArchive = false;
 
 async function init() {
-  let puzzle, entry;
+  const params = new URLSearchParams(location.search);
   try {
-    const today = todayISO();
     // Date-key the manifest fetch so a cached copy can't freeze the daily rotation.
-    const manifest = await (await fetch('puzzles/manifest.json?d=' + today)).json();
-    entry = pickPuzzle(manifest, today);
-    if (!entry) throw new Error('empty manifest');
+    manifest = await (await fetch('puzzles/manifest.json?d=' + todayISO())).json();
+  } catch (e) {
+    $('prompt').textContent = 'Could not load — are you running a local server?';
+    return;
+  }
+
+  if (params.has('archive')) return renderArchiveView();
+
+  const wantId = params.has('id') ? Number(params.get('id')) : null;
+  const entry = wantId != null ? pickById(manifest, wantId) : pickPuzzle(manifest, todayISO());
+  if (!entry) { $('prompt').textContent = 'No such puzzle.'; return; }
+  isArchive = wantId != null;
+
+  let puzzle;
+  try {
     puzzle = await (await fetch('puzzles/' + entry.file)).json();
   } catch (e) {
-    $('prompt').textContent = 'Could not load today’s puzzle — are you running a local server?';
+    $('prompt').textContent = 'Could not load the puzzle.';
     return;
   }
   puzzleId = puzzle.id ?? entry.id ?? 1;
   puzzleDate = puzzle.date || entry.date || todayISO();
   game = new Game(puzzle);
   applyAccent(puzzle.theme && puzzle.theme.accent);
+  if (isArchive) { const l = $('archive-link'); l.textContent = '← Today'; l.href = '?'; }
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
@@ -32,6 +45,39 @@ async function init() {
   buildRail(puzzle.rungs.length);
   wire();
   render();
+}
+
+function renderArchiveView() {
+  $('play').classList.add('hidden');
+  $('end').classList.add('hidden');
+  $('rail').style.display = 'none';
+  const l = $('archive-link'); l.textContent = '← Today'; l.href = '?';
+  $('archive').classList.remove('hidden');
+  buildArchive();
+}
+
+function buildArchive() {
+  const list = $('archive-list');
+  list.innerHTML = '';
+  const today = document.createElement('a');
+  today.className = 'arc';
+  today.href = '?';
+  today.innerHTML = `<span class="arc-d">Today</span><span class="arc-n">daily →</span>`;
+  list.appendChild(today);
+  // most recent first; date + number + accent swatch, never the film title (no spoilers)
+  [...manifest].sort((a, b) => (a.date < b.date ? 1 : -1)).forEach((e) => {
+    const a = document.createElement('a');
+    a.className = 'arc';
+    a.href = '?id=' + e.id;
+    const sw = e.accent ? `<span class="arc-sw" style="background:${e.accent}"></span>` : '';
+    a.innerHTML = `${sw}<span class="arc-d">${fmtDate(e.date)}</span><span class="arc-n">#${e.id}</span>`;
+    list.appendChild(a);
+  });
+}
+
+function fmtDate(iso) {
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
 }
 
 // Recolor the page accent from the puzzle's theme.accent. Ink base + bone text
@@ -159,8 +205,11 @@ function showEnd() {
   const reached = game.depth;
   const missed = won ? null : game.currentRung;
 
-  const stats = recordResult(loadStats(), { date: puzzleDate, depth: reached, won });
-  saveStats(stats);
+  let stats = loadStats();
+  if (!isArchive) {                    // archived replays don't touch the daily streak/stats
+    stats = recordResult(stats, { date: todayISO(), depth: reached, won });
+    saveStats(stats);
+  }
 
   end.innerHTML = `
     <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>

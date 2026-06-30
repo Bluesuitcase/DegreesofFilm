@@ -9,9 +9,9 @@ when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** โ
 game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
 underway: the **daily mechanism, accent theming, the I Need Help lifeline, and localStorage
 stats/streak are wired** (the client reads `manifest.json`, recolors from each puzzle's
-`theme.accent`, converts a rung to multiple choice from its `decoys`, and persists best depth /
-streak / a depth histogram); archive browser, home/mode-select, and TMDB attribution are still
-to come.
+`theme.accent`, converts a rung to multiple choice from its `decoys`, persists best depth /
+streak / a depth histogram, and has an **archive browser** to replay past dailies); home page,
+mode-select, and TMDB attribution are still to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -71,7 +71,7 @@ docs/                  The entire static site = what gets hosted.
   app.js               DOM glue ONLY. Fetches the puzzle, renders, wires buttons. No rules here.
   game.js              Game rules, scoring, run state. Pure logic, no DOM.
   match.js             Fuzzy answer matching. Pure logic, no DOM.
-  daily.js             Daily puzzle selection from the manifest (pickPuzzle). Pure logic, no DOM.
+  daily.js             Daily/archive selection from the manifest (pickPuzzle/pickById). Pure, no DOM.
   theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
   stats.js             localStorage stats + streak (recordResult is pure; load/save touch storage).
   puzzles/
@@ -101,8 +101,10 @@ tests can import them directly. Don't leak rendering into `game.js`/`match.js` o
 `app.js` fetches `puzzles/manifest.json` (date-keyed to dodge stale caches), picks today's entry
 via `daily.js`'s `pickPuzzle`, then fetches that puzzle file. The manifest is the `{ date, id,
 file, title, accent }` daily index (DESIGN ยง4). `pickPuzzle` takes the exact-date entry, else the
-most recent on/before today, else the earliest. The **archive browser** (a render of the manifest)
-is still to come.
+most recent on/before today, else the earliest. The **archive browser** is a render of the
+manifest: `?archive` lists past dailies (date + number + accent swatch, **titles hidden** so the
+film rung stays a challenge), `?id=N` replays one (`pickById`), and archived runs don't touch the
+daily streak/stats.
 
 ## v1 ruleset (as implemented in `game.js`)
 
@@ -131,8 +133,8 @@ is still to come.
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
 - **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
   autocomplete; needs the v2 server move) are deferred.
-- Archive browser, home page, **mode-select** screen, TMDB attribution UI (mandatory before any
-  real ship), and a depth-hero share card.
+- Home page, **mode-select** screen, TMDB attribution UI (mandatory before any real ship), and a
+  depth-hero share card.
 
 ## Puzzle file schema
 

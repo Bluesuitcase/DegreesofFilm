@@ -25,3 +25,9 @@ export function pickPuzzle(manifest, dateISO) {
   }
   return past || sorted[0];
 }
+
+// The manifest entry with this id (for archive links), or null.
+export function pickById(manifest, id) {
+  if (!Array.isArray(manifest)) return null;
+  return manifest.find((e) => e.id === id) || null;
+}

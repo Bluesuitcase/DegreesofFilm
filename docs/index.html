@@ -8,7 +8,10 @@
 </head>
 <body>
   <header class="topbar">
-    <div class="wordmark">Degrees of Film</div>
+    <div class="brand">
+      <div class="wordmark">Degrees of Film</div>
+      <a class="navlink" id="archive-link" href="?archive">Archive</a>
+    </div>
     <div class="stats">
       <span class="stat"><b id="depth">0</b><span>depth</span></span>
       <span class="stat"><b id="score">0</b><span>score</span></span>
@@ -45,6 +48,12 @@
     </section>
 
     <section class="end hidden" id="end"></section>
+
+    <section class="archive hidden" id="archive">
+      <h2 class="arc-title">Past puzzles</h2>
+      <p class="arc-sub">Replay a previous daily. (Titles hidden so the film rung stays a challenge.)</p>
+      <div id="archive-list" class="archive-list"></div>
+    </section>
   </main>
 
   <script type="module" src="app.js"></script>
