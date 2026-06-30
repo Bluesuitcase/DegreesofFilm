@@ -80,5 +80,13 @@ with tempfile.TemporaryDirectory() as d:
         check("ledger still has one entry (deduped by film id)",
               len(json.load(fh)), 1)
 
+# --- next_date: queues onto the day after the latest puzzle (no collisions) ---
+check("next_date empty -> today", publish.next_date([], today="2026-07-05"), "2026-07-05")
+check("next_date -> latest + 1 day",
+      publish.next_date([{"date": "2026-06-28"}, {"date": "2026-07-02"}], today="2026-06-01"),
+      "2026-07-03")
+check("next_date ignores undated entries",
+      publish.next_date([{"id": 1}, {"date": "2026-06-30"}], today="2026-06-01"), "2026-07-01")
+
 print(f"\n{passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

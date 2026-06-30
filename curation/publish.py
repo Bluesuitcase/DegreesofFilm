@@ -5,6 +5,7 @@ used-films ledger, and upserts the daily manifest. (The tier images are written
 by images.save_tiers separately.) Assembly + record-keeping are pure/file ops,
 so they unit-test against temp dirs — no network, no Pillow.
 """
+import datetime
 import json
 import os
 import re
@@ -33,6 +34,17 @@ def next_id(puzzles_dir=PUZZLES_DIR, manifest=None):
     if manifest:
         ids.update(e.get("id", 0) for e in manifest)
     return (max(ids) + 1) if ids else 1
+
+
+def next_date(manifest, today=None):
+    """The next free publish date: the day after the latest puzzle in the manifest
+    (so back-to-back publishes queue onto distinct days instead of colliding on
+    'today'), or today if the manifest is empty. Pure."""
+    today = today or datetime.date.today().isoformat()
+    dates = [e["date"] for e in manifest if e.get("date")]
+    if not dates:
+        return today
+    return (datetime.date.fromisoformat(max(dates)) + datetime.timedelta(days=1)).isoformat()
 
 
 def assemble_puzzle(movie, rungs, *, puzzle_id, date, accent, image_files):

@@ -20,6 +20,7 @@ import build_rungs
 import decoys as decoys_mod
 import discover as discover_mod
 import images as images_mod
+import manifest as manifest_mod
 import publish as publish_mod
 import tmdb
 from ledger import load as load_ledger, used_ids
@@ -41,6 +42,12 @@ def _key():
 def index():
     with open(os.path.join(HERE, "static", "index.html"), encoding="utf-8") as fh:
         return fh.read()
+
+
+@app.get("/api/next-date")
+def api_next_date():
+    # Default the crop UI's date to the next free day so publishes don't collide.
+    return {"date": publish_mod.next_date(manifest_mod.load())}
 
 
 @app.get("/api/discover")

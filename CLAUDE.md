@@ -86,7 +86,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
   images.py            Reveal-tier cropping + theme.accent sampling (Pillow) + CLI. Needs the venv.
-  publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest.
+  publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
+                       next_date() defaults publish dates to the next free day (no manifest collisions).
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
