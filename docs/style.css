@@ -99,6 +99,16 @@ body{
 .endline{margin:0;color:var(--muted);font-size:14px}
 .reveal{margin:2px 0 0;color:var(--bone);font-size:15px}
 .reveal strong{color:var(--amber-deep)}
+.statgrid{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px}
+.statgrid div{display:flex;flex-direction:column;align-items:center;line-height:1}
+.statgrid b{font-size:22px;font-weight:600;color:var(--amber);font-variant-numeric:tabular-nums}
+.statgrid span{text-transform:uppercase;letter-spacing:.14em;font-size:9px;color:var(--muted);margin-top:4px}
+.hist{width:100%;max-width:320px;margin:12px auto 0;display:flex;flex-direction:column;gap:5px}
+.histlabel{margin:0 0 3px;font-size:10px;text-transform:uppercase;letter-spacing:.16em;color:var(--muted);text-align:left}
+.hrow{display:flex;align-items:center;gap:8px}
+.hd{width:18px;text-align:right;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.hb{background:var(--line);color:var(--bone);font-size:11px;padding:2px 7px;border-radius:3px;text-align:right;min-width:22px;font-variant-numeric:tabular-nums}
+.hb.cur{background:var(--amber);color:var(--on-accent)}
 .share{
   font-family:var(--mono);font-size:13px;color:var(--bone);background:var(--ink2);
   border:1px solid var(--line);border-radius:6px;padding:14px 18px;margin:8px 0 0;white-space:pre-wrap;

@@ -7,10 +7,11 @@ brag number is **depth** — how many rungs deep you got.
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
 when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** — Phase 1 (the
 game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
-underway: the **daily mechanism, accent theming, and the I Need Help lifeline are wired** (the
-client reads `manifest.json`, recolors from each puzzle's `theme.accent`, and can convert a rung
-to multiple choice from its `decoys`); archive browser, stats, home/mode-select, and TMDB
-attribution are still to come.
+underway: the **daily mechanism, accent theming, the I Need Help lifeline, and localStorage
+stats/streak are wired** (the client reads `manifest.json`, recolors from each puzzle's
+`theme.accent`, converts a rung to multiple choice from its `decoys`, and persists best depth /
+streak / a depth histogram); archive browser, home/mode-select, and TMDB attribution are still
+to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -20,7 +21,7 @@ attribution are still to come.
 - **Play it:** the game uses `fetch`, so it needs a server — `file://` won't work. Serve the
   `docs/` folder and open `index.html`, e.g. `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
-  `node daily.test.js`, and `node theme.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node daily.test.js`, `node theme.test.js`, and `node stats.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
@@ -63,6 +64,7 @@ match.test.js          Matcher tests (node match.test.js). Cases mirror puzzle 0
 game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs.
 daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle date logic.
 theme.test.js          Accent-theming tests (node theme.test.js): parse/luminance/contrast.
+stats.test.js          Stats/streak tests (node stats.test.js): recordResult streak + histogram.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -71,6 +73,7 @@ docs/                  The entire static site = what gets hosted.
   match.js             Fuzzy answer matching. Pure logic, no DOM.
   daily.js             Daily puzzle selection from the manifest (pickPuzzle). Pure logic, no DOM.
   theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
+  stats.js             localStorage stats + streak (recordResult is pure; load/save touch storage).
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
@@ -128,8 +131,8 @@ is still to come.
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
 - **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
   autocomplete; needs the v2 server move) are deferred.
-- Daily mechanism + archive browser, localStorage stats/streak, dynamic accent theming, home page,
-  TMDB attribution UI (mandatory before any real ship), share card.
+- Archive browser, home page, **mode-select** screen, TMDB attribution UI (mandatory before any
+  real ship), and a depth-hero share card.
 
 ## Puzzle file schema
 
