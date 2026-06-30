@@ -72,6 +72,16 @@ body{
   padding:8px 14px;border-radius:6px;font-size:13px;cursor:pointer;font-family:inherit;
 }
 .skip:hover{color:var(--bone);border-color:var(--muted)}
+.skip:disabled{opacity:.4;cursor:not-allowed}
+.lifelines{display:flex;gap:10px}
+.choices{display:flex;flex-direction:column;gap:8px}
+.choices:empty{display:none}
+.choices-note{margin:0;font-size:12px;color:var(--muted);letter-spacing:.04em}
+.choice{
+  text-align:left;background:var(--ink2);border:1px solid var(--line);color:var(--bone);
+  padding:12px 15px;border-radius:6px;font-size:15px;cursor:pointer;font-family:inherit;
+}
+.choice:hover{border-color:var(--amber)}
 .feedback{margin:0;font-size:14px;min-height:20px;opacity:0;transition:opacity .2s;letter-spacing:.01em}
 .feedback.show{opacity:1}
 .feedback.good{color:var(--amber)}

@@ -32,9 +32,13 @@
                  spellcheck="false" placeholder="Name it…" />
           <button id="guess-btn">Guess</button>
         </div>
+        <div id="choices" class="choices"></div>
         <div class="meta">
           <div class="attempts" id="attempts" aria-label="Attempts remaining"></div>
-          <button id="skip-btn" class="skip">Skip</button>
+          <div class="lifelines">
+            <button id="help-btn" class="skip">I Need Help</button>
+            <button id="skip-btn" class="skip">Skip</button>
+          </div>
         </div>
         <p class="feedback" id="feedback" role="status">&nbsp;</p>
       </div>

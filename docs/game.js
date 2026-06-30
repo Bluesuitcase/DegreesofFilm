@@ -4,6 +4,7 @@ import { matchGuess } from './match.js';
 
 export const MAX_ATTEMPTS = 3;
 export const MAX_SKIPS = 5;
+export const MAX_HELPS = 3;
 
 // Rung N is worth N points, plus a deep-dig bonus that starts at rung 6,
 // climbs +1 per rung, and caps at +5 from rung 10 onward.
@@ -18,6 +19,8 @@ export class Game {
     this.index = 0;            // 0-based rung currently being attempted
     this.attempts = 0;         // wrong attempts on the current rung
     this.skipsUsed = 0;
+    this.helpsUsed = 0;
+    this.helped = false;       // current rung converted to multiple choice?
     this.score = 0;
     this.status = 'playing';   // 'playing' | 'over' | 'won'
   }
@@ -27,11 +30,12 @@ export class Game {
   get total()        { return this.rungs.length; }
   get attemptsLeft() { return MAX_ATTEMPTS - this.attempts; }
   get skipsLeft()    { return MAX_SKIPS - this.skipsUsed; }
+  get helpsLeft()    { return MAX_HELPS - this.helpsUsed; }
 
   guess(text) {
     if (this.status !== 'playing') return { result: 'noop' };
     if (matchGuess(text, this.currentRung.answers)) {
-      this.score += scoreForRung(this.index + 1);
+      this.score += this.helped ? 0 : scoreForRung(this.index + 1);
       this._advance();
       return { result: this.status === 'won' ? 'won' : 'correct' };
     }
@@ -55,9 +59,24 @@ export class Game {
     return { result: this.status === 'won' ? 'won' : 'skipped' };
   }
 
+  // Convert the current rung to multiple choice (value capped at 0). Returns the
+  // choices (correct answer + decoys) to show, or null if help isn't available
+  // (none left, already used on this rung, no decoys, or not playing). A wrong
+  // pick still burns an attempt — solving it via the matcher does the scoring.
+  useHelp() {
+    if (this.status !== 'playing' || this.helped) return null;
+    if (this.helpsUsed >= MAX_HELPS) return null;
+    const decoys = this.currentRung.decoys;
+    if (!decoys || decoys.length === 0) return null;
+    this.helpsUsed++;
+    this.helped = true;
+    return [this.currentRung.answers[0], ...decoys];
+  }
+
   _advance() {
     this.index++;
     this.attempts = 0;
+    this.helped = false;
     if (this.index >= this.rungs.length) this.status = 'won';
   }
 }
