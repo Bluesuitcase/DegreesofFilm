@@ -10,8 +10,10 @@ game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3
 underway: the **daily mechanism, accent theming, the I Need Help lifeline, and localStorage
 stats/streak are wired** (the client reads `manifest.json`, recolors from each puzzle's
 `theme.accent`, converts a rung to multiple choice from its `decoys`, persists best depth /
-streak / a depth histogram, has an **archive browser** to replay past dailies, and shows the
-required **TMDB attribution** in the footer); home page and mode-select are still to come.
+streak / a depth histogram, has an **archive browser** to replay past dailies, shows the required
+**TMDB attribution** in the footer, and has a **home + mode-select** front door); only the richer
+depth-hero **share card** remains. The client routes views by query string: `?` home, `?modes`
+mode-select, `?play` today's game, `?id=N` an archived game, `?archive` the index.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -131,10 +133,11 @@ daily streak/stats.
   `1,2,3,4,5,7,9,11,13,15,16,17`. (Skips subtract 1 each.)
 
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
-- **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
-  autocomplete; needs the v2 server move) are deferred.
-- Home page, **mode-select** screen, and a depth-hero share card. (TMDB attribution — the one hard
-  ship-blocker — is done: a footer with the logo + required notice.)
+- **Modes:** the mode-select *screen* exists (Cinephile lit; Poser + Movie Buff shown "coming
+  soon"), but only **Cinephile** is playable. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB
+  title autocomplete; needs the v2 server move) are deferred.
+- A depth-hero **share card** (the end screen has plain share text today). Home, mode-select, and
+  TMDB attribution are done; the share card is the last Phase 3 item.
 
 ## Puzzle file schema
 
