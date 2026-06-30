@@ -189,12 +189,26 @@ body{
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 
 @media (max-width:600px){
-  .stage{grid-template-columns:1fr;gap:18px;padding:24px 18px 48px}
+  .topbar{padding:14px 16px;align-items:center}
+  .wordmark{letter-spacing:.12em;font-size:12px}
+  .brand{gap:12px}
+  .navlink{font-size:9px;letter-spacing:.1em}
+  .stats{gap:16px}
+  .stat b{font-size:21px}
+  .stage{grid-template-columns:1fr;gap:18px;padding:22px 16px 48px}
   .rail{flex-direction:row;flex-wrap:wrap;padding-top:0}
   .mark{width:20px;height:8px}
   .prompt{font-size:22px}
   .herodepth{font-size:64px}
-  .attribution{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 18px 32px}
+  .meta{flex-wrap:wrap;gap:10px}
+  .lifelines{flex:1 1 100%;justify-content:flex-start}
+  .skip{font-size:12px;padding:8px 12px}
+  .attribution{flex-direction:column;align-items:flex-start;gap:10px;padding:16px 16px 32px}
   .home-title{font-size:30px}
+  .statgrid{gap:14px}
+}
+@media (max-width:380px){
+  .wordmark{font-size:11px;letter-spacing:.08em}
+  .navlink{font-size:8px}
 }
 @media (prefers-reduced-motion:reduce){*{transition:none !important}}
