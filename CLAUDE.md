@@ -5,9 +5,10 @@ A daily browser game testing film knowledge. You're shown a cropped frame from a
 brag number is **depth** — how many rungs deep you got.
 
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
-when the two disagree, DESIGN.md wins. **Current status: Phase 1** (prove the core loop is
-fun against one hand-authored puzzle). Phases 2–3 (curation tool, daily/archive, lifelines,
-theming) are not built yet.
+when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** — Phase 1 (the
+game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
+underway: the **daily mechanism is wired** (the client reads `manifest.json`); archive browser,
+lifelines, theming, stats, home/mode-select, and TMDB attribution are still to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -16,8 +17,8 @@ theming) are not built yet.
 
 - **Play it:** the game uses `fetch`, so it needs a server — `file://` won't work. Serve the
   `docs/` folder and open `index.html`, e.g. `python -m http.server` from inside `docs/`.
-- **Tests:** plain Node, no framework or deps. Run `node match.test.js` and `node game.test.js`
-  from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+- **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`, and
+  `node daily.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
@@ -58,12 +59,14 @@ CLAUDE.md              This file.
 package.json           Just { "type": "module" }.
 match.test.js          Matcher tests (node match.test.js). Cases mirror puzzle 001's answers.
 game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs.
+daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle date logic.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
   app.js               DOM glue ONLY. Fetches the puzzle, renders, wires buttons. No rules here.
   game.js              Game rules, scoring, run state. Pure logic, no DOM.
   match.js             Fuzzy answer matching. Pure logic, no DOM.
+  daily.js             Daily puzzle selection from the manifest (pickPuzzle). Pure logic, no DOM.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
@@ -88,10 +91,11 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
 `app.js` imports `game.js` and does all DOM work. Rules and matching stay DOM-free so the Node
 tests can import them directly. Don't leak rendering into `game.js`/`match.js` or rules into `app.js`.
 
-`app.js` currently hard-codes `fetch('puzzles/001.json')` — the daily/archive selection mechanism
-is Phase 3. **Decided:** that mechanism is a `manifest.json` index (`{ date, id, file, title,
-accent }` per puzzle); the client fetches the manifest, picks today's canonical date, then fetches
-that puzzle. Archive = a render of the manifest. See DESIGN §4.
+`app.js` fetches `puzzles/manifest.json` (date-keyed to dodge stale caches), picks today's entry
+via `daily.js`'s `pickPuzzle`, then fetches that puzzle file. The manifest is the `{ date, id,
+file, title, accent }` daily index (DESIGN §4). `pickPuzzle` takes the exact-date entry, else the
+most recent on/before today, else the earliest. The **archive browser** (a render of the manifest)
+is still to come.
 
 ## v1 ruleset (as implemented in `game.js`)
 
