@@ -11,8 +11,9 @@ Phase 3 (the daily game) is built on `phase-3-daily` (PR #3): daily selection + 
 browser, accent theming, the I Need Help lifeline, localStorage stats/streak, a home +
 mode-select front door, the required TMDB attribution, and a copy-to-clipboard share card. The
 client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game,
-`?id=N` an archived game, `?archive` the index. Deferred (fast-follow/v2): the **Poser** and
-**Movie Buff** modes (the mode-select screen teases them) and the v2 server move.
+`?id=N` an archived game, `?archive` the index, `?play&mode=poser` a Poser game. **Poser mode is
+built** (v2 — all-MC, flat +1); still deferred: **Movie Buff** (needs the v2 server move) and the
+rest of the DESIGN §6 parking lot.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -132,12 +133,20 @@ daily streak/stats.
   rung 6, climbs +1/rung, and caps at +5 from rung 10 on. Curve for rungs 1–12:
   `1,2,3,4,5,7,9,11,13,15,16,17`. (Skips subtract 1 each.)
 
-**Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
-- **Modes:** the mode-select *screen* exists (Cinephile lit; Poser + Movie Buff shown "coming
-  soon"), but only **Cinephile** is playable. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB
-  title autocomplete; needs the v2 server move) are deferred.
-- *(All Phase 3 items are built.)* Still deferred to fast-follow/v2: the Poser & Movie Buff
-  modes and the v2 server move (see the parking lot in DESIGN §6).
+**Modes (in `app.js`, via the `?mode=` query):**
+- **Cinephile** (default) — the full dig described above.
+- **Poser** (v2, built) — `?play&mode=poser`. Every rung is multiple choice (answer + its
+  `decoys`, shuffled), the ladder is trimmed to the first `POSER_RUNGS` (7) decoy-bearing rungs,
+  and scoring is a flat **+1** per correct (no curve). No I-Need-Help (it's already all-MC) and no
+  text input. Poser runs **don't** touch the daily streak/stats and skip the savage end roast; the
+  share is tagged `(Poser)`. `game.js`'s `Game(puzzle, { mode })` only changes the scoring; the
+  trim + all-MC rendering live in `app.js` (`poserPuzzle` / `renderChoices`).
+
+**Still deferred (DESIGN §6 parking lot), don't assume these exist:**
+- **Movie Buff** mode — TMDB title autocomplete on the film rung; needs the **v2 server move**
+  (a live browser TMDB call would leak the key), so it stays "coming soon" on the mode-select.
+- The rest of the v2/v3 parking lot (curate-a-week-ahead, practice/endless, reveal mechanic,
+  accounts/DB, Score History, server-side matching, degrees-of-separation, …).
 
 ## Puzzle file schema
 

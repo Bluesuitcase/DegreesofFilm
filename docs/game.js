@@ -14,8 +14,9 @@ export function scoreForRung(n) {
 }
 
 export class Game {
-  constructor(puzzle) {
+  constructor(puzzle, { mode = 'cinephile' } = {}) {
     this.rungs = puzzle.rungs;
+    this.mode = mode;          // 'cinephile' (the dig) | 'poser' (all-MC, flat +1)
     this.index = 0;            // 0-based rung currently being attempted
     this.attempts = 0;         // wrong attempts on the current rung
     this.skipsUsed = 0;
@@ -35,7 +36,7 @@ export class Game {
   guess(text) {
     if (this.status !== 'playing') return { result: 'noop' };
     if (matchGuess(text, this.currentRung.answers)) {
-      this.score += this.helped ? 0 : scoreForRung(this.index + 1);
+      this.score += this.mode === 'poser' ? 1 : (this.helped ? 0 : scoreForRung(this.index + 1));
       this._advance();
       return { result: this.status === 'won' ? 'won' : 'correct' };
     }

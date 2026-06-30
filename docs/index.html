@@ -31,7 +31,7 @@
         <h1 class="prompt" id="prompt">Loading…</h1>
       </div>
       <div class="controls">
-        <div class="guessrow">
+        <div class="guessrow" id="guessrow">
           <input id="guess" type="text" autocomplete="off" autocapitalize="off"
                  spellcheck="false" placeholder="Name it…" />
           <button id="guess-btn">Guess</button>
@@ -77,11 +77,11 @@
           <span class="mode-desc">The full dig: name the film, then every credit from marquee names
             down to the key grip. Three lifelines, no autocomplete, no mercy.</span>
         </a>
-        <div class="mode">
-          <div class="mode-head"><span class="mode-name">Poser</span><span class="mode-soon">Coming soon</span></div>
+        <a class="mode lit" href="?play&amp;mode=poser">
+          <div class="mode-head"><span class="mode-name">Poser</span><span class="mode-soon">Play →</span></div>
           <span class="mode-desc">All multiple choice, deep cuts trimmed, a flat point a pop — for
             when you’ve “only seen the trailer.”</span>
-        </div>
+        </a>
         <div class="mode">
           <div class="mode-head"><span class="mode-name">Movie Buff</span><span class="mode-soon">Coming soon</span></div>
           <span class="mode-desc">Cinephile rules plus a title autocomplete on the frame — for those

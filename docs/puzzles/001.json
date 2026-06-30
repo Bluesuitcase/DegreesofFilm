@@ -16,6 +16,11 @@
       "answers": [
         "No Country for Old Men",
         "No es pais para viejos"
+      ],
+      "decoys": [
+        "The Last Stand",
+        "The Order",
+        "The Missing"
       ]
     },
     {
@@ -23,6 +28,11 @@
       "prompt": "Who played Sheriff Ed Tom Bell?",
       "answers": [
         "Tommy Lee Jones"
+      ],
+      "decoys": [
+        "Kevin Costner",
+        "Neal McDonough",
+        "Arnold Schwarzenegger"
       ]
     },
     {
@@ -31,6 +41,11 @@
       "answers": [
         "Josh Brolin",
         "Joshua Brolin"
+      ],
+      "decoys": [
+        "Kevin Costner",
+        "Neal McDonough",
+        "Arnold Schwarzenegger"
       ]
     },
     {
@@ -42,6 +57,11 @@
         "Joel and Ethan Coen",
         "Joel Coen",
         "Ethan Coen"
+      ],
+      "decoys": [
+        "Ron Howard",
+        "Orson Welles",
+        "John Boorman"
       ]
     },
     {
@@ -49,6 +69,11 @@
       "prompt": "Who played Anton Chigurh?",
       "answers": [
         "Javier Bardem"
+      ],
+      "decoys": [
+        "Kevin Costner",
+        "Neal McDonough",
+        "Arnold Schwarzenegger"
       ]
     },
     {
@@ -57,6 +82,11 @@
       "answers": [
         "Woody Harrelson",
         "Woodrow Harrelson"
+      ],
+      "decoys": [
+        "Kevin Costner",
+        "Neal McDonough",
+        "Arnold Schwarzenegger"
       ]
     },
     {
@@ -64,6 +94,11 @@
       "prompt": "Who played Carla Jean Moss?",
       "answers": [
         "Kelly Macdonald"
+      ],
+      "decoys": [
+        "Kevin Costner",
+        "Neal McDonough",
+        "Arnold Schwarzenegger"
       ]
     },
     {
@@ -72,6 +107,11 @@
       "answers": [
         "Roger Deakins",
         "Roger A. Deakins"
+      ],
+      "decoys": [
+        "Kim Ji-yong",
+        "Philip H. Lathrop",
+        "John Schwartzman"
       ]
     },
     {
@@ -79,6 +119,11 @@
       "prompt": "Who composed the score?",
       "answers": [
         "Carter Burwell"
+      ],
+      "decoys": [
+        "James Horner",
+        "Quincy Jones",
+        "Thomas Newman"
       ]
     },
     {
@@ -89,6 +134,11 @@
         "Coen brothers",
         "The Coens",
         "Joel and Ethan Coen"
+      ],
+      "decoys": [
+        "Virgil W. Vogel",
+        "Jim May",
+        "Aaron Stell"
       ]
     },
     {
@@ -96,6 +146,11 @@
       "prompt": "Who was the production designer?",
       "answers": [
         "Jess Gonchor"
+      ],
+      "decoys": [
+        "Michael Corenblith",
+        "Franco-Giacomo Carbone",
+        "David Lazan"
       ]
     }
   ]
