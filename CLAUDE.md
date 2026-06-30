@@ -10,8 +10,8 @@ game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3
 underway: the **daily mechanism, accent theming, the I Need Help lifeline, and localStorage
 stats/streak are wired** (the client reads `manifest.json`, recolors from each puzzle's
 `theme.accent`, converts a rung to multiple choice from its `decoys`, persists best depth /
-streak / a depth histogram, and has an **archive browser** to replay past dailies); home page,
-mode-select, and TMDB attribution are still to come.
+streak / a depth histogram, has an **archive browser** to replay past dailies, and shows the
+required **TMDB attribution** in the footer); home page and mode-select are still to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -133,8 +133,8 @@ daily streak/stats.
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
 - **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
   autocomplete; needs the v2 server move) are deferred.
-- Home page, **mode-select** screen, TMDB attribution UI (mandatory before any real ship), and a
-  depth-hero share card.
+- Home page, **mode-select** screen, and a depth-hero share card. (TMDB attribution — the one hard
+  ship-blocker — is done: a footer with the logo + required notice.)
 
 ## Puzzle file schema
 
