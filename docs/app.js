@@ -1,6 +1,7 @@
 // DOM glue for Degrees of Film. All rules live in game.js; this just renders.
 import { Game, MAX_ATTEMPTS } from './game.js';
 import { pickPuzzle, todayISO } from './daily.js';
+import { onAccentText } from './theme.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1;
@@ -20,6 +21,7 @@ async function init() {
   }
   puzzleId = puzzle.id ?? entry.id ?? 1;
   game = new Game(puzzle);
+  applyAccent(puzzle.theme && puzzle.theme.accent);
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
@@ -28,6 +30,16 @@ async function init() {
   buildRail(puzzle.rungs.length);
   wire();
   render();
+}
+
+// Recolor the page accent from the puzzle's theme.accent. Ink base + bone text
+// stay fixed; the guess-button text flips to whatever reads on the accent.
+function applyAccent(accent) {
+  if (!accent) return;
+  const s = document.documentElement.style;
+  s.setProperty('--amber', accent);
+  s.setProperty('--amber-deep', accent);
+  s.setProperty('--on-accent', onAccentText(accent));
 }
 
 function buildRail(n) {

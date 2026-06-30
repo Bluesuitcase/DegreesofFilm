@@ -1,6 +1,6 @@
 :root{
   --ink:#121013; --ink2:#1a171c; --bone:#ece7dd; --muted:#8c867b;
-  --amber:#eba53c; --amber-deep:#caa64f; --red:#c2543f; --line:#2a262d;
+  --amber:#eba53c; --amber-deep:#caa64f; --on-accent:#1a1206; --red:#c2543f; --line:#2a262d;
   --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;
   --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
 }
@@ -59,7 +59,7 @@ body{
 #guess::placeholder{color:var(--muted)}
 #guess:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
 #guess-btn{
-  background:var(--amber);color:#1a1206;border:none;padding:0 22px;border-radius:6px;
+  background:var(--amber);color:var(--on-accent);border:none;padding:0 22px;border-radius:6px;
   font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;
 }
 #guess-btn:hover{background:#f3b85c}
@@ -97,7 +97,7 @@ body{
   margin-top:8px;background:transparent;color:var(--bone);border:1px solid var(--amber);
   padding:11px 26px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;
 }
-.again:hover{background:var(--amber);color:#1a1206}
+.again:hover{background:var(--amber);color:var(--on-accent)}
 
 .hidden{display:none !important}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}

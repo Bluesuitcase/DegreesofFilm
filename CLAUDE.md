@@ -7,8 +7,9 @@ brag number is **depth** — how many rungs deep you got.
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
 when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** — Phase 1 (the
 game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
-underway: the **daily mechanism is wired** (the client reads `manifest.json`); archive browser,
-lifelines, theming, stats, home/mode-select, and TMDB attribution are still to come.
+underway: the **daily mechanism and accent theming are wired** (the client reads `manifest.json`
+and recolors from each puzzle's `theme.accent`); archive browser, lifelines, stats,
+home/mode-select, and TMDB attribution are still to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -17,8 +18,8 @@ lifelines, theming, stats, home/mode-select, and TMDB attribution are still to c
 
 - **Play it:** the game uses `fetch`, so it needs a server — `file://` won't work. Serve the
   `docs/` folder and open `index.html`, e.g. `python -m http.server` from inside `docs/`.
-- **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`, and
-  `node daily.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+- **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
+  `node daily.test.js`, and `node theme.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
@@ -60,6 +61,7 @@ package.json           Just { "type": "module" }.
 match.test.js          Matcher tests (node match.test.js). Cases mirror puzzle 001's answers.
 game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs.
 daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle date logic.
+theme.test.js          Accent-theming tests (node theme.test.js): parse/luminance/contrast.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -67,6 +69,7 @@ docs/                  The entire static site = what gets hosted.
   game.js              Game rules, scoring, run state. Pure logic, no DOM.
   match.js             Fuzzy answer matching. Pure logic, no DOM.
   daily.js             Daily puzzle selection from the manifest (pickPuzzle). Pure logic, no DOM.
+  theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
