@@ -104,6 +104,9 @@ body{
 .herodepth{font-size:84px;font-weight:600;line-height:1;color:var(--amber);font-variant-numeric:tabular-nums}
 .hero label{text-transform:uppercase;letter-spacing:.2em;font-size:12px;color:var(--muted)}
 .endline{margin:0;color:var(--muted);font-size:14px}
+.roast{margin:14px auto 0;max-width:44ch;font-size:15px;line-height:1.5;color:var(--bone)}
+.roast-cta{display:inline-block;margin-top:8px;color:var(--amber);text-decoration:none;font-size:13px;font-weight:600;letter-spacing:.02em}
+.roast-cta:hover{text-decoration:underline}
 .reveal{margin:2px 0 0;color:var(--bone);font-size:15px}
 .reveal strong{color:var(--amber-deep)}
 .statgrid{display:flex;gap:18px;justify-content:center;flex-wrap:wrap;margin:8px 0 2px}

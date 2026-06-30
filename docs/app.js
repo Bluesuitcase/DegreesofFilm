@@ -235,6 +235,7 @@ function showEnd() {
   const won = game.status === 'won';
   const reached = game.depth;
   const missed = won ? null : game.currentRung;
+  const r = roast(reached, game.total, won);
 
   let stats = loadStats();
   if (!isArchive) {                    // archived replays don't touch the daily streak/stats
@@ -247,6 +248,8 @@ function showEnd() {
     <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
     <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs</p>
+    <p class="roast">${r.text}</p>
+    ${r.mode ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}
     ${statsHtml(stats, reached)}
     <pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>
     <div class="endbtns">
@@ -268,6 +271,49 @@ function shareText(reached, total, score, won) {
   const line = won ? `Reached the bottom — ${total}/${total} · ${score} pts`
                    : `${reached}/${total} deep · ${score} pts`;
   return `🎬 Degrees of Film #${puzzleId}\n${line}\n${bar}`;
+}
+
+// End-of-round roast: savage but tasteful, and it nudges you toward the mode you
+// clearly belong in. Tier by how deep you dug; a win earns grudging respect.
+const ROASTS = {
+  poser: [
+    'You named the film and then ran on pure vibes. Poser mode is multiple choice — built for exactly that.',
+    'Bold of you to pick Cinephile. Poser mode exists for performances like the one we just watched.',
+    'The Academy would like its screener access back. Poser mode is down the hall, to your left.',
+    'A valiant nosedive. In Poser mode the choices are made for you — as, frankly, they should be.',
+  ],
+  buff: [
+    'You know the marquee names and then the credits got scary. Movie Buff is probably your ceiling.',
+    'Got the leads, fumbled everyone who actually made the film. Textbook Movie Buff energy.',
+    'Respectable — in the way that showing up is respectable. Movie Buff mode awaits.',
+    'You hit the wall labeled "the crew" at full speed. Movie Buff it is.',
+  ],
+  almost: [
+    'So close to the bottom you could smell the key grip. Almost a Cinephile. Almost.',
+    'One bad guess from greatness. The credits will remember this.',
+  ],
+  cinephile: [
+    'Certified Cinephile. You dug to the bottom and salted the earth.',
+    'Flawless descent. Everyone else is a poser and, deep down, they know it.',
+    'You named the production designer. Touch grass — right after you finish bragging.',
+  ],
+};
+
+function roastTier(reached, total, won) {
+  if (won) return 'cinephile';
+  const ratio = reached / total;
+  if (ratio >= 0.6) return 'almost';
+  if (ratio >= 0.3) return 'buff';
+  return 'poser';
+}
+
+function roast(reached, total, won) {
+  const tier = roastTier(reached, total, won);
+  const pool = ROASTS[tier];
+  return {
+    text: pool[Math.floor(Math.random() * pool.length)],
+    mode: tier === 'poser' ? 'Poser' : tier === 'buff' ? 'Movie Buff' : null,
+  };
 }
 
 function statsHtml(s, reached) {
