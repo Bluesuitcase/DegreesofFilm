@@ -1,19 +1,24 @@
 // DOM glue for Degrees of Film. All rules live in game.js; this just renders.
 import { Game, MAX_ATTEMPTS } from './game.js';
+import { pickPuzzle, todayISO } from './daily.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1;
 
 async function init() {
-  let puzzle;
+  let puzzle, entry;
   try {
-    const res = await fetch('puzzles/001.json');
-    puzzle = await res.json();
+    const today = todayISO();
+    // Date-key the manifest fetch so a cached copy can't freeze the daily rotation.
+    const manifest = await (await fetch('puzzles/manifest.json?d=' + today)).json();
+    entry = pickPuzzle(manifest, today);
+    if (!entry) throw new Error('empty manifest');
+    puzzle = await (await fetch('puzzles/' + entry.file)).json();
   } catch (e) {
-    $('prompt').textContent = 'Could not load the puzzle — are you running a local server?';
+    $('prompt').textContent = 'Could not load today’s puzzle — are you running a local server?';
     return;
   }
-  puzzleId = puzzle.id ?? 1;
+  puzzleId = puzzle.id ?? entry.id ?? 1;
   game = new Game(puzzle);
 
   const img = $('frame-img');
