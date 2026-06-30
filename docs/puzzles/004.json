@@ -1,0 +1,159 @@
+{
+  "id": 4,
+  "date": "2026-07-01",
+  "theme": {
+    "accent": "#6d733f"
+  },
+  "images": [
+    "images/004-1.jpg",
+    "images/004-2.jpg",
+    "images/004-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "The Dark Knight"
+      ],
+      "decoys": [
+        "The Batman",
+        "Batman Begins",
+        "The Dark Knight Rises"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Bruce Wayne?",
+      "answers": [
+        "Christian Bale"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Joker?",
+      "answers": [
+        "Heath Ledger"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "Christopher Nolan"
+      ],
+      "decoys": [
+        "Tim Burton",
+        "Matt Reeves",
+        "D.J. Caruso"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Harvey Dent?",
+      "answers": [
+        "Aaron Eckhart"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Alfred?",
+      "answers": [
+        "Michael Caine"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Rachel?",
+      "answers": [
+        "Maggie Gyllenhaal"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Gordon?",
+      "answers": [
+        "Gary Oldman"
+      ],
+      "decoys": [
+        "Anne Hathaway",
+        "Tom Hardy",
+        "Theo James"
+      ]
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "Wally Pfister"
+      ],
+      "decoys": [
+        "Greig Fraser",
+        "Roger Pratt",
+        "Guillermo Navarro"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "James Newton Howard",
+        "Hans Zimmer"
+      ],
+      "decoys": [
+        "Michael Giacchino",
+        "Danny Elfman",
+        "Mark Isham"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "Lee Smith"
+      ],
+      "decoys": [
+        "William Hoy",
+        "Stuart Levy",
+        "Jim Page"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "Nathan Crowley"
+      ],
+      "decoys": [
+        "James Chinlund",
+        "Michelle McGahey",
+        "Alec Hammond"
+      ]
+    }
+  ]
+}

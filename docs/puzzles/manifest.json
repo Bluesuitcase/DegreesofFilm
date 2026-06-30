@@ -19,5 +19,19 @@
     "file": "003.json",
     "title": "Forrest Gump",
     "accent": "#735d3f"
+  },
+  {
+    "date": "2026-07-01",
+    "id": 4,
+    "file": "004.json",
+    "title": "The Dark Knight",
+    "accent": "#6d733f"
+  },
+  {
+    "date": "2026-07-02",
+    "id": 5,
+    "file": "005.json",
+    "title": "Harry Potter and the Philosopher's Stone",
+    "accent": "#73563f"
   }
 ]
