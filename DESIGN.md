@@ -238,16 +238,38 @@ is the matching forgiving enough to feel fair? Everything else is execution.
 
 ---
 
-## 6. v2 parking lot (deliberately deferred)
+## 6. v2 / v3 parking lot (deliberately deferred)
 
-- **Poser mode** (fast-follow) — all-MC, trimmed ladder, flat +1. Reuses the `decoys` schema;
-  no architecture change. Closest of the deferred items.
-- **Movie Buff mode** — all-TMDB title autocomplete on the film rung. Needs a prebaked
-  popular-title index or a backend search proxy; gated behind the server move, since a live
-  TMDB call from the browser would expose the API key.
-- Accounts + database → cross-device stats, global leaderboards.
-- Server-side matching → answers never leave the backend (clean fix for the plaintext wart).
-- Light obfuscation of client answers (base64/cipher) as an interim anti-snoop measure.
-- True **degrees-of-separation** mode (connect film A → film B via a shared person).
-- Practice / endless mode (needs its own pool or to draw against the used-ledger).
-- Commercial TMDB agreement — required if this ever monetizes or scales as a real product.
+The dividing line is **the server move**: v1 deliberately needs *no backend for players* (static
+files only). **v2** keeps that architecture; **v3** begins once a backend exists.
+
+### v2 — stays static / no architecture change
+
+- **Poser mode** (fast-follow) — all-MC, trimmed ladder, flat **+1** per answer. Reuses the
+  `decoys` schema; no architecture change. Closest of the deferred items.
+- **Curate a week in advance** — a scheduling view in the curation tool: see the coming week's
+  slots (which upcoming dates have a puzzle, which are empty) and fill them ahead so the daily
+  never runs dry. `publish.next_date()` already queues each publish onto the next free day; this
+  makes the schedule visible and lets the curator stock specific days deliberately. Stays private.
+- **Practice / endless mode** — needs its own pool or to draw against the used-films ledger.
+- **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). The cropper
+  already authors all 3 tiers; this only wires them into the client. (See the Phase 3 "optional" item.)
+- **Light answer obfuscation** — base64/cipher the in-JSON answers as an interim anti-snoop
+  measure (v1 ships them plaintext, readable in devtools).
+
+### v3 — needs the backend / scale (the server move)
+
+- **Movie Buff mode** — all-TMDB title autocomplete on the film rung. Needs a prebaked popular-
+  title index or a backend search proxy; a live TMDB call from the browser would expose the API
+  key. This is the feature that triggers the server move.
+- **Accounts + database** → cross-device stats, global leaderboards.
+- **Score History** — a screen of the player's previous daily scores. Doable client-only, but far
+  more useful backed by accounts/DB (cross-device, durable), so it lands here with them.
+- **Server-side matching** → answers never leave the backend (the clean fix for the plaintext
+  wart, vs. v2's stopgap obfuscation).
+- **True degrees-of-separation** mode — connect film A → film B via a shared person; a second game
+  on a film/person graph. (Doable static with prebaked data, but a big mode — slotted here.)
+- **Commercial TMDB agreement** — required only if this ever monetizes or scales as a real product.
+
+> Not v2/v3, just undone: **deploy** to GitHub Pages so what's on `main` is actually playable on
+> the web. A finishing step for v1, not a new version.
