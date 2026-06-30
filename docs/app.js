@@ -4,7 +4,7 @@ import { pickPuzzle, todayISO } from './daily.js';
 import { onAccentText } from './theme.js';
 
 const $ = (id) => document.getElementById(id);
-let game, puzzleId = 1;
+let game, puzzleId = 1, currentChoices = null;
 
 async function init() {
   let puzzle, entry;
@@ -75,7 +75,44 @@ function render() {
     a.appendChild(d);
   }
   $('skip-btn').textContent = `Skip −1  ·  ${game.skipsLeft} left`;
+  renderHelp();
   $('guess').focus();
+}
+
+function renderHelp() {
+  if (!game.helped) currentChoices = null;
+  const btn = $('help-btn');
+  const rung = game.currentRung;
+  const canHelp = game.helpsLeft > 0 && !game.helped && rung.decoys && rung.decoys.length > 0;
+  btn.textContent = `I Need Help · ${game.helpsLeft} left`;
+  btn.disabled = !canHelp;
+  // hide once spent (and not mid-use) to keep the row tidy
+  btn.style.display = (game.helpsLeft === 0 && !game.helped) ? 'none' : '';
+
+  const box = $('choices');
+  box.innerHTML = '';
+  if (game.helped && currentChoices) {
+    const note = document.createElement('p');
+    note.className = 'choices-note';
+    note.textContent = 'Multiple choice — this rung is now worth 0.';
+    box.appendChild(note);
+    for (const c of currentChoices) {
+      const b = document.createElement('button');
+      b.className = 'choice';
+      b.textContent = c;
+      b.onclick = () => { $('guess').value = c; onGuess(); };
+      box.appendChild(b);
+    }
+  }
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
 function flash(msg, kind) {
@@ -102,6 +139,15 @@ function onSkip() {
   render();
 }
 
+function onHelp() {
+  if (!game || game.status !== 'playing') return;
+  const choices = game.useHelp();
+  if (!choices) { flash('No help available here.', 'muted'); return; }
+  currentChoices = shuffle(choices);
+  flash('Multiple choice — pick the right one (worth 0).', 'muted');
+  render();
+}
+
 function showEnd() {
   $('play').classList.add('hidden');
   const end = $('end');
@@ -124,6 +170,7 @@ function showEnd() {
 function wire() {
   $('guess-btn').onclick = onGuess;
   $('skip-btn').onclick = onSkip;
+  $('help-btn').onclick = onHelp;
   $('guess').addEventListener('keydown', (e) => { if (e.key === 'Enter') onGuess(); });
 }
 

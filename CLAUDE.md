@@ -7,9 +7,10 @@ brag number is **depth** — how many rungs deep you got.
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
 when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** — Phase 1 (the
 game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
-underway: the **daily mechanism and accent theming are wired** (the client reads `manifest.json`
-and recolors from each puzzle's `theme.accent`); archive browser, lifelines, stats,
-home/mode-select, and TMDB attribution are still to come.
+underway: the **daily mechanism, accent theming, and the I Need Help lifeline are wired** (the
+client reads `manifest.json`, recolors from each puzzle's `theme.accent`, and can convert a rung
+to multiple choice from its `decoys`); archive browser, stats, home/mode-select, and TMDB
+attribution are still to come.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -112,6 +113,10 @@ is still to come.
   run**; score and depth freeze where they are.
 - **Skip:** advances a rung for **−1 point**, max 5 per game (`MAX_SKIPS`). A skip *beyond* the
   5th ends the run (`out_of_skips`).
+- **I Need Help:** 3 per game (`MAX_HELPS`). `useHelp()` converts the current rung to multiple
+  choice (the answer + its `decoys`) and caps that rung's value at **0**; a wrong pick still
+  **burns an attempt** (can strike you out). A rung with no `decoys` can't be helped. `app.js`
+  shuffles the returned choices for display.
 - **Win:** solving the last rung sets status `won`.
 - **State machine:** `status` is `'playing' | 'over' | 'won'`. `guess()`/`skip()` no-op unless playing.
 - **Stats:** `depth` = rungs passed = the hero/brag number. `score` = the tiebreaker (how cleanly
@@ -121,8 +126,6 @@ is still to come.
   `1,2,3,4,5,7,9,11,13,15,16,17`. (Skips subtract 1 each.)
 
 **Not yet built (DESIGN Phase 3 / fast-follows), don't assume these exist:**
-- **I Need Help** lifeline (3×): converts a rung to multiple choice from `decoys`, caps its value at 0.
-  A wrong pick **burns an attempt** (can still strike you out) — decided, not a guaranteed pass.
 - **Mode select:** v1 is **Cinephile** only. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB title
   autocomplete; needs the v2 server move) are deferred.
 - Daily mechanism + archive browser, localStorage stats/streak, dynamic accent theming, home page,
