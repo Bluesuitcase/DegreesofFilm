@@ -1,0 +1,154 @@
+{
+  "id": 5,
+  "date": "2026-07-02",
+  "theme": {
+    "accent": "#73563f"
+  },
+  "images": [
+    "images/005-1.jpg",
+    "images/005-2.jpg",
+    "images/005-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "Harry Potter and the Philosopher's Stone"
+      ],
+      "decoys": [
+        "Harry Potter and the Chamber of Secrets",
+        "Harry Potter and the Prisoner of Azkaban",
+        "Harry Potter and the Deathly Hallows: Part 2"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Harry Potter?",
+      "answers": [
+        "Daniel Radcliffe"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Ron Weasley?",
+      "answers": [
+        "Rupert Grint"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "Chris Columbus"
+      ],
+      "decoys": [
+        "Alfonso Cuarón",
+        "Victor Fleming",
+        "David Yates"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Hermione Granger?",
+      "answers": [
+        "Emma Watson"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Albus Dumbledore?",
+      "answers": [
+        "Richard Harris"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Draco Malfoy?",
+      "answers": [
+        "Tom Felton"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Severus Snape?",
+      "answers": [
+        "Alan Rickman"
+      ],
+      "decoys": [
+        "Ralph Fiennes",
+        "Kenneth Branagh",
+        "Brendan Gleeson"
+      ]
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "John Seale"
+      ],
+      "decoys": [
+        "Eduardo Serra",
+        "Roger Pratt",
+        "Bruno Delbonnel"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "John Williams"
+      ],
+      "decoys": [
+        "Alexandre Desplat",
+        "Nicholas Hooper",
+        "Harold Arlen"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "Richard Francis-Bruce"
+      ],
+      "decoys": [
+        "Mick Audsley",
+        "Peter Honess",
+        "Mark Day"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "Stuart Craig"
+      ],
+      "decoys": []
+    }
+  ]
+}

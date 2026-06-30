@@ -16,5 +16,17 @@
     "title": "Forrest Gump",
     "year": "1994",
     "puzzle": 3
+  },
+  {
+    "id": 155,
+    "title": "The Dark Knight",
+    "year": "2008",
+    "puzzle": 4
+  },
+  {
+    "id": 671,
+    "title": "Harry Potter and the Philosopher's Stone",
+    "year": "2001",
+    "puzzle": 5
   }
 ]
