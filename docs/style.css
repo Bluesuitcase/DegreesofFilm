@@ -15,8 +15,9 @@ body{
 }
 .wordmark{
   text-transform:uppercase;letter-spacing:.28em;font-size:13px;font-weight:600;
-  color:var(--bone);
+  color:var(--bone);text-decoration:none;
 }
+.wordmark:hover{color:var(--amber)}
 .brand{display:flex;align-items:baseline;gap:16px}
 .navlink{
   text-transform:uppercase;letter-spacing:.18em;font-size:10px;font-weight:600;

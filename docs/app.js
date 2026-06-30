@@ -39,7 +39,6 @@ async function init() {
   puzzleDate = puzzle.date || entry.date || todayISO();
   game = new Game(puzzle);
   applyAccent(puzzle.theme && puzzle.theme.accent);
-  if (isArchive) { const l = $('archive-link'); l.textContent = '← Today'; l.href = '?play'; }
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
@@ -84,7 +83,6 @@ function renderModes() {
 
 function renderArchiveView() {
   enterLobby();
-  const l = $('archive-link'); l.textContent = '← Home'; l.href = '?';
   $('archive').classList.remove('hidden');
   buildArchive();
 }
