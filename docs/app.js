@@ -2,9 +2,10 @@
 import { Game, MAX_ATTEMPTS } from './game.js';
 import { pickPuzzle, todayISO } from './daily.js';
 import { onAccentText } from './theme.js';
+import { loadStats, saveStats, recordResult } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
-let game, puzzleId = 1, currentChoices = null;
+let game, puzzleId = 1, puzzleDate = null, currentChoices = null;
 
 async function init() {
   let puzzle, entry;
@@ -20,6 +21,7 @@ async function init() {
     return;
   }
   puzzleId = puzzle.id ?? entry.id ?? 1;
+  puzzleDate = puzzle.date || entry.date || todayISO();
   game = new Game(puzzle);
   applyAccent(puzzle.theme && puzzle.theme.accent);
 
@@ -157,14 +159,38 @@ function showEnd() {
   const reached = game.depth;
   const missed = won ? null : game.currentRung;
 
+  const stats = recordResult(loadStats(), { date: puzzleDate, depth: reached, won });
+  saveStats(stats);
+
   end.innerHTML = `
     <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>
     <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
     <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs</p>
+    ${statsHtml(stats, reached)}
     <pre class="share">Degrees of Film #${puzzleId}\n${reached}/${game.total} deep · ${game.score} pts</pre>
     <button id="again" class="again">Play again</button>`;
   $('again').onclick = () => location.reload();
+}
+
+function statsHtml(s, reached) {
+  const winPct = s.played ? Math.round((100 * s.wins) / s.played) : 0;
+  const tiles = `
+    <div class="statgrid">
+      <div><b>${s.currentStreak}</b><span>streak</span></div>
+      <div><b>${s.maxStreak}</b><span>max</span></div>
+      <div><b>${s.bestDepth}</b><span>best</span></div>
+      <div><b>${s.played}</b><span>played</span></div>
+      <div><b>${winPct}%</b><span>won</span></div>
+    </div>`;
+  const depths = Object.keys(s.histogram).map(Number).sort((a, b) => a - b);
+  const max = Math.max(1, ...depths.map((d) => s.histogram[d]));
+  const bars = depths.map((d) => {
+    const c = s.histogram[d];
+    const w = Math.max(8, Math.round((100 * c) / max));
+    return `<div class="hrow"><span class="hd">${d}</span><span class="hb${d === reached ? ' cur' : ''}" style="width:${w}%">${c}</span></div>`;
+  }).join('');
+  return tiles + (bars ? `<div class="hist"><p class="histlabel">depth distribution</p>${bars}</div>` : '');
 }
 
 function wire() {
