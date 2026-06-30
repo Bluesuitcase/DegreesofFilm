@@ -2,7 +2,9 @@
   "id": 2,
   "date": "2026-06-29",
   "theme": {
-    "accent": "#9f7357"
+    "accent": "#9f7357",
+    "bg": "#241a15",
+    "bg2": "#293b47"
   },
   "images": [
     "images/002-1.jpg",

@@ -39,7 +39,7 @@ MOVIE = {"id": 99, "title": "Test Film", "release_date": "2020-05-01"}
 RUNGS = [{"role": "Film", "prompt": "Name the film.",
           "answers": ["Test Film"], "decoys": ["A", "B", "C"]}]
 puz = publish.assemble_puzzle(MOVIE, RUNGS, puzzle_id=7, date="2026-07-01",
-                              accent="#abc123", image_files=["images/007-1.jpg"])
+                              theme={"accent": "#abc123"}, image_files=["images/007-1.jpg"])
 check("assembled id", puz["id"], 7)
 check("assembled date", puz["date"], "2026-07-01")
 check("assembled accent", puz["theme"], {"accent": "#abc123"})
@@ -51,7 +51,7 @@ with tempfile.TemporaryDirectory() as d:
     pdir = os.path.join(d, "puzzles")
     led = os.path.join(d, "used_films.json")
     man = os.path.join(d, "manifest.json")
-    res = publish.publish(MOVIE, RUNGS, accent="#abc123",
+    res = publish.publish(MOVIE, RUNGS, theme={"accent": "#abc123"},
                           image_files=["images/001-1.jpg"], date="2026-07-01",
                           puzzles_dir=pdir, ledger_path=led, manifest_path=man)
     check("first publish gets id 1", res["id"], 1)
@@ -72,7 +72,7 @@ with tempfile.TemporaryDirectory() as d:
           {"date": "2026-07-01", "id": 1, "file": "001.json", "title": "Test Film"})
 
     # republishing the same film: ledger dedupes, next id advances past 001.json
-    res2 = publish.publish(MOVIE, RUNGS, accent="#abc123",
+    res2 = publish.publish(MOVIE, RUNGS, theme={"accent": "#abc123"},
                            image_files=["images/002-1.jpg"], date="2026-07-02",
                            puzzles_dir=pdir, ledger_path=led, manifest_path=man)
     check("second publish gets id 2", res2["id"], 2)

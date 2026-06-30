@@ -75,5 +75,21 @@ acc = to_rgb(images.sample_accent(reddish))
 ok("accent of a red still is reddish", acc[0] > acc[1] and acc[0] > acc[2])
 ok("accent is valid hex", bool(HEX.match(images.sample_accent(reddish))))
 
+# --- to_background / derive_background ---
+ok("saturation: red > grey", images.saturation((200, 30, 30)) > images.saturation((128, 128, 128)))
+bgcol = to_rgb(images.to_background((200, 40, 40)))
+ok("background is valid hex", bool(HEX.match(images.to_background((200, 40, 40)))))
+ok("background is dark", max(bgcol) < 40)
+ok("background keeps the hue (red-dominant)", bgcol[0] >= bgcol[1] and bgcol[0] >= bgcol[2])
+
+twotone = Image.new("RGB", (40, 40))
+twotone.putdata([(180, 30, 30) if (x + y) % 2 else (20, 30, 90)
+                 for y in range(40) for x in range(40)])
+theme = images.derive_background(twotone)
+ok("derive_background returns bg + bg2 hexes",
+   bool(HEX.match(theme["bg"])) and bool(HEX.match(theme["bg2"])))
+ok("both derived backgrounds are dark",
+   max(to_rgb(theme["bg"])) < 50 and max(to_rgb(theme["bg2"])) < 85)
+
 print(f"\n{passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

@@ -47,19 +47,19 @@ def next_date(manifest, today=None):
     return (datetime.date.fromisoformat(max(dates)) + datetime.timedelta(days=1)).isoformat()
 
 
-def assemble_puzzle(movie, rungs, *, puzzle_id, date, accent, image_files):
-    """The puzzle JSON: id, date, theme.accent, images[], rungs[] (with decoys)."""
+def assemble_puzzle(movie, rungs, *, puzzle_id, date, theme, image_files):
+    """The puzzle JSON: id, date, theme {accent, bg, bg2}, images[], rungs[]."""
     puzzle = {"id": puzzle_id}
     if date:
         puzzle["date"] = date
-    if accent:
-        puzzle["theme"] = {"accent": accent}
+    if theme:
+        puzzle["theme"] = theme
     puzzle["images"] = list(image_files)
     puzzle["rungs"] = rungs
     return puzzle
 
 
-def publish(movie, rungs, *, accent, image_files, date,
+def publish(movie, rungs, *, theme, image_files, date,
             puzzles_dir=PUZZLES_DIR,
             ledger_path=ledger_mod.DEFAULT_PATH,
             manifest_path=manifest_mod.DEFAULT_PATH,
@@ -72,7 +72,7 @@ def publish(movie, rungs, *, accent, image_files, date,
     file = f"{puzzle_stem(pid)}.json"
 
     puzzle = assemble_puzzle(movie, rungs, puzzle_id=pid, date=date,
-                             accent=accent, image_files=image_files)
+                             theme=theme, image_files=image_files)
     os.makedirs(puzzles_dir, exist_ok=True)
     with open(os.path.join(puzzles_dir, file), "w", encoding="utf-8") as fh:
         json.dump(puzzle, fh, ensure_ascii=False, indent=2)
@@ -84,7 +84,8 @@ def publish(movie, rungs, *, accent, image_files, date,
     ledger_mod.save(led, ledger_path)
 
     man = manifest_mod.upsert(man, manifest_mod.make_entry(
-        date=date, id=pid, file=file, title=movie.get("title"), accent=accent))
+        date=date, id=pid, file=file, title=movie.get("title"),
+        accent=(theme or {}).get("accent")))
     manifest_mod.save(man, manifest_path)
 
     return {"id": pid, "file": file, "puzzle_path": os.path.join(puzzles_dir, file)}
