@@ -5,8 +5,9 @@ import { onAccentText } from './theme.js';
 import { loadStats, saveStats, recordResult } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
-let game, puzzleId = 1, puzzleDate = null, currentChoices = null;
-let manifest = [], isArchive = false;
+let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
+let manifest = [], isArchive = false, mode = 'cinephile';
+const POSER_RUNGS = 7;
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -37,16 +38,25 @@ async function init() {
   }
   puzzleId = puzzle.id ?? entry.id ?? 1;
   puzzleDate = puzzle.date || entry.date || todayISO();
-  game = new Game(puzzle);
+  mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
+  const playPuzzle = mode === 'poser' ? poserPuzzle(puzzle) : puzzle;
+  game = new Game(playPuzzle, { mode });
   applyTheme(puzzle.theme);
 
   const img = $('frame-img');
   img.src = 'puzzles/' + puzzle.images[0];
   img.onerror = () => { img.style.display = 'none'; };
 
-  buildRail(puzzle.rungs.length);
+  buildRail(playPuzzle.rungs.length);
   wire();
   render();
+}
+
+// Poser: every rung is multiple choice, so keep only rungs that have decoys, and
+// trim the obscure deep tail to keep it light.
+function poserPuzzle(puzzle) {
+  const rungs = puzzle.rungs.filter((r) => r.decoys && r.decoys.length).slice(0, POSER_RUNGS);
+  return { ...puzzle, rungs };
 }
 
 // Short, iconic one-liners — kept brief, and from films that aren't in the
@@ -164,34 +174,50 @@ function render() {
     a.appendChild(d);
   }
   $('skip-btn').textContent = `Skip −1  ·  ${game.skipsLeft} left`;
-  renderHelp();
-  $('guess').focus();
+  renderChoices();
+  if (mode !== 'poser') $('guess').focus();
 }
 
-function renderHelp() {
-  if (!game.helped) currentChoices = null;
-  const btn = $('help-btn');
+// Choices + the text/help controls. Poser shows multiple choice for EVERY rung
+// (no text input, no lifeline); Cinephile shows the text input and only reveals
+// choices once I Need Help is used on the rung.
+function renderChoices() {
   const rung = game.currentRung;
-  const canHelp = game.helpsLeft > 0 && !game.helped && rung.decoys && rung.decoys.length > 0;
-  btn.textContent = `I Need Help · ${game.helpsLeft} left`;
-  btn.disabled = !canHelp;
-  // hide once spent (and not mid-use) to keep the row tidy
-  btn.style.display = (game.helpsLeft === 0 && !game.helped) ? 'none' : '';
+  const poser = mode === 'poser';
+  const showMC = poser || game.helped;
+
+  $('guessrow').style.display = poser ? 'none' : '';
+
+  const btn = $('help-btn');
+  if (poser) {
+    btn.style.display = 'none';
+  } else {
+    const canHelp = game.helpsLeft > 0 && !game.helped && rung.decoys && rung.decoys.length > 0;
+    btn.textContent = `I Need Help · ${game.helpsLeft} left`;
+    btn.disabled = !canHelp;
+    btn.style.display = (game.helpsLeft === 0 && !game.helped) ? 'none' : '';
+  }
 
   const box = $('choices');
   box.innerHTML = '';
-  if (game.helped && currentChoices) {
+  if (!showMC) { currentChoices = null; choicesForIndex = -1; return; }
+
+  if (choicesForIndex !== game.index || !currentChoices) {   // (re)build once per rung, stable order
+    currentChoices = shuffle([rung.answers[0], ...(rung.decoys || [])]);
+    choicesForIndex = game.index;
+  }
+  if (game.helped && !poser) {
     const note = document.createElement('p');
     note.className = 'choices-note';
     note.textContent = 'Multiple choice — this rung is now worth 0.';
     box.appendChild(note);
-    for (const c of currentChoices) {
-      const b = document.createElement('button');
-      b.className = 'choice';
-      b.textContent = c;
-      b.onclick = () => { $('guess').value = c; onGuess(); };
-      box.appendChild(b);
-    }
+  }
+  for (const c of currentChoices) {
+    const b = document.createElement('button');
+    b.className = 'choice';
+    b.textContent = c;
+    b.onclick = () => { $('guess').value = c; onGuess(); };
+    box.appendChild(b);
   }
 }
 
@@ -230,11 +256,9 @@ function onSkip() {
 
 function onHelp() {
   if (!game || game.status !== 'playing') return;
-  const choices = game.useHelp();
-  if (!choices) { flash('No help available here.', 'muted'); return; }
-  currentChoices = shuffle(choices);
+  if (!game.useHelp()) { flash('No help available here.', 'muted'); return; }
   flash('Multiple choice — pick the right one (worth 0).', 'muted');
-  render();
+  render();   // renderChoices builds the choices from the now-helped rung
 }
 
 function showEnd() {
@@ -245,10 +269,11 @@ function showEnd() {
   const won = game.status === 'won';
   const reached = game.depth;
   const missed = won ? null : game.currentRung;
-  const r = roast(reached, game.total, won);
+  const poser = mode === 'poser';
+  const r = poser ? null : roast(reached, game.total, won);   // the roast is a Cinephile thing
 
   let stats = loadStats();
-  if (!isArchive) {                    // archived replays don't touch the daily streak/stats
+  if (!isArchive && !poser) {          // archive/poser runs don't touch the daily streak/stats
     stats = recordResult(stats, { date: todayISO(), depth: reached, won });
     saveStats(stats);
   }
@@ -257,9 +282,8 @@ function showEnd() {
     <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>
     <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
-    <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs</p>
-    <p class="roast">${r.text}</p>
-    ${r.mode ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}
+    <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs${poser ? ' · Poser' : ''}</p>
+    ${r ? `<p class="roast">${r.text}</p>${r.mode ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}` : ''}
     ${statsHtml(stats, reached)}
     <pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>
     <div class="endbtns">
@@ -280,7 +304,7 @@ function shareText(reached, total, score, won) {
   const bar = '🟫'.repeat(reached) + '⬛'.repeat(Math.max(0, total - reached));
   const line = won ? `Reached the bottom — ${total}/${total} · ${score} pts`
                    : `${reached}/${total} deep · ${score} pts`;
-  return `🎬 Degrees of Film #${puzzleId}\n${line}\n${bar}`;
+  return `🎬 Degrees of Film #${puzzleId}${mode === 'poser' ? ' (Poser)' : ''}\n${line}\n${bar}`;
 }
 
 // End-of-round roast: savage but tasteful, and it nudges you toward the mode you

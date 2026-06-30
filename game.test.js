@@ -97,5 +97,13 @@ for (let i = 0; i < MAX_HELPS; i++) { H4.useHelp(); H4.guess('z'+i); }
 check('all helps used', H4.helpsLeft, 0);
 check('help denied past the cap', H4.useHelp(), null);
 
+// --- Poser mode: flat +1 per correct (no curve, no help cap) ---
+let P = new Game(puzzle, { mode: 'poser' });
+P.guess('Alpha'); P.guess('Bravo'); P.guess('Charlie'); P.guess('Delta');
+check('poser scores flat +1 per rung', P.score, 4);
+check('poser depth tracks normally', P.depth, 4);
+check('poser mode flag set', P.mode, 'poser');
+check('default mode is cinephile', new Game(puzzle).mode, 'cinephile');
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
