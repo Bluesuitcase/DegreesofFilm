@@ -250,9 +250,26 @@ function showEnd() {
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
     <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs</p>
     ${statsHtml(stats, reached)}
-    <pre class="share">Degrees of Film #${puzzleId}\n${reached}/${game.total} deep · ${game.score} pts</pre>
-    <button id="again" class="again">Play again</button>`;
+    <pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>
+    <div class="endbtns">
+      <button id="copy" class="copy">Copy result</button>
+      <button id="again" class="again">Play again</button>
+    </div>`;
   $('again').onclick = () => location.reload();
+  $('copy').onclick = async () => {
+    const btn = $('copy');
+    try { await navigator.clipboard.writeText($('share').textContent); btn.textContent = 'Copied ✓'; }
+    catch { btn.textContent = 'Press Ctrl/Cmd+C'; }
+    setTimeout(() => { btn.textContent = 'Copy result'; }, 1600);
+  };
+}
+
+// Spoiler-free shareable result: a depth bar (dug rungs vs remaining) + score.
+function shareText(reached, total, score, won) {
+  const bar = '🟫'.repeat(reached) + '⬛'.repeat(Math.max(0, total - reached));
+  const line = won ? `Reached the bottom — ${total}/${total} · ${score} pts`
+                   : `${reached}/${total} deep · ${score} pts`;
+  return `🎬 Degrees of Film #${puzzleId}\n${line}\n${bar}`;
 }
 
 function statsHtml(s, reached) {

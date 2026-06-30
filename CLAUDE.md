@@ -5,15 +5,14 @@ A daily browser game testing film knowledge. You're shown a cropped frame from a
 brag number is **depth** — how many rungs deep you got.
 
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
-when the two disagree, DESIGN.md wins. **Current status: Phase 3 in progress** — Phase 1 (the
-game) and Phase 2 (the curation tool) are complete and merged to `main`. Phase 3 (daily game) is
-underway: the **daily mechanism, accent theming, the I Need Help lifeline, and localStorage
-stats/streak are wired** (the client reads `manifest.json`, recolors from each puzzle's
-`theme.accent`, converts a rung to multiple choice from its `decoys`, persists best depth /
-streak / a depth histogram, has an **archive browser** to replay past dailies, shows the required
-**TMDB attribution** in the footer, and has a **home + mode-select** front door); only the richer
-depth-hero **share card** remains. The client routes views by query string: `?` home, `?modes`
-mode-select, `?play` today's game, `?id=N` an archived game, `?archive` the index.
+when the two disagree, DESIGN.md wins. **Current status: Phase 3 complete — v1 (Cinephile) is
+feature-complete.** Phase 1 (the game) and Phase 2 (the curation tool) are merged to `main`;
+Phase 3 (the daily game) is built on `phase-3-daily` (PR #3): daily selection + an archive
+browser, accent theming, the I Need Help lifeline, localStorage stats/streak, a home +
+mode-select front door, the required TMDB attribution, and a copy-to-clipboard share card. The
+client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game,
+`?id=N` an archived game, `?archive` the index. Deferred (fast-follow/v2): the **Poser** and
+**Movie Buff** modes (the mode-select screen teases them) and the v2 server move.
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -136,8 +135,8 @@ daily streak/stats.
 - **Modes:** the mode-select *screen* exists (Cinephile lit; Poser + Movie Buff shown "coming
   soon"), but only **Cinephile** is playable. *Poser* (all-MC, flat +1) and *Movie Buff* (TMDB
   title autocomplete; needs the v2 server move) are deferred.
-- A depth-hero **share card** (the end screen has plain share text today). Home, mode-select, and
-  TMDB attribution are done; the share card is the last Phase 3 item.
+- *(All Phase 3 items are built.)* Still deferred to fast-follow/v2: the Poser & Movie Buff
+  modes and the v2 server move (see the parking lot in DESIGN §6).
 
 ## Puzzle file schema
 
