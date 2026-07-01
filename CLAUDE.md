@@ -27,7 +27,7 @@ rest of the DESIGN §6 parking lot.
 - **Play it:** the game uses `fetch`, so it needs a server — `file://` won't work. Serve the
   `docs/` folder and open `index.html`, e.g. `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
-  `node daily.test.js`, `node theme.test.js`, and `node stats.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, and `node frame.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
@@ -72,6 +72,7 @@ game.test.js           Rules/scoring tests (node game.test.js): scoring curve + 
 daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle date logic.
 theme.test.js          Accent-theming tests (node theme.test.js): parse/luminance/contrast.
 stats.test.js          Stats/streak tests (node stats.test.js): recordResult streak + histogram.
+frame.test.js          Credit-image tests (node frame.test.js): pickCreditFrame still selection.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -81,6 +82,8 @@ docs/                  The entire static site = what gets hosted.
   daily.js             Daily/archive selection from the manifest (pickPuzzle/pickById). Pure, no DOM.
   theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
   stats.js             localStorage stats + streak (recordResult is pure; load/save touch storage).
+  frame.js             Which still to show per rung (pickCreditFrame): tight crop -> credit image
+                       + caption -> full-frame fallback. Pure logic, no DOM.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
@@ -173,6 +176,12 @@ language variants, name forms); the matcher accepts any of them.
 - `decoys[]` per rung — ~3 plausible same-category wrong answers, generated at curation. Feeds the
   I-Need-Help multiple choice (and all of Poser later). It's a v1 *schema* requirement even though
   the hand-authored 001 puzzle omits it.
+- `image` + `caption` per rung (**both optional**) — the credit image shown *after* you answer that
+  rung: a character still for cast, a TMDB headshot for crew, with `caption` = "Name as Character"
+  (name only for crew). `image` is a filename under `puzzles/` (e.g. `images/004-r2.jpg`). The film
+  rung carries neither — passing it reveals the full frame. Any rung missing `image` holds the full
+  frame (`frame.js` `pickCreditFrame`). Authored by the curation tool; puzzles without them just
+  keep the old tight-crop → full-frame reveal.
 
 ## Matching module (`match.js`) — the part that decides if the game feels fair
 
