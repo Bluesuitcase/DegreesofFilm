@@ -87,9 +87,10 @@ def attach_person_meta(puzzle, credits):
         rung["person_id"] = (person or {}).get("id")
         rung["profile"] = profile
         rung["caption"] = caption_for(rung["role"], name, character)
-        # Crew default to their headshot; cast start unset so the curator picks a
-        # character still deliberately (falling back to the full frame if not).
-        rung["image_pick"] = None if is_char else profile
+        # Every credit rung defaults to the person's headshot (cast character stills
+        # on TMDB are too sparse to rely on). The picker still offers candidate stills
+        # so a curator can override a rung with a real in-character still when one fits.
+        rung["image_pick"] = profile
     return puzzle
 
 

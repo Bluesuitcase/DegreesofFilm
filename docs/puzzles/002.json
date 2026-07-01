@@ -34,7 +34,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Matthew McConaughey as Cooper",
+      "image": "images/002-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Anne Hathaway as Brand",
+      "image": "images/002-r3.jpg"
     },
     {
       "role": "Director",
@@ -72,7 +76,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Michael Caine as Professor Brand",
+      "image": "images/002-r5.jpg"
     },
     {
       "role": "Cast",
@@ -84,7 +90,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Jessica Chastain as Murph",
+      "image": "images/002-r6.jpg"
     },
     {
       "role": "Cast",
@@ -96,7 +104,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Casey Affleck as Tom",
+      "image": "images/002-r7.jpg"
     },
     {
       "role": "Cast",
@@ -108,7 +118,9 @@
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
-      ]
+      ],
+      "caption": "Wes Bentley as Doyle",
+      "image": "images/002-r8.jpg"
     },
     {
       "role": "Cinematographer",

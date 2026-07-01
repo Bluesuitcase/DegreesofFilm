@@ -1,9 +1,10 @@
-"""Backfill CREW headshot credit images onto already-published puzzles.
+"""Backfill headshot credit images onto already-published puzzles.
 
-Crew rungs (director + technical crew) are fully automatic from TMDB, so this
-fills them in bulk; cast character stills stay a manual crop-tool pass and are
-left untouched. For each puzzle it maps back to its TMDB film via the ledger,
-fetches credits, and (reusing credits_images) saves each crew person's profile
+Every credit rung (cast + crew) gets the person's TMDB profile headshot — cast
+character stills on TMDB are too sparse to rely on, so headshots are the uniform
+default (a curator can still override a specific rung with an in-character still
+via the crop tool's picker). For each puzzle it maps back to its TMDB film via
+the ledger, fetches credits, and (reusing credits_images) saves each person's
 headshot as docs/puzzles/images/NNN-rK.jpg and sets that rung's image + caption.
 
 Re-runnable and idempotent-ish: it re-derives images from TMDB each time and
@@ -57,20 +58,15 @@ def make_saver(dry_run):
 
 
 def backfill_one(puzzle_path, film_id, key, save):
-    """Add crew headshots to one puzzle file. Returns (crew_done, crew_missing)."""
+    """Add cast + crew headshots to one puzzle file. Returns (done, missing)."""
     with open(puzzle_path, encoding="utf-8") as fh:
         puzzle = json.load(fh)
 
     credits = tmdb.movie_with_credits(film_id, key).get("credits", {})
-    ci.attach_person_meta(puzzle, credits)
-    # Crew-only: drop any cast pick so character stills stay a deliberate manual pass.
-    for rung in puzzle["rungs"]:
-        if rung.get("role") in ci.CHARACTER_ROLES:
-            rung["image_pick"] = None
+    ci.attach_person_meta(puzzle, credits)   # every credit rung defaults to its headshot
 
-    crew_before = [r for r in puzzle["rungs"]
-                   if r.get("role") not in ci.CHARACTER_ROLES and r.get("role") != "Film"]
-    missing = [r["answers"][0] for r in crew_before if not r.get("image_pick")]
+    people = [r for r in puzzle["rungs"] if r.get("role") != "Film"]
+    missing = [r["answers"][0] for r in people if not r.get("image_pick")]
 
     stem = os.path.splitext(os.path.basename(puzzle_path))[0]
     ci.finalize_rung_images(puzzle["rungs"], stem, save)

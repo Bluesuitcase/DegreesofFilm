@@ -64,8 +64,8 @@ check("film rung is left untouched (no helper fields)",
       any(k in r[0] for k in HELPER_KEYS), False)
 check("cast rung gets character", r[1]["character"], "Bruce Wayne")
 check("cast rung caption", r[1]["caption"], "Christian Bale as Bruce Wayne")
-check("cast rung image_pick starts unset (curator picks the still)",
-      r[1]["image_pick"], None)
+check("cast rung defaults image_pick to headshot (uniform with crew)",
+      r[1]["image_pick"], IMG_BASE + "/bale.jpg")
 check("cast rung profile url", r[1]["profile"], IMG_BASE + "/bale.jpg")
 check("crew rung caption is name only", r[3]["caption"], "Christopher Nolan")
 check("crew rung defaults image_pick to headshot",

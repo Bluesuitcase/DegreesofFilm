@@ -34,7 +34,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Tom Hanks as Forrest Gump",
+      "image": "images/003-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Robin Wright as Jenny Curran",
+      "image": "images/003-r3.jpg"
     },
     {
       "role": "Director",
@@ -72,7 +76,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Gary Sinise as Lieutenant Dan Taylor",
+      "image": "images/003-r5.jpg"
     },
     {
       "role": "Cast",
@@ -84,7 +90,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Sally Field as Mrs. Gump",
+      "image": "images/003-r6.jpg"
     },
     {
       "role": "Cast",
@@ -96,7 +104,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Mykelti Williamson as Bubba Blue",
+      "image": "images/003-r7.jpg"
     },
     {
       "role": "Cast",
@@ -108,7 +118,9 @@
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
-      ]
+      ],
+      "caption": "Michael Conner Humphreys as Young Forrest Gump",
+      "image": "images/003-r8.jpg"
     },
     {
       "role": "Cinematographer",

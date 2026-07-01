@@ -34,7 +34,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Christian Bale as Bruce Wayne",
+      "image": "images/004-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Heath Ledger as Joker",
+      "image": "images/004-r3.jpg"
     },
     {
       "role": "Director",
@@ -72,7 +76,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Aaron Eckhart as Harvey Dent",
+      "image": "images/004-r5.jpg"
     },
     {
       "role": "Cast",
@@ -84,7 +90,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Michael Caine as Alfred",
+      "image": "images/004-r6.jpg"
     },
     {
       "role": "Cast",
@@ -96,7 +104,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Maggie Gyllenhaal as Rachel",
+      "image": "images/004-r7.jpg"
     },
     {
       "role": "Cast",
@@ -108,7 +118,9 @@
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
-      ]
+      ],
+      "caption": "Gary Oldman as Gordon",
+      "image": "images/004-r8.jpg"
     },
     {
       "role": "Cinematographer",
