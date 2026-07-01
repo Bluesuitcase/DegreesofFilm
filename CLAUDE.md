@@ -94,8 +94,9 @@ docs/                  The entire static site = what gets hosted.
   daily.js             Daily/archive selection from the manifest (pickPuzzle/pickById). Pure, no DOM.
   theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
   stats.js             localStorage stats + streak (recordResult is pure; load/save touch storage).
-  frame.js             Which still to show per rung (pickCreditFrame): tight crop -> credit image
-                       + caption -> full-frame fallback. Pure logic, no DOM.
+  frame.js             Which still to show per rung (pickCreditFrame): film-rung crop that widens
+                       one tier per wrong guess (reveal) -> credit image + caption -> full-frame
+                       fallback. Pure logic, no DOM.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
@@ -170,17 +171,20 @@ daily streak/stats.
 **Still deferred (DESIGN §6 parking lot), don't assume these exist:**
 - **Movie Buff** mode — TMDB title autocomplete on the film rung; needs the **v2 server move**
   (a live browser TMDB call would leak the key), so it stays "coming soon" on the mode-select.
-- The rest of the v2/v3 parking lot (curate-a-week-ahead, practice/endless, reveal mechanic,
-  accounts/DB, Score History, server-side matching, degrees-of-separation, …).
+- The rest of the v2/v3 parking lot (practice/endless, light answer obfuscation,
+  accounts/DB, Score History, server-side matching, degrees-of-separation, …). *(Shipped since:
+  curate-a-week-ahead schedule, film search + edit-existing-puzzle, and the reveal mechanic.)*
 
 ## Puzzle file schema
 
 Each day is one self-contained JSON plus its images, under `docs/puzzles/`.
 
 **As implemented today** (`001.json`): `id`, `images` (array of pre-cropped reveal tiers,
-most-zoomed first — though 001 ships only one; **decided:** the curation tool authors 3 tiers,
-but the v1 client renders only `images[0]` — tiers 2–3 are authored-ahead for a future reveal
-mechanic), and `rungs[]` where each rung is
+most-zoomed first — though 001 ships only one; the curation tool authors 3 tiers). The **reveal
+mechanic** now spends them on the film rung: `frame.js` `pickCreditFrame` takes a `revealTier` =
+`game.attempts` (wrong guesses on the current rung), so each miss on rung 1 widens the crop one tier
+toward the full frame (clamped to `images[last]`; single-tier puzzles just stay put). Then
+`rungs[]` where each rung is
 `{ role, prompt, answers[] }`. `answers` is the list of accepted strings (alternate titles,
 language variants, name forms); the matcher accepts any of them.
 

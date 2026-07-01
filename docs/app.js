@@ -162,7 +162,9 @@ function applyTheme(theme) {
 // to load falls back to the full frame so the screen is never broken.
 function updateFrame() {
   const img = $('frame-img'), cap = $('frame-cap');
-  const { src, caption } = pickCreditFrame(game.index, game.rungs, frames);
+  // game.attempts (wrong guesses on the current rung) drives the film-rung reveal:
+  // each miss widens the crop one tier toward the full frame.
+  const { src, caption } = pickCreditFrame(game.index, game.rungs, frames, game.attempts);
   // A credit image (the answered rung's own still/headshot) letterboxes so faces
   // aren't cropped; the film frames stay edge-to-edge (cover).
   const answered = game.rungs[Math.min(game.index, game.rungs.length) - 1];
@@ -282,7 +284,12 @@ function onGuess() {
   const r = game.guess(v);
   $('guess').value = '';
   if (r.result === 'correct') flash('Correct — keep digging.', 'good');
-  else if (r.result === 'wrong') flash(`Not it. ${r.attemptsLeft} ${r.attemptsLeft === 1 ? 'try' : 'tries'} left.`, 'bad');
+  else if (r.result === 'wrong') {
+    // On the film rung, a wrong guess widens the crop (reveal mechanic) — cue it.
+    const widened = game.index === 0 && frames.length > 1 && game.attempts < frames.length;
+    flash(`Not it. ${r.attemptsLeft} ${r.attemptsLeft === 1 ? 'try' : 'tries'} left.`
+          + (widened ? ' More of the frame is showing.' : ''), 'bad');
+  }
   render();
 }
 
