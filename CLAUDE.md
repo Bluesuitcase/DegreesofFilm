@@ -24,8 +24,10 @@ rest of the DESIGN §6 parking lot.
 
 ## Run & test
 
-- **Play it:** the game uses `fetch`, so it needs a server — `file://` won't work. Serve the
-  `docs/` folder and open `index.html`, e.g. `python -m http.server` from inside `docs/`.
+- **Play it:** live at **https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages serves `main`
+  `/docs`; pushes to `main` touching `docs/` auto-deploy). Locally, the game uses `fetch`, so it needs
+  a server — `file://` won't work. Serve the `docs/` folder and open `index.html`, e.g.
+  `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
   `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, and `node frame.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`

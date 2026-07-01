@@ -5,7 +5,7 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (per-rung credit images COMPLETE — PRs #12–#15; all rungs headshotted)._
+_Last updated: 2026-07-01 (v1 COMPLETE + DEPLOYED to GitHub Pages; per-rung credit images PRs #12–#15)._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -32,12 +32,21 @@ _Last updated: 2026-07-01 (per-rung credit images COMPLETE — PRs #12–#15; al
   (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
 ## Current task
-**Per-rung credit images DONE.** Nothing outstanding on this feature. The big undone v1 step is now
-the **GitHub Pages deploy** (serve `docs/`) so the game is actually playable on the web.
+**v1 COMPLETE and DEPLOYED.** Per-rung credit images done + the game is live on GitHub Pages:
+**https://bluesuitcase.github.io/DegreesofFilm/** (Pages serves `main` `/docs`; `docs/.nojekyll`
+disables Jekyll so the static files serve raw). All asset/fetch paths are relative, so it works under
+the `/DegreesofFilm/` subpath. Nothing left on v1 — next work is the v2 parking lot.
+
+## Deploy notes (how the live site is wired)
+- **GitHub Pages**, source = `main` branch `/docs` folder (set via `gh api ... /pages`). Every push to
+  `main` that touches `docs/` re-deploys automatically. Check builds: `gh api repos/Bluesuitcase/
+  DegreesofFilm/pages/builds/latest`.
+- `docs/.nojekyll` present (raw static serve). No custom domain; URL is the default `*.github.io`.
+- **Content treadmill:** only 6 puzzles (through 2026-07-03). Once past that date `pickPuzzle` falls
+  back to the most-recent puzzle, so the daily won't 404 — but it stops being *new*. Curate more.
 
 ## Next steps (pick up here)
-1. **Deploy to GitHub Pages** (serve `docs/`) — the last v1 finishing step; makes it playable online.
-2. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
+1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
    - **Curate a week in advance** — scheduling view in the curation tool (see the coming week's
      slots, which dates are empty, stock ahead). `publish.next_date()` already queues onto the next
      free day; this makes the schedule visible. Curation-side only.
@@ -46,7 +55,8 @@ the **GitHub Pages deploy** (serve `docs/`) so the game is actually playable on 
    - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
    - **Manual character-still overrides** (PARKED — "too much work"): an edit-existing-puzzle mode so
      a curator could swap specific rungs from headshot to a real in-character still. Not built.
-3. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
+   - **Curate more puzzles** — operational, not a feature, but the live daily needs a steady supply.
+2. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
 
 ## Key decisions (why things are the way they are)
