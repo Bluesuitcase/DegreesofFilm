@@ -6,7 +6,7 @@ import { loadStats, saveStats, recordResult } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
-let manifest = [], isArchive = false, mode = 'cinephile';
+let manifest = [], isArchive = false, mode = 'cinephile', frames = [];
 const POSER_RUNGS = 7;
 const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
 
@@ -45,9 +45,9 @@ async function init() {
   $('mode-badge').textContent = MODE_LABELS[mode] || '';
   applyTheme(puzzle.theme);
 
-  const img = $('frame-img');
-  img.src = 'puzzles/' + puzzle.images[0];
-  img.onerror = () => { img.style.display = 'none'; };
+  frames = puzzle.images || [];
+  $('frame-img').onerror = () => { $('frame-img').style.display = 'none'; };
+  updateFrame();
 
   buildRail(playPuzzle.rungs.length);
   wire();
@@ -143,6 +143,19 @@ function applyTheme(theme) {
   }
 }
 
+// The still starts as the tight crop (images[0]) so naming the film is a
+// challenge. Once the film rung is passed (solved or skipped), the crop has
+// done its job — swap to the full uncropped frame (the last, widest tier;
+// authored by the cropper as the full image). Puzzles with a single tier just
+// stay on it. The full frame never shows a title, so it's not a spoiler.
+function updateFrame() {
+  const img = $('frame-img');
+  if (!frames.length) return;
+  const idx = game.index >= 1 ? frames.length - 1 : 0;
+  const want = 'puzzles/' + frames[idx];
+  if (!img.src.endsWith(frames[idx])) img.src = want;
+}
+
 function buildRail(n) {
   const rail = $('rail');
   rail.innerHTML = '';
@@ -161,6 +174,8 @@ function render() {
     m.classList.toggle('done', i < game.index);
     m.classList.toggle('active', i === game.index && game.status === 'playing');
   });
+
+  updateFrame();
 
   if (game.status !== 'playing') return showEnd();
 
