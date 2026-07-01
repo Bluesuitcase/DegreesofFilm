@@ -1,0 +1,137 @@
+{
+  "id": 6,
+  "date": "2026-07-03",
+  "theme": {
+    "accent": "#877b4a",
+    "bg": "#241915",
+    "bg2": "#474029"
+  },
+  "images": [
+    "images/006-1.jpg",
+    "images/006-2.jpg",
+    "images/006-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "Toy Story"
+      ],
+      "decoys": [
+        "The Super Mario Galaxy Movie",
+        "Toy Story 4",
+        "Toy Story 3"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Woody (voice)?",
+      "answers": [
+        "Tom Hanks"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Buzz Lightyear (voice)?",
+      "answers": [
+        "Tim Allen"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "John Lasseter"
+      ],
+      "decoys": [
+        "Phil Lord",
+        "Christopher Miller",
+        "Michael Jelenic"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Mr. Potato Head (voice)?",
+      "answers": [
+        "Don Rickles"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Slinky Dog (voice)?",
+      "answers": [
+        "Jim Varney"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Rex (voice)?",
+      "answers": [
+        "Wallace Shawn"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Hamm (voice)?",
+      "answers": [
+        "John Ratzenberger"
+      ],
+      "decoys": [
+        "Anya Taylor-Joy",
+        "Morgan Freeman",
+        "Jack Black"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "Randy Newman"
+      ],
+      "decoys": [
+        "Michael Giacchino",
+        "Mark Mothersbaugh",
+        "Brian Tyler"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "Lee Unkrich",
+        "Robert Gordon"
+      ],
+      "decoys": [
+        "Chris McKay",
+        "Eric E. Osmond",
+        "Jim Stewart"
+      ]
+    }
+  ]
+}
