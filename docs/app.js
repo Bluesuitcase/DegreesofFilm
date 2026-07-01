@@ -8,13 +8,18 @@ import { pickCreditFrame } from './frame.js';
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
 let manifest = [], isArchive = false, mode = 'cinephile', frames = [];
+let isPractice = false, playedIds = [];
+const practiceTally = { films: 0, cleared: 0, depth: 0 };
 const POSER_RUNGS = 7;
 const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
 
 async function init() {
   const params = new URLSearchParams(location.search);
   if (params.has('modes')) return renderModes();
-  if (!params.has('play') && !params.has('id') && !params.has('archive')) return renderHome();
+  // Practice with no ruleset yet -> the practice chooser (Cinephile/Poser).
+  if (params.has('practice') && !params.has('mode')) return renderPractice();
+  if (!params.has('play') && !params.has('id') && !params.has('archive') && !params.has('practice'))
+    return renderHome();
 
   try {
     // Date-key the manifest fetch so a cached copy can't freeze the daily rotation.
@@ -26,11 +31,44 @@ async function init() {
 
   if (params.has('archive')) return renderArchiveView();
 
-  const wantId = params.has('id') ? Number(params.get('id')) : null;
-  const entry = wantId != null ? pickById(manifest, wantId) : pickPuzzle(manifest, todayISO());
-  if (!entry) { $('prompt').textContent = 'No such puzzle.'; return; }
-  isArchive = wantId != null;
+  isPractice = params.has('practice');
+  mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
 
+  let entry;
+  if (isPractice) {
+    entry = nextPracticeEntry();
+    if (!entry) { $('prompt').textContent = 'No puzzles to practice yet.'; return; }
+    playedIds.push(entry.id);
+  } else {
+    const wantId = params.has('id') ? Number(params.get('id')) : null;
+    entry = wantId != null ? pickById(manifest, wantId) : pickPuzzle(manifest, todayISO());
+    if (!entry) { $('prompt').textContent = 'No such puzzle.'; return; }
+    isArchive = wantId != null;
+  }
+
+  await loadAndStart(entry);
+}
+
+// Practice pool = every published puzzle except today's daily (so a practice run
+// can't spoil the daily). nextPracticeEntry picks one at random, avoiding an
+// immediate repeat whenever there's more than one to choose from.
+function practicePool() {
+  const daily = pickPuzzle(manifest, todayISO());
+  const dailyId = daily ? daily.id : null;
+  return manifest.filter((e) => e.id !== dailyId);
+}
+function nextPracticeEntry() {
+  const pool = practicePool();
+  if (!pool.length) return null;
+  const last = playedIds[playedIds.length - 1];
+  const choices = pool.length > 1 ? pool.filter((e) => e.id !== last) : pool;
+  return choices[Math.floor(Math.random() * choices.length)];
+}
+
+// Fetch a puzzle file and (re)start a fresh game on it using the current `mode`.
+// Shared by the daily/archive load and by each film of a Practice endless run,
+// so it also re-shows the play view and clears per-puzzle render state.
+async function loadAndStart(entry) {
   let puzzle;
   try {
     puzzle = await (await fetch('puzzles/' + entry.file)).json();
@@ -40,10 +78,10 @@ async function init() {
   }
   puzzleId = puzzle.id ?? entry.id ?? 1;
   puzzleDate = puzzle.date || entry.date || todayISO();
-  mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
   const playPuzzle = mode === 'poser' ? poserPuzzle(puzzle) : puzzle;
   game = new Game(playPuzzle, { mode });
-  $('mode-badge').textContent = MODE_LABELS[mode] || '';
+  currentChoices = null; choicesForIndex = -1;   // rebuild choices for the new puzzle
+  $('mode-badge').textContent = (isPractice ? 'Practice · ' : '') + (MODE_LABELS[mode] || '');
   applyTheme(puzzle.theme);
 
   frames = puzzle.images || [];
@@ -59,6 +97,11 @@ async function init() {
       img.style.display = 'none';
     }
   };
+  // Un-hide the play view (a prior film's end screen may have hidden it) and
+  // clear any leftover broken-image display:none before the new frame is set.
+  $('end').classList.add('hidden');
+  $('play').classList.remove('hidden');
+  $('frame-img').style.display = '';
   updateFrame();
 
   buildRail(playPuzzle.rungs.length);
@@ -89,7 +132,7 @@ function enterLobby() {
   $('play').classList.add('hidden');
   $('end').classList.add('hidden');
   $('rail').style.display = 'none';
-  ['home', 'modes', 'archive'].forEach((s) => $(s).classList.add('hidden'));
+  ['home', 'modes', 'archive', 'practice'].forEach((s) => $(s).classList.add('hidden'));
 }
 
 function renderHome() {
@@ -103,6 +146,12 @@ function renderHome() {
 function renderModes() {
   enterLobby();
   $('modes').classList.remove('hidden');
+}
+
+// The practice chooser: pick Cinephile or Poser to start an endless run.
+function renderPractice() {
+  enterLobby();
+  $('practice').classList.remove('hidden');
 }
 
 function renderArchiveView() {
@@ -319,23 +368,40 @@ function showEnd() {
   const r = poser ? null : roast(reached, game.total, won);   // the roast is a Cinephile thing
 
   let stats = loadStats();
-  if (!isArchive && !poser) {          // archive/poser runs don't touch the daily streak/stats
+  if (!isArchive && !poser && !isPractice) {   // archive/poser/practice runs don't touch the daily streak/stats
     stats = recordResult(stats, { date: todayISO(), depth: reached, won });
     saveStats(stats);
   }
+  if (isPractice) {                            // roll this film into the running practice tally
+    practiceTally.films += 1;
+    if (won) practiceTally.cleared += 1;
+    practiceTally.depth += reached;
+  }
 
+  const showCta = r && r.mode && !isPractice;  // the mode-nudge CTA is a daily-run thing
   end.innerHTML = `
     <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>
     <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
     <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs${poser ? ' · Poser' : ''}</p>
-    ${r ? `<p class="roast">${r.text}</p>${r.mode ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}` : ''}
-    ${statsHtml(stats, reached)}
-    <pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>
+    ${r ? `<p class="roast">${r.text}</p>${showCta ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}` : ''}
+    ${isPractice ? practiceHtml() : statsHtml(stats, reached)}
+    ${isPractice ? '' : `<pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>`}
     <div class="endbtns">
-      <button id="copy" class="copy">Copy result</button>
-      <button id="again" class="again">Play again</button>
+      ${isPractice
+        ? `<button id="next" class="copy">Next film →</button><a class="again" style="text-decoration:none" href="?modes">End practice</a>`
+        : `<button id="copy" class="copy">Copy result</button><button id="again" class="again">Play again</button>`}
     </div>`;
+
+  if (isPractice) {
+    $('next').onclick = async () => {
+      const entry = nextPracticeEntry();
+      if (!entry) { flash('No more puzzles to practice.', 'muted'); return; }
+      playedIds.push(entry.id);
+      await loadAndStart(entry);
+    };
+    return;
+  }
   $('again').onclick = () => location.reload();
   $('copy').onclick = async () => {
     const btn = $('copy');
@@ -343,6 +409,19 @@ function showEnd() {
     catch { btn.textContent = 'Press Ctrl/Cmd+C'; }
     setTimeout(() => { btn.textContent = 'Copy result'; }, 1600);
   };
+}
+
+// Running-tally panel for a Practice endless run (in place of the daily stats).
+function practiceHtml() {
+  const t = practiceTally;
+  const avg = t.films ? (t.depth / t.films).toFixed(1) : '0';
+  return `
+    <div class="statgrid">
+      <div><b>${t.films}</b><span>films</span></div>
+      <div><b>${t.cleared}</b><span>cleared</span></div>
+      <div><b>${t.depth}</b><span>total depth</span></div>
+      <div><b>${avg}</b><span>avg depth</span></div>
+    </div>`;
 }
 
 // Spoiler-free shareable result: a depth bar (dug rungs vs remaining) + score.

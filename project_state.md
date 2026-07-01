@@ -5,9 +5,9 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (PAUSED for token budget. v1 live; v2: schedule+search+edit merged #16–#17,
-Avatar added; reveal mechanic BUILT — PR #18 OPEN/unmerged; practice/endless is next but its design is
-UNDECIDED). Resume in a new session — read this whole file first._
+_Last updated: 2026-07-01 (v1 live; v2: schedule+search+edit merged #16–#17, Avatar added; reveal
+mechanic MERGED — PR #18 rebased to `main`, live; **Practice/endless mode BUILT + committed direct to
+`main`** (endless run + tally, ruleset chooser). Next: light answer obfuscation + curate more puzzles._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -47,24 +47,22 @@ UNDECIDED). Resume in a new session — read this whole file first._
 - All tests green: 6 JS suites (`match/game/daily/theme/stats/frame`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
-## Current task — PAUSED (token budget). Resume points, in order:
-1. **Merge PR #18 (reveal mechanic).** It's built + verified, just unmerged. `gh pr merge 18 --rebase
-   --delete-branch` (auth per the gh-auth memory). Touches `docs/` → redeploys the live site; confirm
-   deploy after (poll `https://bluesuitcase.github.io/DegreesofFilm/` for 200 + updated `frame.js`).
-2. **Build practice/endless mode — DESIGN NOT YET DECIDED.** The user asked to start it, but then
-   dismissed the design questions (so DO NOT assume a shape). Re-open the design chat first. Options I
-   had proposed (pick up here):
-   - **Shape:** (a) *endless run + session tally* — finish a random past puzzle → auto-offer the next,
-     with a running tally (films cleared, total depth), no daily-stat impact [my recommendation];
-     (b) *one-off random*; (c) *pick from a list* (≈ the archive browser, which already exists).
-   - **Ruleset:** Cinephile (the full dig) vs. let the player choose Cinephile/Poser.
-   - **Pool/spoilers:** draw from published puzzles (manifest); **exclude today's daily** so practice
-     can't spoil the daily. Only 7 puzzles today, so "endless" will repeat — fine for practice.
-   - **Wiring (all client-side, stays static v2):** add a **Practice** card to the mode-select
-     (`docs/index.html` `#modes`, currently Cinephile+Poser lit, Movie Buff "coming soon"); route via
-     a new mode/param (e.g. `?practice` or `?play&mode=practice`); reuse `pickById`/random from the
-     manifest; practice/archived/poser runs must NOT touch the daily streak/stats (existing guard:
-     `isArchive`/`poser` in `app.js` `showEnd`). No server work, no new puzzle data.
+## Current task — DONE this session (both shipped to `main`):
+1. **PR #18 (reveal mechanic) MERGED** — rebased to `main` (commit `995c01e`), branch deleted, Pages
+   built + confirmed live (deployed `frame.js` byte-matches `main`).
+2. **Practice/endless mode BUILT + committed direct to `main`** (client-only: `docs/index.html`,
+   `docs/app.js`; no server, no new puzzle data). Decisions taken this session:
+   - **Shape:** *endless run + session tally* — finish a random past puzzle → **"Next film →"** loads
+     the next; running tally = films / cleared / total depth / avg depth. No daily-stat impact.
+   - **Ruleset:** **player chooses** Cinephile or Poser at the start (a Practice chooser screen).
+   - **Pool/spoilers:** random from the manifest, **excluding today's daily**; avoids an immediate
+     repeat when >1 puzzle. (Only ~7 puzzles, so it will repeat — fine.)
+   - **Wiring:** `#modes` has a **Practice** card → `?practice` (chooser, `renderPractice`) → the two
+     ruleset links `?practice&mode=cinephile|poser` start the run. `app.js`: `isPractice`/`playedIds`/
+     `practiceTally` state; `practicePool()`/`nextPracticeEntry()`; the puzzle-load body was extracted
+     into `loadAndStart(entry)` so "Next film" re-runs it without a full reload. `showEnd` guards stats
+     with `!isPractice` (alongside `isArchive`/`poser`), shows `practiceHtml()` tally + Next/End
+     buttons, and hides the share for practice. Verified in preview; 6 node suites green.
 
 **Live site:** https://bluesuitcase.github.io/DegreesofFilm/ (Pages serves `main` `/docs`).
 
@@ -78,8 +76,7 @@ UNDECIDED). Resume in a new session — read this whole file first._
   (the schedule strip + edit flow make stocking + fixing days easy now).
 
 ## Next steps (pick up here)
-1. **Merge #18**, then **practice/endless mode** (design chat first — see Current task above).
-2. **Remaining v2** (DESIGN §6): **light answer obfuscation** (base64/cipher the in-JSON answers);
+1. **Remaining v2** (DESIGN §6): **light answer obfuscation** (base64/cipher the in-JSON answers);
    **curate more puzzles** (operational; the live daily needs a steady supply — the schedule + edit
    flow make this easy now).
 3. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
