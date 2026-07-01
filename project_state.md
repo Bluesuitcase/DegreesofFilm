@@ -5,7 +5,7 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (v1 COMPLETE + DEPLOYED to GitHub Pages; per-rung credit images PRs #12–#15)._
+_Last updated: 2026-07-01 (v1 live; v2 curation started — schedule + search + edit merged, PRs #16–#17; puzzle 007 Avatar added)._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -25,37 +25,42 @@ _Last updated: 2026-07-01 (v1 COMPLETE + DEPLOYED to GitHub Pages; per-rung cred
   cast-specific *character stills* but TMDB tagged images are too sparse (mostly generic backdrops
   shared across the cast), so headshots are the uniform default. Missing headshot → **hold the full
   frame**. Caption = **"Name as Character"** for cast, name only for crew. The crop-tool picker still
-  allows a manual in-character override, but **that's parked** (user: "too much work") — no
-  edit-existing-puzzle mode was built.
-- **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03**, every credit rung now imaged.
+  allows a manual in-character override (unused by default).
+- **v2 curation started — MERGED to `main`:**
+  - **#16 (week-ahead schedule)** — `publish.upcoming_schedule()`/`runway()` + `/api/schedule`; a
+    14-day strip at the top of the crop tool (runway headline; empty days clickable to target a date).
+  - **#17 (search + edit)** — `/api/search` free-text title search across all TMDB (used films badged
+    → route to edit); **edit-existing-puzzle** flow (`/api/puzzle/{id}` load + `/api/update` rewrite):
+    reschedule, re-edit rungs/credit images, optionally re-crop. Reachable from a filled schedule day
+    or a used search hit. `manifest.upsert` now keys on id+date so reschedules don't leave stale entries.
+- **7 puzzles live** (001–007): No Country, Interstellar, Forrest Gump, Dark Knight, Harry Potter,
+  Toy Story, **Avatar** (007, 2026-07-04). Dated **2026-06-28 .. 07-04**, every credit rung imaged.
 - All tests green: 6 JS suites (`match/game/daily/theme/stats/frame`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
 ## Current task
-**v1 COMPLETE and DEPLOYED.** Per-rung credit images done + the game is live on GitHub Pages:
-**https://bluesuitcase.github.io/DegreesofFilm/** (Pages serves `main` `/docs`; `docs/.nojekyll`
-disables Jekyll so the static files serve raw). All asset/fetch paths are relative, so it works under
-the `/DegreesofFilm/` subpath. Nothing left on v1 — next work is the v2 parking lot.
+**v1 live + v2 curation underway.** Game live on GitHub Pages:
+**https://bluesuitcase.github.io/DegreesofFilm/** (Pages serves `main` `/docs`; `docs/.nojekyll`).
+This session shipped the first three v2 curation items — the week-ahead schedule (#16), film search,
+and edit-existing-puzzle (#17) — and added puzzle 007 (Avatar), all deployed. Next v2 pick: the
+**reveal mechanic** (client-only; the cropper already authors tiers 2–3).
 
 ## Deploy notes (how the live site is wired)
 - **GitHub Pages**, source = `main` branch `/docs` folder (set via `gh api ... /pages`). Every push to
   `main` that touches `docs/` re-deploys automatically. Check builds: `gh api repos/Bluesuitcase/
   DegreesofFilm/pages/builds/latest`.
 - `docs/.nojekyll` present (raw static serve). No custom domain; URL is the default `*.github.io`.
-- **Content treadmill:** only 6 puzzles (through 2026-07-03). Once past that date `pickPuzzle` falls
-  back to the most-recent puzzle, so the daily won't 404 — but it stops being *new*. Curate more.
+- **Content treadmill:** 7 puzzles now (through 2026-07-04). Past the last date `pickPuzzle` falls
+  back to the most-recent puzzle, so the daily won't 404 — but it stops being *new*. Keep curating
+  (the schedule strip + edit flow make stocking + fixing days easy now).
 
 ## Next steps (pick up here)
 1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
-   - **Curate a week in advance** — scheduling view in the curation tool (see the coming week's
-     slots, which dates are empty, stock ahead). `publish.next_date()` already queues onto the next
-     free day; this makes the schedule visible. Curation-side only.
    - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). Cropper
-     already authors all 3 tiers; client-only wiring.
+     already authors all 3 tiers; client-only wiring. **Best next pick.**
    - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
-   - **Manual character-still overrides** (PARKED — "too much work"): an edit-existing-puzzle mode so
-     a curator could swap specific rungs from headshot to a real in-character still. Not built.
-   - **Curate more puzzles** — operational, not a feature, but the live daily needs a steady supply.
+   - **Curate more puzzles** — operational; the live daily needs a steady supply.
+   - DONE this session: week-ahead schedule (#16), film search + edit-existing-puzzle (#17).
 2. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
 
