@@ -41,13 +41,17 @@ rest of the DESIGN §6 parking lot.
   the crop/sample tests use Pillow.
 - **Curation crop tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
   then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
-  `curation/.env`. Flow: discover an unused film → pick a still and drag a crop box → review the
-  drafted rungs/decoys → **pick a per-rung credit image** (character still for cast, headshot for
-  crew, pre-selected) → **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung
-  credit images, appends the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in
-  the modules above.) The top of the page shows a **week-ahead schedule** (`/api/schedule`): the
-  coming 14 days flagged stocked/empty with a "runway" count (consecutive stocked days from today);
-  clicking an empty day targets it in the approve date field. Publishing auto-fills the next free day.
+  `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB) or
+  **Discover** (unused shortlist) → pick a still and drag a crop box → review the drafted
+  rungs/decoys → **pick a per-rung credit image** (headshot default; character-still override) →
+  **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung credit images, appends
+  the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in the modules above.) The
+  top of the page shows a **week-ahead schedule** (`/api/schedule`): the coming 14 days flagged
+  stocked/empty with a "runway" count (consecutive stocked days from today); clicking an empty day
+  targets it in the approve date field, and clicking a **filled** day (or a search hit already made
+  into a puzzle) opens it for **editing** (`/api/puzzle/{id}` → `/api/update`): reschedule, re-edit
+  rungs/credit images, and optionally re-crop the frame; the update rewrites the puzzle in place and
+  moves its manifest entry (the ledger is untouched). Publishing auto-fills the next free day.
 
 ## Architecture — three zones
 
