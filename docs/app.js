@@ -3,6 +3,7 @@ import { Game, MAX_ATTEMPTS } from './game.js';
 import { pickPuzzle, pickById, todayISO } from './daily.js';
 import { onAccentText } from './theme.js';
 import { loadStats, saveStats, recordResult } from './stats.js';
+import { pickCreditFrame } from './frame.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
@@ -46,7 +47,18 @@ async function init() {
   applyTheme(puzzle.theme);
 
   frames = puzzle.images || [];
-  $('frame-img').onerror = () => { $('frame-img').style.display = 'none'; };
+  // A missing person image falls back to the full frame; if even that fails,
+  // hide the (broken) image rather than leave it dangling.
+  $('frame-img').onerror = () => {
+    const full = frames.length ? 'puzzles/' + frames[frames.length - 1] : null;
+    const img = $('frame-img');
+    if (full && !img.src.endsWith(frames[frames.length - 1])) {
+      $('frame-cap').style.display = 'none';
+      img.src = full;
+    } else {
+      img.style.display = 'none';
+    }
+  };
   updateFrame();
 
   buildRail(playPuzzle.rungs.length);
@@ -143,17 +155,22 @@ function applyTheme(theme) {
   }
 }
 
-// The still starts as the tight crop (images[0]) so naming the film is a
-// challenge. Once the film rung is passed (solved or skipped), the crop has
-// done its job — swap to the full uncropped frame (the last, widest tier;
-// authored by the cropper as the full image). Puzzles with a single tier just
-// stay on it. The full frame never shows a title, so it's not a spoiler.
+// The still tracks the last credit you answered (see frame.js for the rule):
+// tight crop on the film rung, then each passed credit rung swaps in that
+// person's image + caption, and any imageless rung holds the full uncropped
+// frame (which is also what the film rung reveals). A person image that fails
+// to load falls back to the full frame so the screen is never broken.
 function updateFrame() {
-  const img = $('frame-img');
-  if (!frames.length) return;
-  const idx = game.index >= 1 ? frames.length - 1 : 0;
-  const want = 'puzzles/' + frames[idx];
-  if (!img.src.endsWith(frames[idx])) img.src = want;
+  const img = $('frame-img'), cap = $('frame-cap');
+  const { src, caption } = pickCreditFrame(game.index, game.rungs, frames);
+  if (src && !img.src.endsWith(src)) {
+    img.src = 'puzzles/' + src;
+    img.style.display = '';
+  }
+  if (cap) {
+    cap.textContent = caption || '';
+    cap.style.display = caption ? '' : 'none';
+  }
 }
 
 function buildRail(n) {
