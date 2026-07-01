@@ -58,7 +58,9 @@
         "Tim Burton",
         "Matt Reeves",
         "D.J. Caruso"
-      ]
+      ],
+      "caption": "Christopher Nolan",
+      "image": "images/004-r4.jpg"
     },
     {
       "role": "Cast",
@@ -118,7 +120,9 @@
         "Greig Fraser",
         "Roger Pratt",
         "Guillermo Navarro"
-      ]
+      ],
+      "caption": "Wally Pfister",
+      "image": "images/004-r9.jpg"
     },
     {
       "role": "Composer",
@@ -131,7 +135,9 @@
         "Michael Giacchino",
         "Danny Elfman",
         "Mark Isham"
-      ]
+      ],
+      "caption": "James Newton Howard",
+      "image": "images/004-r10.jpg"
     },
     {
       "role": "Editor",
@@ -143,7 +149,9 @@
         "William Hoy",
         "Stuart Levy",
         "Jim Page"
-      ]
+      ],
+      "caption": "Lee Smith",
+      "image": "images/004-r11.jpg"
     },
     {
       "role": "Production Designer",
@@ -155,7 +163,9 @@
         "James Chinlund",
         "Michelle McGahey",
         "Alec Hammond"
-      ]
+      ],
+      "caption": "Nathan Crowley",
+      "image": "images/004-r12.jpg"
     }
   ]
 }

@@ -58,7 +58,9 @@
         "Phil Lord",
         "Christopher Miller",
         "Michael Jelenic"
-      ]
+      ],
+      "caption": "John Lasseter",
+      "image": "images/006-r4.jpg"
     },
     {
       "role": "Cast",
@@ -118,7 +120,9 @@
         "Michael Giacchino",
         "Mark Mothersbaugh",
         "Brian Tyler"
-      ]
+      ],
+      "caption": "Randy Newman",
+      "image": "images/006-r9.jpg"
     },
     {
       "role": "Editor",
@@ -131,7 +135,9 @@
         "Chris McKay",
         "Eric E. Osmond",
         "Jim Stewart"
-      ]
+      ],
+      "caption": "Lee Unkrich",
+      "image": "images/006-r10.jpg"
     }
   ]
 }

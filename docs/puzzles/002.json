@@ -58,7 +58,9 @@
         "Steven Spielberg",
         "J.J. Abrams",
         "Joe Russo"
-      ]
+      ],
+      "caption": "Christopher Nolan",
+      "image": "images/002-r4.jpg"
     },
     {
       "role": "Cast",
@@ -118,7 +120,9 @@
         "Janusz Kamiński",
         "Greig Fraser",
         "David Tattersall"
-      ]
+      ],
+      "caption": "Hoyte van Hoytema",
+      "image": "images/002-r9.jpg"
     },
     {
       "role": "Composer",
@@ -130,7 +134,9 @@
         "Michael Giacchino",
         "John Williams",
         "Alan Silvestri"
-      ]
+      ],
+      "caption": "Hans Zimmer",
+      "image": "images/002-r10.jpg"
     },
     {
       "role": "Editor",
@@ -142,7 +148,9 @@
         "Michael Kahn",
         "Jeffrey Ford",
         "Hank Corwin"
-      ]
+      ],
+      "caption": "Lee Smith",
+      "image": "images/002-r11.jpg"
     },
     {
       "role": "Production Designer",
@@ -154,7 +162,9 @@
         "Charles Wood",
         "Rick Carter",
         "Harold Michelson"
-      ]
+      ],
+      "caption": "Nathan Crowley",
+      "image": "images/002-r12.jpg"
     }
   ]
 }

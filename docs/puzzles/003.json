@@ -58,7 +58,9 @@
         "David Fincher",
         "Kevin Smith",
         "Chris Weitz"
-      ]
+      ],
+      "caption": "Robert Zemeckis",
+      "image": "images/003-r4.jpg"
     },
     {
       "role": "Cast",
@@ -118,7 +120,9 @@
         "Emmanuel Lubezki",
         "Janusz Kamiński",
         "Claudio Miranda"
-      ]
+      ],
+      "caption": "Don Burgess",
+      "image": "images/003-r9.jpg"
     },
     {
       "role": "Composer",
@@ -130,7 +134,9 @@
         "Alexandre Desplat",
         "Nancy Wilson",
         "Patrick Doyle"
-      ]
+      ],
+      "caption": "Alan Silvestri",
+      "image": "images/003-r10.jpg"
     },
     {
       "role": "Editor",
@@ -142,7 +148,9 @@
         "Kevin Smith",
         "Scott Mosier",
         "Kirk Baxter"
-      ]
+      ],
+      "caption": "Arthur Schmidt",
+      "image": "images/003-r11.jpg"
     },
     {
       "role": "Production Designer",
@@ -154,7 +162,9 @@
         "Jim Clay",
         "Donald Graham Burt",
         "Stephen J. Lineweaver"
-      ]
+      ],
+      "caption": "Rick Carter",
+      "image": "images/003-r12.jpg"
     }
   ]
 }
