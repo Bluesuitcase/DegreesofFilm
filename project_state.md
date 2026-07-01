@@ -5,38 +5,46 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-06-30 (after merging the playtest UX-polish batch, PRs #7–#11)._
+_Last updated: 2026-07-01 (per-rung credit images built — PRs #12 & #13 open, awaiting review/merge)._
 
 ## Where we are
-- **v1 (Cinephile) + polish + v2 Poser mode + a UX-polish batch are ALL merged to `main`** —
-  PRs **#1–#11 merged**, no open branches, working tree clean, all 12 test suites green.
-- **UX-polish batch (PRs #7–#11)** shipped 5 of the 6 playtest items: home tagline word-order (#7),
-  Skip −1 hover tooltip (#8), in-game mode label above the still (#9), home CTA tooltips (#10),
-  reveal full uncropped frame after the film rung (#11). **Only per-rung credit images (#5) remain.**
-- **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03** (No Country, Interstellar, Forrest
-  Gump, The Dark Knight, Harry Potter, Toy Story).
-- All tests green: 5 JS suites (`match/game/daily/theme/stats`) + 7 Python
-  (`build_rungs/ledger/discover/decoys/manifest/publish/images`).
+- **v1 + polish + Poser + UX-polish batch are merged to `main`** — PRs **#1–#11 merged**.
+- **Per-rung credit images built this session — two PRs OPEN, not yet merged:**
+  - **PR #12 (client + schema foundation)** — new `docs/frame.js` `pickCreditFrame()` selects the
+    still per rung (tight crop → the answered credit's image + caption → full-frame fallback);
+    `app.js`/`index.html`/`style.css` render the swap + caption overlay; optional per-rung
+    `image`/`caption` schema fields. `frame.test.js` (10 cases). **Behavior unchanged for existing
+    puzzles** (no rung has an image yet, so it always falls back to the old reveal).
+  - **PR #13 (curation authoring, stacked on #12)** — new `curation/credits_images.py` (maps rungs→
+    people, offers candidate stills, finalizes picked image/caption + strips helper fields);
+    `/api/film` + `/api/approve` wired; crop UI gains a per-rung image picker; client letterboxes
+    credit stills (`object-fit:contain`). `credits_images.test.py` (27 cases).
+- **Design decisions (from the design chat):** cast rungs → **character still** (curator hand-picks
+  from tagged stills / movie backdrops); crew rungs → **TMDB headshot** (auto pre-selected); missing
+  image → **hold the full frame**; caption = **"Name as Character"** (name only for crew).
+- **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03** — none have credit images yet
+  (backfill pending, see below).
+- All tests green: 6 JS suites (`match/game/daily/theme/stats/frame`) + 7 Python
+  (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
 ## Current task
-UX-polish batch (#7–#11) merged. **Next up: per-rung credit images** (the last playtest item) — a
-curation-side feature: after each rung, swap the still to an image of the credit just answered
-(ideally as their character; practical fallback = TMDB person profile photo). Needs a new per-rung
-`image` schema field, curation fetch/store, and re-publishing existing puzzles. **Wants a quick
-design chat before starting** (character-still availability, fallback, schema shape).
+**Per-rung credit images — code complete, PRs #12 & #13 open (unmerged).** I couldn't self-merge
+(two-party review guard). Next actions: **(1)** review + merge #12, then #13 (rebase #13 onto main
+after #12 lands so its diff is curation-only). **(2)** **Backfill the 6 live puzzles** — re-approve
+each film through the crop tool to pick cast stills. This is a manual pass (needs the TMDB key +
+your eye on which still shows each actor); crew headshots could be scripted separately if wanted.
 
 ## Next steps (pick up here)
-1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
+1. **Land per-rung credit images:** merge **#12** then **#13**, then **backfill the 6 puzzles**
+   (manual crop-tool pass to pick cast stills). This closes the last playtest item (DESIGN §6 "UX
+   polish") — all other 2026-06-30 playtest items already shipped in PRs #7–#11.
+2. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
    - **Curate a week in advance** — scheduling view in the curation tool (see the coming week's
      slots, which dates are empty, stock ahead). `publish.next_date()` already queues onto the next
      free day; this makes the schedule visible. Curation-side only.
    - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). Cropper
      already authors all 3 tiers; client-only wiring.
    - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
-   - **Per-rung credit images** (last remaining playtest item, DESIGN §6 "UX polish") — after each
-     rung, swap the still to the credit just answered (person-as-character; fallback = TMDB profile
-     photo). Needs curation + a new per-rung `image` schema field + re-publishing puzzles. The rest
-     of the 2026-06-30 playtest batch is DONE (PRs #7–#11).
 3. **Undone v1 finishing step:** deploy to **GitHub Pages** (serve `docs/`) so it's playable on the web.
 4. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
@@ -49,6 +57,11 @@ design chat before starting** (character-still availability, fallback, schema sh
   titles** (no spoilers). **Archived and Poser runs don't touch the daily streak/stats.**
 - **I Need Help lifeline:** a wrong multiple-choice pick **burns an attempt** (not a guaranteed pass).
 - **Image tiers:** cropper authors **3**; client shows only tier 1 (reveal mechanic deferred to v2).
+- **Per-rung credit images:** shown *after* a rung is answered. **Cast → character still** (curator
+  hand-picks; TMDB has no queryable actor-as-character image, so it's manual — candidates = tagged
+  stills + movie backdrops + headshot); **crew → TMDB headshot** (auto). Missing image → **hold the
+  full frame** (the film-rung reveal). Caption = **"Name as Character"** (name only for crew). Helper
+  fields (person_id/profile/candidates/image_pick) ride the draft but are **stripped before publish**.
 - **Theming:** per-puzzle `theme {accent, bg, bg2}` sampled from the still's palette; page tints the
   background (bg2→bg gradient) but **bone text stays fixed** for legibility.
 - **Poser mode:** all-MC, ladder trimmed to first **7** decoy-bearing rungs, flat **+1**; reuses
