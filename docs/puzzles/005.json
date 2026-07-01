@@ -58,7 +58,9 @@
         "Alfonso Cuarón",
         "Victor Fleming",
         "David Yates"
-      ]
+      ],
+      "caption": "Chris Columbus",
+      "image": "images/005-r4.jpg"
     },
     {
       "role": "Cast",
@@ -118,7 +120,9 @@
         "Eduardo Serra",
         "Roger Pratt",
         "Bruno Delbonnel"
-      ]
+      ],
+      "caption": "John Seale",
+      "image": "images/005-r9.jpg"
     },
     {
       "role": "Composer",
@@ -130,7 +134,9 @@
         "Alexandre Desplat",
         "Nicholas Hooper",
         "Harold Arlen"
-      ]
+      ],
+      "caption": "John Williams",
+      "image": "images/005-r10.jpg"
     },
     {
       "role": "Editor",
@@ -142,7 +148,9 @@
         "Mick Audsley",
         "Peter Honess",
         "Mark Day"
-      ]
+      ],
+      "caption": "Richard Francis-Bruce",
+      "image": "images/005-r11.jpg"
     },
     {
       "role": "Production Designer",
@@ -150,7 +158,9 @@
       "answers": [
         "Stuart Craig"
       ],
-      "decoys": []
+      "decoys": [],
+      "caption": "Stuart Craig",
+      "image": "images/005-r12.jpg"
     }
   ]
 }

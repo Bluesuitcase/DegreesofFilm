@@ -62,7 +62,9 @@
         "Ron Howard",
         "Orson Welles",
         "John Boorman"
-      ]
+      ],
+      "caption": "Coen brothers",
+      "image": "images/001-r4.jpg"
     },
     {
       "role": "Cast",
@@ -112,7 +114,9 @@
         "Kim Ji-yong",
         "Philip H. Lathrop",
         "John Schwartzman"
-      ]
+      ],
+      "caption": "Roger Deakins",
+      "image": "images/001-r8.jpg"
     },
     {
       "role": "Composer",
@@ -124,7 +128,9 @@
         "James Horner",
         "Quincy Jones",
         "Thomas Newman"
-      ]
+      ],
+      "caption": "Carter Burwell",
+      "image": "images/001-r9.jpg"
     },
     {
       "role": "Editor",
@@ -151,7 +157,9 @@
         "Michael Corenblith",
         "Franco-Giacomo Carbone",
         "David Lazan"
-      ]
+      ],
+      "caption": "Jess Gonchor",
+      "image": "images/001-r11.jpg"
     }
   ]
 }
