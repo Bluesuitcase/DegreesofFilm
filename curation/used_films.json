@@ -34,5 +34,11 @@
     "title": "Toy Story",
     "year": "1995",
     "puzzle": 6
+  },
+  {
+    "id": 19995,
+    "title": "Avatar",
+    "year": "2009",
+    "puzzle": 7
   }
 ]

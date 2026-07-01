@@ -40,5 +40,12 @@
     "file": "006.json",
     "title": "Toy Story",
     "accent": "#877b4a"
+  },
+  {
+    "date": "2026-07-04",
+    "id": 7,
+    "file": "007.json",
+    "title": "Avatar",
+    "accent": "#987254"
   }
 ]

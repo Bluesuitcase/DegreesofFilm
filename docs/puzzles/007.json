@@ -1,0 +1,185 @@
+{
+  "id": 7,
+  "date": "2026-07-04",
+  "theme": {
+    "accent": "#987254",
+    "bg": "#151c24",
+    "bg2": "#473020"
+  },
+  "images": [
+    "images/007-1.jpg",
+    "images/007-2.jpg",
+    "images/007-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "Avatar"
+      ],
+      "decoys": [
+        "The Matrix",
+        "Man of Steel",
+        "Alita: Battle Angel"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Jake Sully?",
+      "answers": [
+        "Sam Worthington"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Sam Worthington as Jake Sully",
+      "image": "images/007-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Neytiri?",
+      "answers": [
+        "Zoe Saldaña"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Zoe Saldaña as Neytiri",
+      "image": "images/007-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "James Cameron"
+      ],
+      "decoys": [
+        "George Lucas",
+        "J.J. Abrams",
+        "Zack Snyder"
+      ],
+      "caption": "James Cameron",
+      "image": "images/007-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Dr. Grace Augustine?",
+      "answers": [
+        "Sigourney Weaver"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Sigourney Weaver as Dr. Grace Augustine",
+      "image": "images/007-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Colonel Miles Quaritch?",
+      "answers": [
+        "Stephen Lang"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Stephen Lang as Colonel Miles Quaritch",
+      "image": "images/007-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Trudy Chacon?",
+      "answers": [
+        "Michelle Rodriguez"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Michelle Rodriguez as Trudy Chacon",
+      "image": "images/007-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Parker Selfridge?",
+      "answers": [
+        "Giovanni Ribisi"
+      ],
+      "decoys": [
+        "Henry Cavill",
+        "Jennifer Connelly",
+        "Keanu Reeves"
+      ],
+      "caption": "Giovanni Ribisi as Parker Selfridge",
+      "image": "images/007-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "Mauro Fiore"
+      ],
+      "decoys": [
+        "Leon Shamroy",
+        "Bill Pope",
+        "Dan Mindel"
+      ],
+      "caption": "Mauro Fiore",
+      "image": "images/007-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "James Horner"
+      ],
+      "decoys": [
+        "Hans Zimmer",
+        "John Williams",
+        "Tom Holkenborg"
+      ],
+      "caption": "James Horner",
+      "image": "images/007-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "James Cameron",
+        "John Refoua",
+        "Stephen E. Rivkin"
+      ],
+      "decoys": [
+        "Ben Burtt",
+        "Stefan Grube",
+        "David Brenner"
+      ],
+      "caption": "James Cameron",
+      "image": "images/007-r11.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "Rick Carter",
+        "Robert Stromberg"
+      ],
+      "decoys": [
+        "Steve Joyner",
+        "Gavin Bocquet",
+        "Alex McDowell"
+      ],
+      "caption": "Rick Carter",
+      "image": "images/007-r12.jpg"
+    }
+  ]
+}
