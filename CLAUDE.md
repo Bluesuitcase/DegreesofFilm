@@ -1,5 +1,9 @@
 # Degrees of Film
 
+> **New session? Read [`project_state.md`](project_state.md) FIRST**, then keep it updated as you
+> work. It's the running handoff — current task, decisions, next steps. This file (CLAUDE.md)
+> explains how the code works; `project_state.md` tracks where we are right now.
+
 A daily browser game testing film knowledge. You're shown a cropped frame from a film
 (title hidden), name it, then dig down through its credits from famous to obscure. The
 brag number is **depth** — how many rungs deep you got.
@@ -59,8 +63,9 @@ Consequence: v1 needs **no backend for players**. v1 also ships answers in plain
 ## File layout
 
 ```
-DESIGN.md              Full v1 spec + build roadmap + v2 parking lot. Read this first.
-CLAUDE.md              This file.
+DESIGN.md              Full v1 spec + build roadmap + v2/v3 parking lot.
+CLAUDE.md              This file (how the code works).
+project_state.md       Running session handoff — current task, decisions, next steps. Read FIRST.
 package.json           Just { "type": "module" }.
 match.test.js          Matcher tests (node match.test.js). Cases mirror puzzle 001's answers.
 game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs.
