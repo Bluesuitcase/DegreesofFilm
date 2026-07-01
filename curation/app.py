@@ -8,6 +8,7 @@ build_rungs, decoys, images, publish). Run from the repo root:
 
 (or use the "curation" entry in .claude/launch.json).
 """
+import datetime
 import io
 import os
 import urllib.request
@@ -49,6 +50,16 @@ def index():
 def api_next_date():
     # Default the crop UI's date to the next free day so publishes don't collide.
     return {"date": publish_mod.next_date(manifest_mod.load())}
+
+
+@app.get("/api/schedule")
+def api_schedule(days: int = 14):
+    # The coming days flagged filled/empty, plus the runway (consecutive stocked
+    # days from today) — the "curate a week ahead" view. No key needed.
+    man = manifest_mod.load()
+    return {"today": datetime.date.today().isoformat(),
+            "runway": publish_mod.runway(man),
+            "slots": publish_mod.upcoming_schedule(man, days=days)}
 
 
 @app.get("/api/discover")

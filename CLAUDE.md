@@ -45,7 +45,9 @@ rest of the DESIGN §6 parking lot.
   drafted rungs/decoys → **pick a per-rung credit image** (character still for cast, headshot for
   crew, pre-selected) → **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung
   credit images, appends the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in
-  the modules above.)
+  the modules above.) The top of the page shows a **week-ahead schedule** (`/api/schedule`): the
+  coming 14 days flagged stocked/empty with a "runway" count (consecutive stocked days from today);
+  clicking an empty day targets it in the approve date field. Publishing auto-fills the next free day.
 
 ## Architecture — three zones
 
@@ -102,7 +104,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
                        the picked image/caption + strip helper fields at approve (pure core) + CLI.
   images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
   publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
-                       next_date() defaults publish dates to the next free day (no manifest collisions).
+                       next_date() defaults publish dates to the next free day (no manifest collisions);
+                       upcoming_schedule()/runway() power the week-ahead scheduling view.
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.

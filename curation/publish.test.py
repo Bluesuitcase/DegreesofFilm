@@ -88,5 +88,34 @@ check("next_date -> latest + 1 day",
 check("next_date ignores undated entries",
       publish.next_date([{"id": 1}, {"date": "2026-06-30"}], today="2026-06-01"), "2026-07-01")
 
+# --- upcoming_schedule: the week-ahead view ---
+MAN = [
+    {"date": "2026-07-01", "id": 4, "title": "The Dark Knight", "accent": "#6d733f"},
+    {"date": "2026-07-02", "id": 5, "title": "Harry Potter", "accent": "#73563f"},
+    {"date": "2026-07-04", "id": 6, "title": "Toy Story", "accent": "#877b4a"},  # gap on 07-03
+]
+sched = publish.upcoming_schedule(MAN, today="2026-07-01", days=5)
+check("schedule spans the window", [s["date"] for s in sched],
+      ["2026-07-01", "2026-07-02", "2026-07-03", "2026-07-04", "2026-07-05"])
+check("today flagged only on the first slot",
+      [s["is_today"] for s in sched], [True, False, False, False, False])
+check("filled/empty tracks the manifest (07-03 is a gap)",
+      [s["filled"] for s in sched], [True, True, False, True, False])
+check("filled slot carries its puzzle", sched[0]["title"], "The Dark Knight")
+check("filled slot carries id + accent",
+      (sched[3]["id"], sched[3]["accent"]), (6, "#877b4a"))
+check("empty slot is blank", (sched[2]["id"], sched[2]["title"]), (None, None))
+check("weekday label present", sched[0]["weekday"], "Wed")   # 2026-07-01 is a Wednesday
+check("days=0 -> empty schedule", publish.upcoming_schedule(MAN, today="2026-07-01", days=0), [])
+
+# --- runway: consecutive stocked days from today until the first gap ---
+check("runway counts to the first gap (07-01,02 then 03 empty)",
+      publish.runway(MAN, today="2026-07-01"), 2)
+check("runway 0 when today itself is empty",
+      publish.runway(MAN, today="2026-06-30"), 0)
+check("runway on a later stocked day past the gap",
+      publish.runway(MAN, today="2026-07-04"), 1)
+check("runway 0 on empty manifest", publish.runway([], today="2026-07-01"), 0)
+
 print(f"\n{passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

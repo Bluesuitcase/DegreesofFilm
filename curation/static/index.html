@@ -64,6 +64,21 @@
          border:2px solid transparent;border-radius:4px;background:var(--ink);color:var(--muted);
          font-size:12px;cursor:pointer;flex:0 0 auto}
   .pnone.sel{border-color:var(--amber);color:var(--bone)}
+  .runway{font-size:13px;color:var(--bone);margin:0 0 10px}
+  .runway b{color:var(--amber);font-variant-numeric:tabular-nums}
+  .runway .low{color:var(--red);font-weight:600}
+  .sched{display:flex;gap:8px;overflow-x:auto;padding-bottom:6px}
+  .day{flex:0 0 auto;width:108px;border:1px solid var(--line);border-radius:8px;padding:9px 10px;
+       background:var(--ink2);display:flex;flex-direction:column;gap:5px;min-height:76px}
+  .day.today{box-shadow:0 0 0 1px var(--amber)}
+  .day.empty{cursor:pointer;border-style:dashed}
+  .day.empty:hover{border-color:var(--amber)}
+  .day .dow{font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--muted)}
+  .day .dt{font-size:14px;font-weight:600;line-height:1}
+  .day .film{font-size:11px;color:var(--bone);line-height:1.25;display:flex;align-items:center;gap:5px;
+             white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .day .sw{width:9px;height:9px;border-radius:2px;flex:0 0 auto}
+  .day .mt{font-size:11px;color:var(--muted)}
 </style>
 </head>
 <body>
@@ -73,6 +88,13 @@
 </header>
 
 <main>
+  <section id="schedule-sec">
+    <h2>Schedule — the week ahead</h2>
+    <p class="runway" id="runway">loading…</p>
+    <div class="sched" id="sched"></div>
+    <p class="hint">Click an empty day to target it when you approve. Publishing auto-fills the next free day.</p>
+  </section>
+
   <section>
     <h2>1 · Discover an unused film</h2>
     <div class="row">
@@ -135,6 +157,39 @@ fetch('/api/next-date').then(r => r.json()).then(j => { if (j.date) $('#date').v
 $('#ovr').onchange = e => $('#accent').disabled = !e.target.checked;
 
 async function jget(url){ const r = await fetch(url); if(!r.ok) throw new Error((await r.json()).detail||r.status); return r.json(); }
+
+// --- schedule: the week-ahead view (how many days are stocked, which are empty) ---
+async function loadSchedule(){
+  try{
+    const s = await jget('/api/schedule?days=14');
+    const n = s.runway, win = s.slots.length;
+    const through = (n > 0 && n <= win) ? s.slots[n-1].date : (n > win ? 'beyond this view' : null);
+    $('#runway').innerHTML = n > 0
+      ? `<b>${n}</b> day${n===1?'':'s'} of runway — stocked through ${through}.`
+      : `<span class="low">0 days of runway — today has no puzzle.</span>`;
+    const box = $('#sched'); box.innerHTML = '';
+    s.slots.forEach(slot => {
+      const [, mm, dd] = slot.date.split('-');
+      const d = document.createElement('div');
+      d.className = 'day' + (slot.filled ? '' : ' empty') + (slot.is_today ? ' today' : '');
+      const dow = `<span class="dow">${slot.weekday}${slot.is_today ? ' · today' : ''}</span><span class="dt">${mm}/${dd}</span>`;
+      if(slot.filled){
+        d.innerHTML = dow + `<span class="film"><span class="sw" style="background:${slot.accent||'#333'}"></span>${slot.title||('#'+slot.id)}</span>`;
+        d.title = `#${slot.id} · ${slot.title||''}`;
+      } else {
+        d.innerHTML = dow + `<span class="mt">empty →</span>`;
+        d.onclick = () => {
+          $('#date').value = slot.date;
+          document.querySelectorAll('.day .mt').forEach(m => m.textContent = 'empty →');
+          d.querySelector('.mt').textContent = 'targeted ✓';
+          $('#dstatus').textContent = 'approve date set to ' + slot.date;
+        };
+      }
+      box.appendChild(d);
+    });
+  }catch(e){ $('#runway').textContent = 'schedule unavailable: ' + e.message; }
+}
+loadSchedule();
 
 $('#find').onclick = async () => {
   $('#dstatus').textContent = 'searching…';
@@ -259,6 +314,8 @@ $('#approve').onclick = async ()=>{
     if(!r.ok) throw new Error(j.detail||r.status);
     res.className='ok';
     res.textContent=`✓ wrote ${j.file} (id ${j.id}, accent ${j.accent})\n  + tier images, ledger, manifest updated.`;
+    loadSchedule();   // the new puzzle fills a day — refresh the runway
+    fetch('/api/next-date').then(r=>r.json()).then(j=>{ if(j.date) $('#date').value=j.date; }).catch(()=>{});
   }catch(e){ res.className='err'; res.textContent='error: '+e.message; }
   finally{ $('#approve').disabled=false; }
 };
