@@ -5,7 +5,9 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (v1 live; v2 curation started — schedule + search + edit merged, PRs #16–#17; puzzle 007 Avatar added)._
+_Last updated: 2026-07-01 (PAUSED for token budget. v1 live; v2: schedule+search+edit merged #16–#17,
+Avatar added; reveal mechanic BUILT — PR #18 OPEN/unmerged; practice/endless is next but its design is
+UNDECIDED). Resume in a new session — read this whole file first._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -33,17 +35,38 @@ _Last updated: 2026-07-01 (v1 live; v2 curation started — schedule + search + 
     → route to edit); **edit-existing-puzzle** flow (`/api/puzzle/{id}` load + `/api/update` rewrite):
     reschedule, re-edit rungs/credit images, optionally re-crop. Reachable from a filled schedule day
     or a used search hit. `manifest.upsert` now keys on id+date so reschedules don't leave stale entries.
+  - **#18 (reveal mechanic) — BUILT, PR OPEN, NOT MERGED.** `frame.js` `pickCreditFrame` gains a
+    `revealTier` param (= `game.attempts`); on the film rung each wrong guess widens the crop one tier
+    toward the full frame (clamped; single-tier puzzles stay put). `app.js` passes `game.attempts` and
+    cues it in the wrong-guess feedback ("More of the frame is showing."). `frame.test.js` extended.
+    Client-only → **merging redeploys the live site.** Verified in-browser (004-1→2→3 across misses).
+    **This branch's `frame.js`/`app.js`/`frame.test.js`/`CLAUDE.md` differ from `main` — they live on
+    branch `reveal-mechanic`. Merge #18 before touching those files on main to avoid conflicts.**
 - **7 puzzles live** (001–007): No Country, Interstellar, Forrest Gump, Dark Knight, Harry Potter,
   Toy Story, **Avatar** (007, 2026-07-04). Dated **2026-06-28 .. 07-04**, every credit rung imaged.
 - All tests green: 6 JS suites (`match/game/daily/theme/stats/frame`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
-## Current task
-**v1 live + v2 curation underway.** Game live on GitHub Pages:
-**https://bluesuitcase.github.io/DegreesofFilm/** (Pages serves `main` `/docs`; `docs/.nojekyll`).
-This session shipped the first three v2 curation items — the week-ahead schedule (#16), film search,
-and edit-existing-puzzle (#17) — and added puzzle 007 (Avatar), all deployed. Next v2 pick: the
-**reveal mechanic** (client-only; the cropper already authors tiers 2–3).
+## Current task — PAUSED (token budget). Resume points, in order:
+1. **Merge PR #18 (reveal mechanic).** It's built + verified, just unmerged. `gh pr merge 18 --rebase
+   --delete-branch` (auth per the gh-auth memory). Touches `docs/` → redeploys the live site; confirm
+   deploy after (poll `https://bluesuitcase.github.io/DegreesofFilm/` for 200 + updated `frame.js`).
+2. **Build practice/endless mode — DESIGN NOT YET DECIDED.** The user asked to start it, but then
+   dismissed the design questions (so DO NOT assume a shape). Re-open the design chat first. Options I
+   had proposed (pick up here):
+   - **Shape:** (a) *endless run + session tally* — finish a random past puzzle → auto-offer the next,
+     with a running tally (films cleared, total depth), no daily-stat impact [my recommendation];
+     (b) *one-off random*; (c) *pick from a list* (≈ the archive browser, which already exists).
+   - **Ruleset:** Cinephile (the full dig) vs. let the player choose Cinephile/Poser.
+   - **Pool/spoilers:** draw from published puzzles (manifest); **exclude today's daily** so practice
+     can't spoil the daily. Only 7 puzzles today, so "endless" will repeat — fine for practice.
+   - **Wiring (all client-side, stays static v2):** add a **Practice** card to the mode-select
+     (`docs/index.html` `#modes`, currently Cinephile+Poser lit, Movie Buff "coming soon"); route via
+     a new mode/param (e.g. `?practice` or `?play&mode=practice`); reuse `pickById`/random from the
+     manifest; practice/archived/poser runs must NOT touch the daily streak/stats (existing guard:
+     `isArchive`/`poser` in `app.js` `showEnd`). No server work, no new puzzle data.
+
+**Live site:** https://bluesuitcase.github.io/DegreesofFilm/ (Pages serves `main` `/docs`).
 
 ## Deploy notes (how the live site is wired)
 - **GitHub Pages**, source = `main` branch `/docs` folder (set via `gh api ... /pages`). Every push to
@@ -55,14 +78,15 @@ and edit-existing-puzzle (#17) — and added puzzle 007 (Avatar), all deployed. 
   (the schedule strip + edit flow make stocking + fixing days easy now).
 
 ## Next steps (pick up here)
-1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
-   - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). Cropper
-     already authors all 3 tiers; client-only wiring. **Best next pick.**
-   - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
-   - **Curate more puzzles** — operational; the live daily needs a steady supply.
-   - DONE this session: week-ahead schedule (#16), film search + edit-existing-puzzle (#17).
-2. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
+1. **Merge #18**, then **practice/endless mode** (design chat first — see Current task above).
+2. **Remaining v2** (DESIGN §6): **light answer obfuscation** (base64/cipher the in-JSON answers);
+   **curate more puzzles** (operational; the live daily needs a steady supply — the schedule + edit
+   flow make this easy now).
+3. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
+
+_Shipped so far this v2 push: week-ahead schedule (#16), film search + edit-existing-puzzle (#17),
+reveal mechanic (#18, awaiting merge)._
 
 ## Key decisions (why things are the way they are)
 - **Credit ordering:** cast by TMDB **billing order** (popularity only a tiebreaker), **director
@@ -71,7 +95,10 @@ and edit-existing-puzzle (#17) — and added puzzle 007 (Avatar), all deployed. 
 - **Daily selection:** `manifest.json` index, single canonical-date rollover. **Archive hides film
   titles** (no spoilers). **Archived and Poser runs don't touch the daily streak/stats.**
 - **I Need Help lifeline:** a wrong multiple-choice pick **burns an attempt** (not a guaranteed pass).
-- **Image tiers:** cropper authors **3**; client shows only tier 1 (reveal mechanic deferred to v2).
+- **Image tiers / reveal mechanic:** cropper authors **3** tiers (tight → wider → full). The reveal
+  mechanic (PR #18, built/unmerged) spends them on the film rung: each wrong guess widens the crop one
+  tier toward the full frame (`frame.js` `revealTier` = `game.attempts`). Credit rungs are unaffected;
+  single-tier puzzles (001) stay put.
 - **Per-rung credit images:** shown *after* a rung is answered. **ALL credit rungs → TMDB headshot**
   (cast + crew, auto). We tried cast-specific *character stills* but TMDB tagged images proved too
   sparse (mostly generic backdrops shared across the whole cast — 13 of 14 identical between two Dark

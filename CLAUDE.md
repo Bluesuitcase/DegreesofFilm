@@ -9,15 +9,17 @@ A daily browser game testing film knowledge. You're shown a cropped frame from a
 brag number is **depth** — how many rungs deep you got.
 
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
-when the two disagree, DESIGN.md wins. **Current status: Phase 3 complete — v1 (Cinephile) is
-feature-complete.** Phase 1 (the game) and Phase 2 (the curation tool) are merged to `main`;
-Phase 3 (the daily game) is built on `phase-3-daily` (PR #3): daily selection + an archive
-browser, accent theming, the I Need Help lifeline, localStorage stats/streak, a home +
-mode-select front door, the required TMDB attribution, and a copy-to-clipboard share card. The
-client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game,
-`?id=N` an archived game, `?archive` the index, `?play&mode=poser` a Poser game. **Poser mode is
-built** (v2 — all-MC, flat +1); still deferred: **Movie Buff** (needs the v2 server move) and the
-rest of the DESIGN §6 parking lot.
+when the two disagree, DESIGN.md wins. **Current status: v1 COMPLETE and DEPLOYED LIVE** at
+**https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` `/docs`). All of Phase 1–3
+plus per-rung credit images shipped. **v2 is underway** (all still-static, no server): the curation
+tool's **week-ahead schedule**, **film search**, and **edit-existing-puzzle** are merged; the
+**reveal mechanic** is built but sits in **open PR #18** (unmerged — its `frame.js`/`app.js`
+changes aren't on `main` yet). The client routes views by query string: `?` home, `?modes`
+mode-select, `?play` today's game, `?id=N` an archived game, `?archive` the index, `?play&mode=poser`
+a Poser game. **Poser mode is built** (all-MC, flat +1). Still deferred: **practice/endless mode**
+and **light answer obfuscation** (static v2), and the v3 parking lot — **Movie Buff** (needs the
+server move), accounts/DB, Score History, server-side matching, degrees-of-separation.
+**Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
 > between films). True degrees-of-separation is a deferred v2 mode.
@@ -58,14 +60,14 @@ rest of the DESIGN §6 parking lot.
 The whole design turns on one fact: **the TMDB API key never reaches a player.** It lives only
 in the (future) curation tool on your machine. Players only ever fetch finished static files.
 
-1. **PRIVATE (your machine)** — *Phase 2, not built.* Python (Flask/FastAPI) curation tool holds
-   the key, queries TMDB, crops images with Pillow, and writes puzzle files. Owns the used-films
-   ledger (never repeat a film).
+1. **PRIVATE (your machine)** — *built (FastAPI).* The `curation/` tool holds the key, queries TMDB,
+   crops images with Pillow, and writes puzzle files. Owns the used-films ledger (never repeat a
+   film), the week-ahead schedule, film search, and the edit-existing-puzzle flow.
 2. **STATIC HOSTING (GitHub Pages)** — the `docs/` folder. Per-day puzzle JSON + pre-cropped
    images + the game client (html/js/css). Past puzzles are just old files that still exist, so
    the archive is nearly free.
 3. **PLAYER BROWSER** — no key, no backend. Vanilla ES-module JS runs the rules and the fuzzy
-   matcher; stats will live in localStorage (Phase 3).
+   matcher; daily stats/streak live in localStorage (`stats.js`).
 
 Consequence: v1 needs **no backend for players**. v1 also ships answers in plaintext in the JSON
 (readable in devtools) — accepted because there's no leaderboard yet.
