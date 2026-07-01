@@ -1,0 +1,15 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node -e \"try{const c=require('fs').readFileSync('project_state.md','utf8');process.stdout.write(JSON.stringify({hookSpecificOutput:{hookEventName:'SessionStart',additionalContext:c}}))}catch(e){}\"",
+            "statusMessage": "Loading project_state.md"
+          }
+        ]
+      }
+    ]
+  }
+}
