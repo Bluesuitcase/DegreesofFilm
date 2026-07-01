@@ -257,6 +257,25 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
 - **Light answer obfuscation** — base64/cipher the in-JSON answers as an interim anti-snoop
   measure (v1 ships them plaintext, readable in devtools).
 
+#### UX polish (from playtesting 2026-06-30) — client/markup-only unless noted
+
+- **Home tag word order** — lead the tagline with "Play today to find out" so it follows on from
+  the big title, then the "name the film / dig down" explainer. (Markup only.)
+- **Skip button cost tooltip** — hovering Skip should explain the −1 point cost (`title` attr).
+- **In-game mode label** — show which mode is being played (Cinephile / Movie Buff / Poser) above
+  the still, so the player always knows the ruleset. (Client already knows `mode`.)
+- **Home CTA tooltips** — hover "Play today" → "Start Cinephile mode"; hover "Modes" → "Choose your
+  mode / difficulty". (`title` attrs.)
+- **Reveal the full frame after the film rung** — once the film is named, swap the cropped still to
+  the full uncropped frame. **Nearly free:** tier 3 (`images[2]`) is *already* the full frame, so
+  this is a client-side `img.src` swap. Overlaps the Reveal-mechanic item above; do them together.
+- **Per-rung credit images** *(the one that needs curation, not client-only)* — after each rung,
+  swap the still to an image of the credit just answered — ideally that person **as their character**
+  in the film. Needs the curation tool to fetch/store a per-rung image (TMDB person profile, or a
+  character/movie still where available), a new per-rung `image` schema field, and re-publishing the
+  existing puzzles. Bigger than it looks: character-specific stills aren't reliably on TMDB, so the
+  practical fallback is the person's profile photo.
+
 ### v3 — needs the backend / scale (the server move)
 
 - **Movie Buff mode** — all-TMDB title autocomplete on the film rung. Needs a prebaked popular-
