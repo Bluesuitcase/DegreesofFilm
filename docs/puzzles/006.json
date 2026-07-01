@@ -34,7 +34,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "Tom Hanks as Woody (voice)",
+      "image": "images/006-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "Tim Allen as Buzz Lightyear (voice)",
+      "image": "images/006-r3.jpg"
     },
     {
       "role": "Director",
@@ -72,7 +76,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "Don Rickles as Mr. Potato Head (voice)",
+      "image": "images/006-r5.jpg"
     },
     {
       "role": "Cast",
@@ -84,7 +90,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "Jim Varney as Slinky Dog (voice)",
+      "image": "images/006-r6.jpg"
     },
     {
       "role": "Cast",
@@ -96,7 +104,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "Wallace Shawn as Rex (voice)",
+      "image": "images/006-r7.jpg"
     },
     {
       "role": "Cast",
@@ -108,7 +118,9 @@
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
-      ]
+      ],
+      "caption": "John Ratzenberger as Hamm (voice)",
+      "image": "images/006-r8.jpg"
     },
     {
       "role": "Composer",

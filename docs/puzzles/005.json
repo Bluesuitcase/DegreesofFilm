@@ -34,7 +34,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Daniel Radcliffe as Harry Potter",
+      "image": "images/005-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Rupert Grint as Ron Weasley",
+      "image": "images/005-r3.jpg"
     },
     {
       "role": "Director",
@@ -72,7 +76,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Emma Watson as Hermione Granger",
+      "image": "images/005-r5.jpg"
     },
     {
       "role": "Cast",
@@ -84,7 +90,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Richard Harris as Albus Dumbledore",
+      "image": "images/005-r6.jpg"
     },
     {
       "role": "Cast",
@@ -96,7 +104,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Tom Felton as Draco Malfoy",
+      "image": "images/005-r7.jpg"
     },
     {
       "role": "Cast",
@@ -108,7 +118,9 @@
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
-      ]
+      ],
+      "caption": "Alan Rickman as Severus Snape",
+      "image": "images/005-r8.jpg"
     },
     {
       "role": "Cinematographer",

@@ -33,7 +33,9 @@
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
-      ]
+      ],
+      "caption": "Tommy Lee Jones as Ed Tom Bell",
+      "image": "images/001-r2.jpg"
     },
     {
       "role": "Cast",
@@ -46,7 +48,9 @@
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
-      ]
+      ],
+      "caption": "Josh Brolin as Llewelyn Moss",
+      "image": "images/001-r3.jpg"
     },
     {
       "role": "Director",
@@ -76,7 +80,9 @@
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
-      ]
+      ],
+      "caption": "Javier Bardem as Anton Chigurh",
+      "image": "images/001-r5.jpg"
     },
     {
       "role": "Cast",
@@ -89,7 +95,9 @@
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
-      ]
+      ],
+      "caption": "Woody Harrelson as Carson Wells",
+      "image": "images/001-r6.jpg"
     },
     {
       "role": "Cast",
@@ -101,7 +109,9 @@
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
-      ]
+      ],
+      "caption": "Kelly Macdonald as Carla Jean Moss",
+      "image": "images/001-r7.jpg"
     },
     {
       "role": "Cinematographer",
