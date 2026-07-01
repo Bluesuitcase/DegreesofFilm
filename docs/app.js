@@ -8,6 +8,7 @@ const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
 let manifest = [], isArchive = false, mode = 'cinephile';
 const POSER_RUNGS = 7;
+const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -41,6 +42,7 @@ async function init() {
   mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
   const playPuzzle = mode === 'poser' ? poserPuzzle(puzzle) : puzzle;
   game = new Game(playPuzzle, { mode });
+  $('mode-badge').textContent = MODE_LABELS[mode] || '';
   applyTheme(puzzle.theme);
 
   const img = $('frame-img');
