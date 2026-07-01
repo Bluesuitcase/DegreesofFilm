@@ -163,10 +163,15 @@ function applyTheme(theme) {
 function updateFrame() {
   const img = $('frame-img'), cap = $('frame-cap');
   const { src, caption } = pickCreditFrame(game.index, game.rungs, frames);
+  // A credit image (the answered rung's own still/headshot) letterboxes so faces
+  // aren't cropped; the film frames stay edge-to-edge (cover).
+  const answered = game.rungs[Math.min(game.index, game.rungs.length) - 1];
+  const isCredit = !!(src && answered && answered.image === src);
   if (src && !img.src.endsWith(src)) {
     img.src = 'puzzles/' + src;
     img.style.display = '';
   }
+  img.classList.toggle('is-person', isCredit);
   if (cap) {
     cap.textContent = caption || '';
     cap.style.display = caption ? '' : 'none';

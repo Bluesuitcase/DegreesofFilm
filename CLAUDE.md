@@ -31,17 +31,19 @@ rest of the DESIGN §6 parking lot.
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
-  `discover`, `decoys`, `manifest`) — pure-logic, no network or API key, same PASS/FAIL +
-  non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`) hit live TMDB
-  and need the key in `curation/.env`.
+  `discover`, `decoys`, `manifest`, `publish`, `credits_images`) — pure-logic, no network or API key,
+  same PASS/FAIL + non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`,
+  `credits_images.py`) hit live TMDB and need the key in `curation/.env`.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
   `.venv` with `pillow` (`pip install -r curation/requirements.txt`). The box/colour math is pure;
   the crop/sample tests use Pillow.
 - **Curation crop tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
   then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
   `curation/.env`. Flow: discover an unused film → pick a still and drag a crop box → review the
-  drafted rungs/decoys → **Approve**, which writes `docs/puzzles/NNN.json` + tier images, appends
-  the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in the modules above.)
+  drafted rungs/decoys → **pick a per-rung credit image** (character still for cast, headshot for
+  crew, pre-selected) → **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung
+  credit images, appends the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in
+  the modules above.)
 
 ## Architecture — three zones
 
@@ -94,6 +96,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
+  credits_images.py    Per-rung credit images: map rungs->people, offer candidate stills, finalize
+                       the picked image/caption + strip helper fields at approve (pure core) + CLI.
   images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
   publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
                        next_date() defaults publish dates to the next free day (no manifest collisions).
@@ -101,7 +105,7 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish pure; images=Pillow).
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images pure; images=Pillow).
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 

@@ -50,6 +50,8 @@ body{
   width:100%;max-height:380px;object-fit:cover;display:block;
   border-radius:6px;border:1px solid var(--line);
 }
+/* A credit still/headshot letterboxes so faces aren't cropped by the wide frame. */
+.frame img.is-person{object-fit:contain;background:#0a0a0a}
 /* Who the current still shows — sits over the foot of the frame. */
 .frame-cap{
   position:absolute;left:0;right:0;bottom:0;
