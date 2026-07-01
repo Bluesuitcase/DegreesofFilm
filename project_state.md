@@ -27,6 +27,11 @@ mechanic are the closest).
    - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). Cropper
      already authors all 3 tiers; client-only wiring.
    - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
+   - **UX polish batch (from 2026-06-30 playtest, DESIGN §6 "UX polish")** — mostly client/markup-only:
+     home tagline word-order; Skip −1 hover tooltip; in-game mode label above the still; home CTA
+     hover tooltips; **reveal full frame after the film rung** (nearly free — `images[2]` is already
+     the full frame; pairs with the Reveal mechanic). One heavier item: **per-rung credit images**
+     (person-as-character), which needs curation + a new schema field + re-publishing puzzles.
 3. **Undone v1 finishing step:** deploy to **GitHub Pages** (serve `docs/`) so it's playable on the web.
 4. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
