@@ -1,27 +1,26 @@
 # Project State — Degrees of Film
 
 > **Running handoff doc. Read this first each session, and keep it updated** as work
-> progresses (current task, decisions, next steps). Division of labor:
+> progresses. **Update it in place on `main`; no PR needed for this doc.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-06-30 (end of the Poser-mode session)._
+_Last updated: 2026-07-01 (after merging Poser mode / PR #6)._
 
 ## Where we are
-- **v1 (Cinephile) is complete** and merged to `main`, plus a **polish round** — PRs **#1–#5 merged**.
-- **v2 started: Poser mode is built.** Open as **PR #6** (`v2-poser` branch) — Poser mode +
-  puzzle 006 (Toy Story). **Not yet merged.**
+- **v1 (Cinephile) + polish + v2 Poser mode are ALL merged to `main`** — PRs **#1–#6 merged**,
+  no open branches, working tree clean, all 12 test suites green.
 - **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03** (No Country, Interstellar, Forrest
   Gump, The Dark Knight, Harry Potter, Toy Story).
 - All tests green: 5 JS suites (`match/game/daily/theme/stats`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/images`).
 
 ## Current task
-Poser mode is done and in PR #6. **Decision pending: merge PR #6**, then choose the next v2 item.
+Poser mode shipped and merged. **Next: pick the next v2 item** (Curate-a-week-ahead or the Reveal
+mechanic are the closest).
 
 ## Next steps (pick up here)
-1. **Merge PR #6** (`v2-poser`) into `main` — rebase merge like #1–#5, then sync `main` + delete branch.
-2. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
+1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
    - **Curate a week in advance** — scheduling view in the curation tool (see the coming week's
      slots, which dates are empty, stock ahead). `publish.next_date()` already queues onto the next
      free day; this makes the schedule visible. Curation-side only.
