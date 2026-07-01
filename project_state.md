@@ -5,19 +5,25 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (after merging Poser mode / PR #6)._
+_Last updated: 2026-06-30 (after merging the playtest UX-polish batch, PRs #7–#11)._
 
 ## Where we are
-- **v1 (Cinephile) + polish + v2 Poser mode are ALL merged to `main`** — PRs **#1–#6 merged**,
-  no open branches, working tree clean, all 12 test suites green.
+- **v1 (Cinephile) + polish + v2 Poser mode + a UX-polish batch are ALL merged to `main`** —
+  PRs **#1–#11 merged**, no open branches, working tree clean, all 12 test suites green.
+- **UX-polish batch (PRs #7–#11)** shipped 5 of the 6 playtest items: home tagline word-order (#7),
+  Skip −1 hover tooltip (#8), in-game mode label above the still (#9), home CTA tooltips (#10),
+  reveal full uncropped frame after the film rung (#11). **Only per-rung credit images (#5) remain.**
 - **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03** (No Country, Interstellar, Forrest
   Gump, The Dark Knight, Harry Potter, Toy Story).
 - All tests green: 5 JS suites (`match/game/daily/theme/stats`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/images`).
 
 ## Current task
-Poser mode shipped and merged. **Next: pick the next v2 item** (Curate-a-week-ahead or the Reveal
-mechanic are the closest).
+UX-polish batch (#7–#11) merged. **Next up: per-rung credit images** (the last playtest item) — a
+curation-side feature: after each rung, swap the still to an image of the credit just answered
+(ideally as their character; practical fallback = TMDB person profile photo). Needs a new per-rung
+`image` schema field, curation fetch/store, and re-publishing existing puzzles. **Wants a quick
+design chat before starting** (character-still availability, fallback, schema shape).
 
 ## Next steps (pick up here)
 1. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
@@ -27,11 +33,10 @@ mechanic are the closest).
    - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). Cropper
      already authors all 3 tiers; client-only wiring.
    - **Practice / endless mode** · **Light answer obfuscation** (base64/cipher the in-JSON answers).
-   - **UX polish batch (from 2026-06-30 playtest, DESIGN §6 "UX polish")** — mostly client/markup-only:
-     home tagline word-order; Skip −1 hover tooltip; in-game mode label above the still; home CTA
-     hover tooltips; **reveal full frame after the film rung** (nearly free — `images[2]` is already
-     the full frame; pairs with the Reveal mechanic). One heavier item: **per-rung credit images**
-     (person-as-character), which needs curation + a new schema field + re-publishing puzzles.
+   - **Per-rung credit images** (last remaining playtest item, DESIGN §6 "UX polish") — after each
+     rung, swap the still to the credit just answered (person-as-character; fallback = TMDB profile
+     photo). Needs curation + a new per-rung `image` schema field + re-publishing puzzles. The rest
+     of the 2026-06-30 playtest batch is DONE (PRs #7–#11).
 3. **Undone v1 finishing step:** deploy to **GitHub Pages** (serve `docs/`) so it's playable on the web.
 4. **v3** (needs the *server move*): Movie Buff, accounts+DB, **Score History**, server-side
    matching, degrees-of-separation, commercial TMDB agreement.
