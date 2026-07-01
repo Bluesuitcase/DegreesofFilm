@@ -21,6 +21,18 @@ const rungs = [
 check('film rung -> tight crop', pickCreditFrame(0, rungs, frames),
   { src: 'images/004-1.jpg', caption: '' });
 
+// Reveal mechanic: each wrong guess on the film rung widens the crop one tier.
+check('film rung, 0 misses -> tightest crop', pickCreditFrame(0, rungs, frames, 0),
+  { src: 'images/004-1.jpg', caption: '' });
+check('film rung, 1 miss -> wider tier', pickCreditFrame(0, rungs, frames, 1),
+  { src: 'images/004-2.jpg', caption: '' });
+check('film rung, 2 misses -> full frame', pickCreditFrame(0, rungs, frames, 2),
+  { src: 'images/004-3.jpg', caption: '' });
+check('film rung reveal clamps at the widest tier', pickCreditFrame(0, rungs, frames, 9),
+  { src: 'images/004-3.jpg', caption: '' });
+check('reveal ignores negative tiers', pickCreditFrame(0, rungs, frames, -1),
+  { src: 'images/004-1.jpg', caption: '' });
+
 // index 1: passed the film rung (rungs[0] has no image) -> full frame reveal.
 check('after film rung -> full frame', pickCreditFrame(1, rungs, frames),
   { src: 'images/004-3.jpg', caption: '' });
@@ -46,6 +58,8 @@ const one = ['images/001.jpg'];
 check('single tier, film rung', pickCreditFrame(0, rungs, one),
   { src: 'images/001.jpg', caption: '' });
 check('single tier, after film rung', pickCreditFrame(1, rungs, one),
+  { src: 'images/001.jpg', caption: '' });
+check('single tier reveal stays on the one image', pickCreditFrame(0, rungs, one, 2),
   { src: 'images/001.jpg', caption: '' });
 
 // No frames at all: film rung has nothing, but a credit image still shows.
