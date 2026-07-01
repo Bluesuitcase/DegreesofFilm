@@ -30,11 +30,14 @@ def make_entry(*, date, id, file, title, accent=None):
 
 
 def upsert(manifest, entry):
-    """Insert or replace by `date` (one puzzle per day). Returns a new list,
-    sorted by date so 'today' lookups and the archive read in order."""
+    """Insert or replace, keyed by BOTH `date` (one puzzle per day) and `id` (one
+    entry per puzzle). Dropping the same id lets a reschedule move a puzzle to a new
+    date without leaving a stale entry on its old day. Returns a new list, sorted by
+    date so 'today' lookups and the archive read in order."""
     if not entry.get("date"):
         raise ValueError("manifest entry needs a 'date'")
-    kept = [e for e in manifest if e.get("date") != entry["date"]]
+    kept = [e for e in manifest
+            if e.get("date") != entry["date"] and e.get("id") != entry.get("id")]
     kept.append(entry)
     kept.sort(key=lambda e: e.get("date") or "")
     return kept

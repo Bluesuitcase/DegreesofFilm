@@ -41,6 +41,14 @@ m = manifest.upsert(m, manifest.make_entry(date="2026-06-25", id=1,
 check("same date replaced, not duplicated", len(m), 2)
 check("replacement won", next(e for e in m if e["date"] == "2026-06-25")["title"], "A (fixed)")
 
+# --- upsert moves a puzzle to a new date without leaving a stale entry (reschedule) ---
+r = [manifest.make_entry(date="2026-06-25", id=1, file="001.json", title="A"),
+     manifest.make_entry(date="2026-06-26", id=2, file="002.json", title="B")]
+r = manifest.upsert(r, manifest.make_entry(date="2026-06-28", id=1, file="001.json", title="A"))
+check("reschedule drops the old-date entry for that id", len(r), 2)
+check("puzzle 1 now lives on the new date only",
+      sorted((e["id"], e["date"]) for e in r), [(1, "2026-06-28"), (2, "2026-06-26")])
+
 # --- a date is required ---
 raised = False
 try:
