@@ -106,6 +106,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
   *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images pure; images=Pillow).
+  backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' CREW rungs with TMDB headshots
+                       (maps puzzle->film via the ledger; cast stills stay a manual crop-tool pass).
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 

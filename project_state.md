@@ -5,39 +5,36 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (per-rung credit images built — PRs #12 & #13 open, awaiting review/merge)._
+_Last updated: 2026-07-01 (per-rung credit images MERGED — PRs #12–#14; crew headshots backfilled)._
 
 ## Where we are
-- **v1 + polish + Poser + UX-polish batch are merged to `main`** — PRs **#1–#11 merged**.
-- **Per-rung credit images built this session — two PRs OPEN, not yet merged:**
-  - **PR #12 (client + schema foundation)** — new `docs/frame.js` `pickCreditFrame()` selects the
-    still per rung (tight crop → the answered credit's image + caption → full-frame fallback);
-    `app.js`/`index.html`/`style.css` render the swap + caption overlay; optional per-rung
-    `image`/`caption` schema fields. `frame.test.js` (10 cases). **Behavior unchanged for existing
-    puzzles** (no rung has an image yet, so it always falls back to the old reveal).
-  - **PR #13 (curation authoring, stacked on #12)** — new `curation/credits_images.py` (maps rungs→
-    people, offers candidate stills, finalizes picked image/caption + strips helper fields);
-    `/api/film` + `/api/approve` wired; crop UI gains a per-rung image picker; client letterboxes
-    credit stills (`object-fit:contain`). `credits_images.test.py` (27 cases).
-- **Design decisions (from the design chat):** cast rungs → **character still** (curator hand-picks
-  from tagged stills / movie backdrops); crew rungs → **TMDB headshot** (auto pre-selected); missing
-  image → **hold the full frame**; caption = **"Name as Character"** (name only for crew).
-- **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03** — none have credit images yet
-  (backfill pending, see below).
+- **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
+- **Per-rung credit images — MERGED to `main` (PRs #12, #13, #14):**
+  - **#12 (client + schema)** — `docs/frame.js` `pickCreditFrame()` picks the still per rung (tight
+    crop → the answered credit's image + caption → full-frame fallback); app.js/index.html/style.css
+    render the swap + caption overlay; optional per-rung `image`/`caption` schema. `frame.test.js`.
+  - **#13 (curation authoring)** — `curation/credits_images.py` (maps rungs→people, offers candidate
+    stills, finalizes picked image/caption + strips helper fields); `/api/film` + `/api/approve`
+    wired; crop UI per-rung image picker; client letterboxes credit stills (`object-fit:contain`).
+    `credits_images.test.py`.
+  - **#14 (crew backfill)** — `curation/backfill_credit_images.py` filled all 6 puzzles' **crew**
+    rungs with TMDB headshots (**27 images**, `docs/puzzles/images/NNN-rK.jpg`). Re-runnable CLI
+    (`--ids`, `--dry-run`). No-headshot people (e.g. the Coens' "Roderick Jaynes") hold the full frame.
+- **Design decisions:** cast rungs → **character still** (curator hand-picks); crew rungs → **TMDB
+  headshot** (auto); missing image → **hold the full frame**; caption = **"Name as Character"**.
+- **6 puzzles live** (001–006), dated **2026-06-28 .. 07-03**. **Crew rungs now have headshots;
+  cast rungs still have NO images** (character stills = the remaining manual pass).
 - All tests green: 6 JS suites (`match/game/daily/theme/stats/frame`) + 7 Python
   (`build_rungs/ledger/discover/decoys/manifest/publish/credits_images`).
 
 ## Current task
-**Per-rung credit images — code complete, PRs #12 & #13 open (unmerged).** I couldn't self-merge
-(two-party review guard). Next actions: **(1)** review + merge #12, then #13 (rebase #13 onto main
-after #12 lands so its diff is curation-only). **(2)** **Backfill the 6 live puzzles** — re-approve
-each film through the crop tool to pick cast stills. This is a manual pass (needs the TMDB key +
-your eye on which still shows each actor); crew headshots could be scripted separately if wanted.
+**Per-rung credit images shipped + crew backfilled.** The one piece left on this feature: **cast
+character stills** — re-approve each of the 6 films through the crop tool and pick the still that
+shows each actor (the new picker; needs TMDB key + your eye). Everything else is automatic and done.
 
 ## Next steps (pick up here)
-1. **Land per-rung credit images:** merge **#12** then **#13**, then **backfill the 6 puzzles**
-   (manual crop-tool pass to pick cast stills). This closes the last playtest item (DESIGN §6 "UX
-   polish") — all other 2026-06-30 playtest items already shipped in PRs #7–#11.
+1. **Finish credit images:** the manual **cast character-still** pass through the crop tool for the 6
+   live puzzles (crew headshots already done via #14). Closes the last DESIGN §6 "UX polish" item.
 2. **Continue v2** (see DESIGN §6). Remaining, roughly by closeness:
    - **Curate a week in advance** — scheduling view in the curation tool (see the coming week's
      slots, which dates are empty, stock ahead). `publish.next_date()` already queues onto the next
