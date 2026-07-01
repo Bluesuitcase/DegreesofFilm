@@ -47,6 +47,44 @@ def next_date(manifest, today=None):
     return (datetime.date.fromisoformat(max(dates)) + datetime.timedelta(days=1)).isoformat()
 
 
+def upcoming_schedule(manifest, today=None, days=14):
+    """The coming `days` days from today, each flagged filled/empty against the
+    manifest — the data behind the 'curate a week ahead' view. Pure.
+
+    Each slot: { date, weekday, is_today, filled, id, title, accent }. Empty slots
+    (no puzzle for that date) carry id/title/accent = None."""
+    today = today or datetime.date.today().isoformat()
+    d0 = datetime.date.fromisoformat(today)
+    by_date = {e["date"]: e for e in manifest if e.get("date")}
+    slots = []
+    for i in range(max(0, days)):
+        d = d0 + datetime.timedelta(days=i)
+        iso = d.isoformat()
+        e = by_date.get(iso)
+        slots.append({
+            "date": iso,
+            "weekday": d.strftime("%a"),
+            "is_today": i == 0,
+            "filled": e is not None,
+            "id": e.get("id") if e else None,
+            "title": e.get("title") if e else None,
+            "accent": e.get("accent") if e else None,
+        })
+    return slots
+
+
+def runway(manifest, today=None):
+    """How many consecutive days are stocked starting today, until the first gap.
+    0 means today itself has no puzzle. This is the 'days until the daily repeats'
+    number the schedule view leads with. Pure."""
+    n = 0
+    for slot in upcoming_schedule(manifest, today, days=366):
+        if not slot["filled"]:
+            break
+        n += 1
+    return n
+
+
 def assemble_puzzle(movie, rungs, *, puzzle_id, date, theme, image_files):
     """The puzzle JSON: id, date, theme {accent, bg, bg2}, images[], rungs[]."""
     puzzle = {"id": puzzle_id}
