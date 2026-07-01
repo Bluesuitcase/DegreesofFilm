@@ -17,6 +17,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 import build_rungs
+import credits_images as credits_images_mod
 import decoys as decoys_mod
 import discover as discover_mod
 import images as images_mod
@@ -83,6 +84,13 @@ def api_film(film_id: int):
               if b.get("file_path")]
     if movie.get("poster_path"):
         stills.append(IMG_BASE + movie["poster_path"])
+    # Per-rung credit-image options: stamp each rung with its person meta (a
+    # default headshot pick for crew, a caption) + candidate stills for the picker.
+    credits_images_mod.attach_person_meta(puzzle, credits)
+    for rung in puzzle["rungs"]:
+        if rung.get("role") != "Film":
+            rung["candidates"] = credits_images_mod.candidate_stills(
+                rung, film_id, k, stills)
     return {"id": film_id, "title": movie.get("title"),
             "release_date": movie.get("release_date"),
             "stills": stills, "rungs": puzzle["rungs"]}
@@ -120,7 +128,24 @@ def api_approve(body: Approve):
 
     pid = publish_mod.next_id()
     stem = publish_mod.puzzle_stem(pid)
-    names = images_mod.save_tiers(tiers, os.path.join(publish_mod.PUZZLES_DIR, "images"), stem)
+    img_dir = os.path.join(publish_mod.PUZZLES_DIR, "images")
+    names = images_mod.save_tiers(tiers, img_dir, stem)
+
+    # Save each rung's chosen credit image (character still / headshot), set its
+    # image/caption, and strip the picker's helper fields so the published rungs
+    # stay schema-clean. Person images use object-fit:contain on the client, so we
+    # just downscale to a sane width and keep the aspect.
+    def _save_credit(url, filename):
+        if not url.startswith("https://image.tmdb.org/"):
+            raise HTTPException(400, "credit image must be a TMDB image URL")
+        with urllib.request.urlopen(url, timeout=30) as r:
+            im = Image.open(io.BytesIO(r.read())).convert("RGB")
+        if im.width > 1000:
+            im = im.resize((1000, max(1, round(im.height * 1000 / im.width))))
+        im.save(os.path.join(img_dir, filename), quality=85)
+
+    credits_images_mod.finalize_rung_images(body.rungs, stem, _save_credit)
+
     res = publish_mod.publish(movie, body.rungs, theme=theme,
                               image_files=[f"images/{n}" for n in names],
                               date=body.date, puzzle_id=pid)

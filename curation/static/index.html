@@ -55,6 +55,15 @@
   #result{font-family:var(--mono);font-size:12px;white-space:pre-wrap;margin-top:12px}
   .ok{color:var(--good)} .err{color:var(--red)}
   .hidden{display:none}
+  .pick{padding:10px 0;border-top:1px solid var(--line)}
+  .pick:first-child{border-top:none}
+  .pick-label{font-size:12px;color:var(--muted);margin-bottom:6px}
+  .pick .stills img{height:56px;border:2px solid transparent}
+  .pick .stills img.sel{border-color:var(--amber)}
+  .pnone{display:flex;align-items:center;justify-content:center;padding:0 12px;height:56px;
+         border:2px solid transparent;border-radius:4px;background:var(--ink);color:var(--muted);
+         font-size:12px;cursor:pointer;flex:0 0 auto}
+  .pnone.sel{border-color:var(--amber);color:var(--bone)}
 </style>
 </head>
 <body>
@@ -105,6 +114,14 @@
         <div id="result"></div>
       </div>
     </div>
+    <div class="panel" id="pickpanel" style="margin-top:20px">
+      <div class="row" style="justify-content:space-between">
+        <div class="hint">Per-rung credit image — click the still that shows each actor
+          (crew default to their headshot). Unpicked rungs hold the full frame.</div>
+        <button class="btn ghost" id="refreshpicks">↻ Sync from JSON</button>
+      </div>
+      <div id="pickers" style="margin-top:10px"></div>
+    </div>
   </section>
 </main>
 
@@ -142,6 +159,7 @@ async function loadFilm(id){
   state.film = f; state.stillUrl=null; state.box=null;
   $('#ftitle').textContent = f.title + (f.release_date? ' ('+f.release_date.slice(0,4)+')':'');
   $('#rungs').value = JSON.stringify(f.rungs, null, 2);
+  renderPickers();
   $('#stills').innerHTML='';
   f.stills.forEach((u,i) => {
     const im = document.createElement('img'); im.src=u;
@@ -197,6 +215,32 @@ window.addEventListener('mouseup', e=>{
 });
 
 $('#reset').onclick = ()=>{ state.box=null; selbox.style.display='none'; $('#boxinfo').textContent='No crop box yet.'; };
+
+// --- per-rung credit-image picker (the rungs textarea stays the source of truth) ---
+function readRungs(){ try{ return JSON.parse($('#rungs').value); }catch(e){ return null; } }
+function setPick(i, url){ const rs=readRungs(); if(!rs) return; rs[i].image_pick=url; $('#rungs').value=JSON.stringify(rs,null,2); renderPickers(); }
+function renderPickers(){
+  const box=$('#pickers'); box.innerHTML='';
+  const rungs=readRungs();
+  if(!rungs){ box.innerHTML='<p class="hint err">Rungs JSON is invalid — fix it, then ↻ Sync.</p>'; return; }
+  rungs.forEach((rung,i)=>{
+    if(rung.role==='Film') return;
+    const row=document.createElement('div'); row.className='pick';
+    const label=document.createElement('div'); label.className='pick-label';
+    label.textContent=`rung ${i+1} · ${rung.role} — ${rung.caption||(rung.answers&&rung.answers[0])||''}`;
+    const strip=document.createElement('div'); strip.className='stills';
+    const none=document.createElement('div'); none.className='pnone'+(rung.image_pick?'':' sel');
+    none.textContent='None'; none.onclick=()=>setPick(i,null); strip.appendChild(none);
+    (rung.candidates||[]).forEach(u=>{
+      const im=document.createElement('img'); im.src=u;
+      if(u===rung.image_pick) im.classList.add('sel');
+      im.onclick=()=>setPick(i,u); strip.appendChild(im);
+    });
+    if(!(rung.candidates||[]).length){ const e=document.createElement('span'); e.className='hint'; e.textContent='no candidates found'; strip.appendChild(e); }
+    row.appendChild(label); row.appendChild(strip); box.appendChild(row);
+  });
+}
+$('#refreshpicks').onclick = renderPickers;
 
 $('#approve').onclick = async ()=>{
   const res=$('#result'); res.className=''; res.textContent='';
