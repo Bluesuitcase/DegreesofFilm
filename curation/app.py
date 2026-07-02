@@ -199,6 +199,15 @@ def api_search(q: str = "", count: int = 18):
     return out
 
 
+@app.get("/api/autocrop")
+def api_autocrop(url: str, scale: float = 0.5):
+    """Suggest a tier-1 crop box for a still as normalized {x,y,w,h}. Nothing is
+    written — the curator reviews the box drawn on the still and approves or
+    re-drags. `url` must be a TMDB image URL (validated by _download_rgb)."""
+    img = _download_rgb(url)
+    return images_mod.auto_crop_box(img, scale=max(0.2, min(scale, 0.9)))
+
+
 @app.get("/api/film/{film_id}")
 def api_film(film_id: int):
     k = _key()

@@ -130,13 +130,17 @@
       and drag a new crop box. Rungs, credit images, date and accent all save on Update.</p>
     <div class="grid2">
       <div class="panel">
-        <div class="hint">Pick a still, then drag a box over it (the tight crop = reveal tier 1).</div>
+        <div class="hint">Pick a still, then drag a box over it (the tight crop = reveal tier 1)
+          — or let <b>Auto-crop</b> suggest one and tweak it.</div>
         <div class="stills" id="stills"></div>
         <div class="stage" id="stage">
           <img id="still" alt="" />
           <div class="sel-box" id="selbox"></div>
         </div>
-        <p class="hint" id="boxinfo">No crop box yet.</p>
+        <div class="row" style="margin-top:6px">
+          <button class="btn ghost" id="autocrop" disabled>✨ Auto-crop</button>
+          <p class="hint" id="boxinfo" style="margin:0">No crop box yet.</p>
+        </div>
       </div>
       <div class="panel">
         <div class="hint">Rungs draft (edit/reorder the JSON freely before approving):</div>
@@ -298,6 +302,7 @@ function fillPanel(f){
   $('#rungs').value = JSON.stringify(f.rungs, null, 2);
   $('#stills').innerHTML='';
   $('#still').removeAttribute('src'); $('#selbox').style.display='none';
+  $('#autocrop').disabled = true;                  // re-enabled once a still is selected
   (f.stills||[]).forEach(u => {
     const im = document.createElement('img'); im.src=u;
     im.onclick = () => selectStill(u, im);
@@ -336,6 +341,7 @@ function selectStill(url, el){
   document.querySelectorAll('#stills img').forEach(i=>i.classList.remove('sel'));
   el.classList.add('sel');
   $('#still').src = url; $('#selbox').style.display='none';
+  $('#autocrop').disabled = false;                 // a still is picked — auto-crop is available
   $('#boxinfo').textContent='No crop box yet.';
 }
 
@@ -373,6 +379,31 @@ window.addEventListener('mouseup', e=>{
 });
 
 $('#reset').onclick = ()=>{ state.box=null; selbox.style.display='none'; $('#boxinfo').textContent='No crop box yet.'; };
+
+// Draw a normalized {x,y,w,h} box as the selection overlay (same coords the drag produces).
+function drawBox(b){
+  const r = still.getBoundingClientRect();
+  selbox.style.display='block';
+  selbox.style.left  = (b.x * r.width)  + 'px';
+  selbox.style.top   = (b.y * r.height) + 'px';
+  selbox.style.width = (b.w * r.width)  + 'px';
+  selbox.style.height= (b.h * r.height) + 'px';
+}
+function boxInfo(b){ return `crop: x ${b.x.toFixed(2)} y ${b.y.toFixed(2)} w ${b.w.toFixed(2)} h ${b.h.toFixed(2)}`; }
+
+// Auto-crop: ask the server to suggest a tier-1 box over the busiest region of the
+// selected still, draw it, and let the curator approve or re-drag. Does not write.
+async function doAutocrop(){
+  if(!state.stillUrl){ $('#boxinfo').textContent='Pick a still first.'; return; }
+  const btn=$('#autocrop'); btn.disabled=true; $('#boxinfo').textContent='auto-cropping…';
+  try{
+    const b = await jget('/api/autocrop?url='+encodeURIComponent(state.stillUrl));
+    state.box = b; drawBox(b);
+    $('#boxinfo').textContent = boxInfo(b) + ' · auto — approve or re-drag';
+  }catch(e){ $('#boxinfo').textContent='auto-crop error: '+e.message; }
+  finally{ btn.disabled=false; }
+}
+$('#autocrop').onclick = doAutocrop;
 
 $('#approve').onclick = async ()=>{
   const res=$('#result'); res.className=''; res.textContent='';

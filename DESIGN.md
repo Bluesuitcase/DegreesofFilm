@@ -260,6 +260,17 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   `curation/cipher.py`, sentinel-prefixed + idempotent) over the puzzle `answers`/`caption` and the
   manifest `title`; the client decodes at load. Interim anti-snoop only (the key ships to the client);
   the proper fix is v3 server-side matching. Decoys/prompts stay plaintext.
+- **Randomize (curation)** — *(DONE)* a third find-a-film option beside search/Discover: `/api/random`
+  surfaces one random unused film as a *preview candidate* (not an auto-load); the curator re-rolls or
+  commits with "Use this film →". `discover.pick_random_unused`.
+- **Auto-crop (curation)** — *(DONE)* an **✨ Auto-crop** button suggests the tier-1 crop box instead
+  of hand-dragging it. Pillow-only, no extra deps: `images.auto_crop_box` places a `scale`-sized
+  window (same aspect as the frame) over the busiest region of the still, found from an edge-energy
+  (`FIND_EDGES`) map via the pure `images.best_window` (summed-area table). `GET /api/autocrop?url=`
+  returns the normalized box; the crop UI draws it as the selection overlay for the curator to
+  **approve or re-drag** — nothing is written until Approve. The tier system widens the approved box
+  out to the full frame as today. (Edge-energy can be fooled by title cards/subtitles, so it's a
+  starting point — hence the explicit approve step.)
 
 #### UX polish (from playtesting 2026-06-30) — client/markup-only unless noted
 
@@ -288,6 +299,10 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   title index or a backend search proxy; a live TMDB call from the browser would expose the API
   key. This is the feature that triggers the server move.
 - **Accounts + database** → cross-device stats, global leaderboards.
+- **Leaderboard** — a global board of players' results, **sortable by mode played, by user, and by
+  total**. Flag a total with an **asterisk** when the majority of it came from the easier modes
+  (Movie Buff / Poser), so a mostly-easy-mode total is visibly distinguished from a Cinephile total.
+  Needs accounts + DB (per-user, per-mode score storage) — sits with them.
 - **Score History** — a screen of the player's previous daily scores. Doable client-only, but far
   more useful backed by accounts/DB (cross-device, durable), so it lands here with them.
 - **Server-side matching** → answers never leave the backend (the clean fix for the plaintext
@@ -296,5 +311,6 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   on a film/person graph. (Doable static with prebaked data, but a big mode — slotted here.)
 - **Commercial TMDB agreement** — required only if this ever monetizes or scales as a real product.
 
-> Not v2/v3, just undone: **deploy** to GitHub Pages so what's on `main` is actually playable on
-> the web. A finishing step for v1, not a new version.
+> ~~Not v2/v3, just undone: deploy to GitHub Pages.~~ **DONE** — live at
+> https://bluesuitcase.github.io/DegreesofFilm/ (GitHub Pages, `main` `/docs`; pushes touching
+> `docs/` auto-deploy).

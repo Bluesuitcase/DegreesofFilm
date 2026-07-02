@@ -5,10 +5,26 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-02 (v1 live; v2: schedule+search+edit #16–#17, reveal mechanic #18, auto-headshot
-credit images, Practice/endless mode, vibrant themed tooltips, and light answer obfuscation shipped to
-`main` + live. **Curation "Randomize" button BUILT** this session (curation-only — no deploy). Remaining:
-operational curate-more / v3 parking lot._
+_Last updated: 2026-07-02 (v1 live; all static-v2 features shipped. This session built two curation-only
+tools — the **"Randomize" button** and **Auto-crop** — both committed to `main` (no `docs/` change → no
+deploy). Also recorded two new parking-lot items: **Leaderboard** (v3) and **Auto-crop** (was queued as
+v3, reclassified v2 and built). Remaining: operational curate-more / v3 parking lot._
+
+## DONE this session — Auto-crop (curation)
+An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the
+curator approves or re-drags (nothing is written until Approve). Curation-only, Pillow-only (no new deps).
+- **Backend:** `images.auto_crop_box(image, *, scale=0.5)` places a `scale`-sized window (frame aspect)
+  over the busiest region of the still, found from an edge-energy (`FIND_EDGES`) map via the pure
+  `images.best_window` (summed-area table). `GET /api/autocrop?url=` returns the normalized box.
+  Tests: `best_window` + `auto_crop_box` in `images.test.py` (now 25).
+- **Frontend (`curation/static/index.html`):** Auto-crop button under the stage (enabled once a still
+  is selected); `doAutocrop()` fetches the box, `drawBox()` renders the `#selbox` overlay, sets
+  `state.box`, updates `#boxinfo`. Curator can then Approve or drag a new box (drag overrides).
+- **Verified live (TMDB):** `/api/autocrop` returns e.g. `{x:0.46,y:0.37,w:0.5,h:0.5}` for a Dark Knight
+  still; UI draws the overlay pixel-accurately (408.8px ≈ expected 409). All 16 suites green; no console
+  errors. (Preview screenshot timed out on the heavy page — box verified via computed geometry instead.)
+- **Follow-ups (not done):** face/saliency detection for smarter placement; a scale slider; auto-avoid
+  title-card/subtitle regions (edge-energy can be drawn to text).
 
 ## DONE this session — curation "Randomize" button
 A third way to find a film on the curation page (beside **search** and **Discover**): a **Randomize**

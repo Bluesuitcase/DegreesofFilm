@@ -42,6 +42,29 @@ def expand_boxes(img_w, img_h, box, factors=DEFAULT_FACTORS):
     return out
 
 
+def best_window(energy, cols, rows, win_cols, win_rows):
+    """Top-left (col, row) of the win_cols x win_rows window with the greatest
+    total 'energy' over a row-major cols x rows grid. Ties break toward the
+    top-left. Pure — uses a summed-area table, so it's O(cols*rows)."""
+    win_cols = max(1, min(win_cols, cols))
+    win_rows = max(1, min(win_rows, rows))
+    sat = [[0] * (cols + 1) for _ in range(rows + 1)]      # (rows+1)x(cols+1)
+    for r in range(rows):
+        base = r * cols
+        for c in range(cols):
+            sat[r + 1][c + 1] = (energy[base + c]
+                                 + sat[r][c + 1] + sat[r + 1][c] - sat[r][c])
+    best_c = best_r = 0
+    best_sum = None
+    for r in range(rows - win_rows + 1):
+        for c in range(cols - win_cols + 1):
+            s = (sat[r + win_rows][c + win_cols] - sat[r][c + win_cols]
+                 - sat[r + win_rows][c] + sat[r][c])
+            if best_sum is None or s > best_sum:
+                best_sum, best_c, best_r = s, c, r
+    return best_c, best_r
+
+
 def clamp_accent(rgb, *, min_sat=0.45, min_val=0.45, max_val=0.92):
     """Hex accent from an (r,g,b), with saturation and brightness pushed into a
     legible range against the dark ink base. Pure (stdlib colorsys)."""
@@ -86,6 +109,24 @@ def crop_tiers(image, box, *, factors=DEFAULT_FACTORS, out_width=1000):
         w, h = crop.size
         tiers.append(crop.resize((out_width, max(1, round(h * out_width / w)))))
     return tiers
+
+
+def auto_crop_box(image, *, scale=0.5, sample_w=160):
+    """Suggest a tight tier-1 crop as a normalized box {x, y, w, h} (0..1): a
+    `scale`-sized window (same aspect as the frame, so the tiers zoom out smoothly)
+    placed over the busiest, most-detailed region of the still. 'Busy' = highest
+    edge energy, from a downscaled FIND_EDGES map (best_window does the search).
+    A STARTING POINT the curator reviews and approves/re-drags — not final."""
+    from PIL import ImageFilter
+    sw = max(8, min(sample_w, image.width))
+    sh = max(8, round(image.height * sw / image.width))
+    edges = image.convert("L").resize((sw, sh)).filter(ImageFilter.FIND_EDGES)
+    energy = list(edges.getdata())
+    win_c = max(1, round(sw * scale))
+    win_r = max(1, round(sh * scale))
+    c, r = best_window(energy, sw, sh, win_c, win_r)
+    return {"x": round(c / sw, 4), "y": round(r / sh, 4),
+            "w": round(win_c / sw, 4), "h": round(win_r / sh, 4)}
 
 
 def sample_accent(image, **clamp_opts):

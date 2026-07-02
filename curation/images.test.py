@@ -43,6 +43,17 @@ ok("expanded box stays within image", corner[0] >= 0 and corner[1] >= 0
    and corner[2] <= 800 and corner[3] <= 600)
 ok("expanded box keeps requested size", (corner[2] - corner[0]) == 300)
 
+# --- best_window (pure): find the highest-energy window over a grid ---
+# 4 cols x 3 rows, energy concentrated in the bottom-right 2x2 block.
+GRID = [0, 0, 0, 0,
+        0, 0, 5, 5,
+        0, 0, 5, 5]
+check("best_window finds the hot 2x2 block", images.best_window(GRID, 4, 3, 2, 2), (2, 1))
+check("best_window ties break top-left (flat grid)",
+      images.best_window([1] * 12, 4, 3, 2, 2), (0, 0))
+check("best_window clamps an oversize window to the whole grid",
+      images.best_window(GRID, 4, 3, 99, 99), (0, 0))
+
 # --- clamp_accent (pure) ---
 HEX = re.compile(r"^#[0-9a-f]{6}$")
 
@@ -69,6 +80,18 @@ gradient.putdata([(x % 256, y % 256, 128)
 tiers = images.crop_tiers(gradient, BOX, out_width=500)
 check("three tiers produced", len(tiers), 3)
 ok("every tier scaled to out_width", all(t.width == 500 for t in tiers))
+
+# --- auto_crop_box (Pillow): centre on the busiest region ---
+canvas = Image.new("RGB", (200, 120), (30, 30, 30))     # flat, low-energy
+for y in range(60, 120):                                # high-contrast checker, bottom-right quadrant
+    for x in range(100, 200):
+        canvas.putpixel((x, y), (255, 255, 255) if (x + y) % 2 else (0, 0, 0))
+ab = images.auto_crop_box(canvas, scale=0.5)
+ok("auto box is normalized in-bounds",
+   0 <= ab["x"] <= 1 and 0 <= ab["y"] <= 1 and 0 < ab["w"] <= 1 and 0 < ab["h"] <= 1)
+ok("auto box keeps the frame aspect (w == h in normalized coords)", abs(ab["w"] - ab["h"]) < 0.02)
+_cx, _cy = ab["x"] + ab["w"] / 2, ab["y"] + ab["h"] / 2
+ok("auto box centres on the busy quadrant (bottom-right)", _cx > 0.5 and _cy > 0.5)
 
 reddish = Image.new("RGB", (40, 40), (200, 40, 40))
 acc = to_rgb(images.sample_accent(reddish))

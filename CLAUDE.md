@@ -52,7 +52,8 @@ server-side matching, degrees-of-separation — remains.
   `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB),
   **Discover** (unused shortlist), or **Randomize** (`/api/random`: one random unused film shown as a
   *preview candidate* — "Randomize again" re-rolls, "Use this film →" commits; it does NOT auto-open
-  the editor) → pick a still and drag a crop box → review the drafted
+  the editor) → pick a still and drag a crop box (or hit **✨ Auto-crop**, which suggests a tier-1 box
+  over the busiest region via `/api/autocrop`; the curator approves or re-drags) → review the drafted
   rungs/decoys (**per-rung credit images are automatic** — every cast/crew rung uses that person's
   TMDB headshot; no manual picking) →
   **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung credit images, appends
@@ -125,7 +126,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   credits_images.py    Per-rung credit images: map rungs->people, stamp each with its TMDB headshot
                        + caption (auto, cast + crew alike), finalize image/caption + strip helper
                        fields at approve (pure core) + CLI.
-  images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
+  images.py            Reveal-tier cropping + theme accent/palette-background sampling + auto-crop
+                       (auto_crop_box/best_window: suggest a tier-1 box over the busiest region) (Pillow) + CLI.
   cipher.py            Light answer obfuscation (obfuscate/deobfuscate + encode_rungs/decode_rungs):
                        XOR+base64 with a sentinel prefix, idempotent + plaintext-passthrough. Mirrors
                        docs/cipher.js. publish encodes on write; app.py decodes on edit-load.
