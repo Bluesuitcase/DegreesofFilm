@@ -262,15 +262,17 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   the proper fix is v3 server-side matching. Decoys/prompts stay plaintext.
 - **Randomize (curation)** — *(DONE)* a third find-a-film option beside search/Discover: `/api/random`
   surfaces one random unused film as a *preview candidate* (not an auto-load); the curator re-rolls or
-  commits with "Use this film →". `discover.pick_random_unused`.
+  commits with "Use this film →". `discover.pick_random_unused`. **Honors the sort dropdown** (`?sort=`)
+  so the random slice is drawn by most-voted / most-popular / highest-rated.
 - **Auto-crop (curation)** — *(DONE)* an **✨ Auto-crop** button suggests the tier-1 crop box instead
   of hand-dragging it. Pillow-only, no extra deps: `images.auto_crop_box` places a `scale`-sized
   window (same aspect as the frame) over the busiest region of the still, found from an edge-energy
   (`FIND_EDGES`) map via the pure `images.best_window` (summed-area table). `GET /api/autocrop?url=`
   returns the normalized box; the crop UI draws it as the selection overlay for the curator to
   **approve or re-drag** — nothing is written until Approve. The tier system widens the approved box
-  out to the full frame as today. (Edge-energy can be fooled by title cards/subtitles, so it's a
-  starting point — hence the explicit approve step.)
+  out to the full frame as today. A **size slider** (`?scale=`, 0.25–0.85) tunes how tight the box is,
+  live-re-cropping on release. (Edge-energy can be fooled by title cards/subtitles, so it's a starting
+  point — hence the explicit approve step.)
 - **Clear scheduled puzzles (curation)** — *(DONE)* a **🗑 Clear scheduled** button in the schedule
   section unschedules every upcoming (strictly-future) puzzle in one go, keeping today's daily + all
   past days. Two-click arm/confirm (previews the count, then commits) — no native modal. `manifest.

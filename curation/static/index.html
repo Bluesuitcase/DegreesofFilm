@@ -144,6 +144,10 @@
         </div>
         <div class="row" style="margin-top:6px">
           <button class="btn ghost" id="autocrop" disabled>✨ Auto-crop</button>
+          <label class="inl" style="gap:6px" title="Auto-crop box size (smaller = tighter zoom)">size
+            <input type="range" id="cropscale" min="0.25" max="0.85" step="0.05" value="0.5" style="width:96px" />
+            <span class="hint" id="cropscaleval" style="margin:0">0.50</span>
+          </label>
           <p class="hint" id="boxinfo" style="margin:0">No crop box yet.</p>
         </div>
       </div>
@@ -315,7 +319,7 @@ async function doRandomize(){
   $('#randomize').disabled = true;
   $('#dstatus').textContent = 'rolling…';
   try{
-    const f = await jget('/api/random');
+    const f = await jget('/api/random?sort='+encodeURIComponent($('#sort').value));
     renderRandom(f);
     $('#dstatus').textContent = 'random pick — keep it or roll again';
   }catch(e){ $('#dstatus').textContent = 'error: '+e.message; }
@@ -435,13 +439,19 @@ async function doAutocrop(){
   if(!state.stillUrl){ $('#boxinfo').textContent='Pick a still first.'; return; }
   const btn=$('#autocrop'); btn.disabled=true; $('#boxinfo').textContent='auto-cropping…';
   try{
-    const b = await jget('/api/autocrop?url='+encodeURIComponent(state.stillUrl));
+    const scale = $('#cropscale').value;
+    const b = await jget('/api/autocrop?url='+encodeURIComponent(state.stillUrl)+'&scale='+scale);
     state.box = b; drawBox(b);
     $('#boxinfo').textContent = boxInfo(b) + ' · auto — approve or re-drag';
   }catch(e){ $('#boxinfo').textContent='auto-crop error: '+e.message; }
   finally{ btn.disabled=false; }
 }
 $('#autocrop').onclick = doAutocrop;
+// Live scale readout; on release, if we already have an auto box, re-crop at the new size.
+$('#cropscale').addEventListener('input', () => {
+  $('#cropscaleval').textContent = Number($('#cropscale').value).toFixed(2);
+});
+$('#cropscale').addEventListener('change', () => { if(state.stillUrl && state.box) doAutocrop(); });
 
 $('#approve').onclick = async ()=>{
   const res=$('#result'); res.className=''; res.textContent='';

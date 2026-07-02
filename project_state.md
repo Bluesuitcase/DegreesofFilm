@@ -27,13 +27,17 @@ A **🗑 Clear scheduled** button in the crop tool's schedule section unschedule
 - **Verified live:** dry `GET` → `{scheduled:2, dates:[07-03,07-04]}`; UI arms correctly; `POST`
   removed exactly those 2 (kept through today), then the manifest was restored from git. 16 suites green.
 
-### v2 ranking (updated — all DONE except operational; ordered by build complexity, low→high)
+### v2 ranking (updated — ordered by build complexity, low→high)
 Operational (not a build item): **curate more puzzles** (ongoing content). Build items, simplest first:
-1. Auto-crop **scale slider** *(not built)* — S · expose the existing `scale` param as a UI slider.
-2. Randomize **honor sort/floor** *(not built)* — S · pass the sort dropdown through to `/api/random`.
-3. **Clear scheduled puzzles** — S–M · **DONE this session.**
-4. Randomize/Discover **exclude scheduled-but-unpublished** *(not built)* — S–M · also skip manifest films.
+1. Auto-crop **scale slider** — S · **DONE** (`?scale=` slider 0.25–0.85, live label, re-crops on release).
+2. Randomize **honor sort** — S · **DONE** (`/api/random?sort=` from the sort dropdown). *(Floor has no
+   UI — still the `POOL_MIN_*` constants; add a floor control only if wanted.)*
+3. **Clear scheduled puzzles** — S–M · **DONE.**
+4. Randomize/Discover **exclude scheduled-but-unpublished** *(not built)* — S–M · also skip manifest films
+   (today only the ledger = published is excluded, so a scheduled-but-uncommitted film could re-appear).
 5. Auto-crop **face/saliency detection** *(not built)* — M · smarter placement, avoid title cards.
+
+**Only v2 build items left: #4 and #5.**
 
 ## DONE this session — Auto-crop (curation)
 An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the
