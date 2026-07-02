@@ -41,6 +41,16 @@
   .usedbadge{display:inline-block;font-size:9px;font-weight:600;text-transform:uppercase;
              letter-spacing:.08em;color:var(--amber);border:1px solid var(--amber);
              border-radius:999px;padding:1px 6px;vertical-align:middle;white-space:nowrap}
+  /* Randomize preview: a single candidate card with its own accept/re-roll actions. */
+  .randcard{display:flex;gap:14px;align-items:center;background:var(--ink2);
+            border:1px solid var(--amber);border-radius:8px;padding:12px}
+  .randcard .thumb{width:200px;height:112px;object-fit:cover;border-radius:6px;
+                   background:#000;flex:0 0 auto}
+  .randcard .rmeta{flex:1;min-width:0}
+  .randcard .t{font-size:16px;font-weight:600;line-height:1.2}
+  .randcard .s{font-size:12px;color:var(--muted);margin-top:4px}
+  .randcard .roll{font-size:10px;text-transform:uppercase;letter-spacing:.1em;
+                  color:var(--amber);margin:0 0 6px}
   .editing #film-h2{color:var(--amber)}
   .editbanner{display:none;font-size:12px;color:var(--amber);margin:0 0 10px}
   .editing .editbanner{display:block}
@@ -107,8 +117,10 @@
         <option value="vote_average.desc">Highest rated</option>
       </select>
       <button class="btn ghost" id="find">Discover</button>
+      <button class="btn ghost" id="randomize">🎲 Randomize</button>
       <span class="hint" id="dstatus"></span>
     </div>
+    <div id="randombox" class="hidden" style="margin-top:12px"></div>
     <div class="cards" id="cards" style="margin-top:12px"></div>
   </section>
 
@@ -151,7 +163,7 @@
 
 <script>
 const $ = s => document.querySelector(s);
-const state = { film:null, stillUrl:null, box:null, editing:null };
+const state = { film:null, stillUrl:null, box:null, editing:null, random:null };
 
 $('#date').value = new Date().toISOString().slice(0,10);   // immediate fallback
 // ...then default to the next free day so back-to-back publishes don't collide
@@ -198,6 +210,7 @@ loadSchedule();
 // Render a set of film cards (from discover OR search). Films already made into a
 // puzzle are badged and route to editing that puzzle; the rest author a new one.
 function renderCards(films){
+  $('#randombox').classList.add('hidden'); $('#randombox').innerHTML = '';   // clear any random preview
   $('#cards').innerHTML = '';
   films.forEach(f => {
     const c = document.createElement('button'); c.className = 'card';
@@ -232,6 +245,42 @@ async function runSearch(){
 $('#searchbtn').onclick = runSearch;
 $('#q').addEventListener('keydown', e => { if(e.key==='Enter') runSearch(); });
 
+// Randomize: surface ONE random unused film as a preview candidate. It deliberately
+// does NOT auto-load into the crop editor — the curator re-rolls or commits with
+// "Use this film →" (which then calls loadFilm). state.random holds the candidate.
+function renderRandom(f){
+  state.random = f;
+  $('#cards').innerHTML = '';                 // the preview replaces any card grid
+  const box = $('#randombox');
+  box.classList.remove('hidden');
+  box.innerHTML = `<div class="randcard">
+      <img class="thumb" src="${f.backdrop||''}" alt=""/>
+      <div class="rmeta">
+        <p class="roll">Random pick</p>
+        <div class="t">${f.title}</div>
+        <div class="s">${f.year||'—'} · ${f.vote_average}★ · ${f.vote_count} votes</div>
+        <div class="row" style="margin-top:12px">
+          <button class="btn" id="usefilm">Use this film →</button>
+          <button class="btn ghost" id="reroll">🎲 Randomize again</button>
+        </div>
+      </div>
+    </div>`;
+  $('#usefilm').onclick = () => loadFilm(f.id);
+  $('#reroll').onclick = doRandomize;
+}
+
+async function doRandomize(){
+  $('#randomize').disabled = true;
+  $('#dstatus').textContent = 'rolling…';
+  try{
+    const f = await jget('/api/random');
+    renderRandom(f);
+    $('#dstatus').textContent = 'random pick — keep it or roll again';
+  }catch(e){ $('#dstatus').textContent = 'error: '+e.message; }
+  finally{ $('#randomize').disabled = false; }
+}
+$('#randomize').onclick = doRandomize;
+
 // Switch the crop panel between authoring a new puzzle and editing an existing one.
 function setMode(editing, title){
   state.editing = editing;              // null = new puzzle, or a puzzle id
@@ -245,6 +294,7 @@ function setMode(editing, title){
 // Populate the crop panel's stills strip + rungs + pickers from a loaded film/puzzle.
 function fillPanel(f){
   state.film = { id: f.film_id || f.id }; state.stillUrl=null; state.box=null;
+  $('#randombox').classList.add('hidden'); $('#randombox').innerHTML = '';   // done with the random preview
   $('#rungs').value = JSON.stringify(f.rungs, null, 2);
   $('#stills').innerHTML='';
   $('#still').removeAttribute('src'); $('#selbox').style.display='none';

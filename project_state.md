@@ -5,10 +5,29 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (v1 live; v2: schedule+search+edit #16–#17, reveal mechanic #18, auto-headshot
-credit images, Practice/endless mode, vibrant themed tooltips, and **light answer obfuscation** all
-shipped to `main` + live. **ALL static-v2 features are now done** — only operational work remains
-(curate more puzzles). Next real feature work is the v3 parking lot (needs the server move)._
+_Last updated: 2026-07-02 (v1 live; v2: schedule+search+edit #16–#17, reveal mechanic #18, auto-headshot
+credit images, Practice/endless mode, vibrant themed tooltips, and light answer obfuscation shipped to
+`main` + live. **Curation "Randomize" button BUILT** this session (curation-only — no deploy). Remaining:
+operational curate-more / v3 parking lot._
+
+## DONE this session — curation "Randomize" button
+A third way to find a film on the curation page (beside **search** and **Discover**): a **Randomize**
+button that surfaces ONE random unused film as a **preview candidate** — it does NOT auto-open the
+crop editor. From the preview the curator can **Randomize again** (re-roll) or **Use this film →**
+(then and only then does it call `loadFilm(id)` to start authoring). Curation-only, no `docs/` change.
+- **Backend:** `GET /api/random` (`curation/app.py`) — pulls a *random* `/discover` page (across the
+  eligible catalog, for variety) and returns one random unused film summary `{id,title,year,
+  vote_average,vote_count,backdrop}`; retries a few pages if one is all-used; 404 if none. New pure
+  helper `discover.pick_random_unused(results, used, *, rng=…)` (rng injectable) — tested in
+  `discover.test.py`.
+- **Frontend (`curation/static/index.html`):** Randomize button by Discover; `doRandomize()` +
+  `renderRandom(f)` show a `.randcard` preview (`#randombox`) with Use/Reroll buttons; `state.random`
+  holds the candidate. `renderCards`/`fillPanel` clear the preview so it never lingers.
+- **Verified live (TMDB):** varied unused picks (Yojimbo→Odd Thomas→House of Flying Daggers), all
+  ledger-excluded; preview shows without opening the editor; reroll swaps; "Use this film" opens the
+  editor (13 stills, 12 rungs) + clears the preview. 16 suites green; no console errors.
+- **Possible follow-ups (not done):** exclude already-scheduled-but-unpublished films (only the ledger
+  = published is excluded today); let the Randomize honour the sort dropdown / floor sliders.
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.

@@ -46,6 +46,18 @@ check("candidates skip used + below-floor", ids(discover.candidates(RESULTS, USE
 check("pick_unused is first valid", discover.pick_unused(RESULTS, USED)["id"], 1)
 check("pick_unused none left", discover.pick_unused([], USED), None)
 
+# --- pick_random_unused: any valid candidate, via an injected rng ---
+class _PickLast:            # a fake rng: always picks the last option
+    def choice(self, seq):
+        return seq[-1]
+check("pick_random_unused honours the injected rng",
+      discover.pick_random_unused(RESULTS, USED, rng=_PickLast())["id"], 6)
+check("pick_random_unused only ever returns a valid candidate",
+      discover.pick_random_unused(RESULTS, USED, rng=_PickLast())["id"] in {1, 6}, True)
+check("pick_random_unused none left", discover.pick_random_unused([], USED), None)
+check("pick_random_unused none when all used",
+      discover.pick_random_unused(RESULTS, {1, 2, 3, 4, 5, 6}), None)
+
 # --- a stricter floor can be passed through ---
 check("stricter vote floor drops the boundary film",
       ids(discover.candidates(RESULTS, USED, min_votes=1000)), [1])

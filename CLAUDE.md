@@ -49,8 +49,10 @@ server-side matching, degrees-of-separation — remains.
   the crop/sample tests use Pillow.
 - **Curation crop tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
   then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
-  `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB) or
-  **Discover** (unused shortlist) → pick a still and drag a crop box → review the drafted
+  `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB),
+  **Discover** (unused shortlist), or **Randomize** (`/api/random`: one random unused film shown as a
+  *preview candidate* — "Randomize again" re-rolls, "Use this film →" commits; it does NOT auto-open
+  the editor) → pick a still and drag a crop box → review the drafted
   rungs/decoys (**per-rung credit images are automatic** — every cast/crew rung uses that person's
   TMDB headshot; no manual picking) →
   **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung credit images, appends

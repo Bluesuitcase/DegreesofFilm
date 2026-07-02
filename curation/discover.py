@@ -34,6 +34,18 @@ def pick_unused(results, used, **floor):
     return found[0] if found else None
 
 
+def pick_random_unused(results, used, *, rng=None, **floor):
+    """A random valid candidate, or None. Pure given an injected `rng` (anything
+    with a `.choice`); defaults to the `random` module. Powers the Randomize
+    button's 'surprise me' pick, vs pick_unused's deterministic first."""
+    found = candidates(results, used, **floor)
+    if not found:
+        return None
+    if rng is None:
+        import random as rng
+    return rng.choice(found)
+
+
 def _discover_page(key, page, sort_by, min_votes, min_avg):
     return tmdb.get("/discover/movie", key,
                     sort_by=sort_by,

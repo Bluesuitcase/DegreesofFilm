@@ -143,6 +143,36 @@ def api_discover(sort: str = "vote_count.desc", count: int = 12):
             for m in found[:count]]
 
 
+@app.get("/api/random")
+def api_random():
+    """One random unused film that clears the pool floor — the Randomize button's
+    'surprise me' pick. Returns a preview summary only; it does NOT start authoring
+    (the UI shows it and lets the curator re-roll or commit). Pulls a random
+    /discover page (across the eligible catalog) for variety, retrying a few times
+    if a page happens to be all-used."""
+    import random
+    k = _key()
+    used = used_ids(load_ledger())
+    floor = {"vote_count.gte": discover_mod.POOL_MIN_VOTES,
+             "vote_average.gte": discover_mod.POOL_MIN_AVG}
+    probe = tmdb.get("/discover/movie", k, sort_by="vote_count.desc", page=1,
+                     include_adult="false", **floor)
+    total = min(probe.get("total_pages", 1) or 1, 500)   # TMDB hard-caps paging at 500
+    for _ in range(6):
+        page = random.randint(1, total)
+        data = probe if page == 1 else tmdb.get(
+            "/discover/movie", k, sort_by="vote_count.desc", page=page,
+            include_adult="false", **floor)
+        m = discover_mod.pick_random_unused(data.get("results", []), used)
+        if m:
+            return {"id": m["id"], "title": m.get("title"),
+                    "year": (m.get("release_date") or "")[:4],
+                    "vote_average": round(m.get("vote_average", 0), 1),
+                    "vote_count": m.get("vote_count"),
+                    "backdrop": (IMG_BASE + m["backdrop_path"]) if m.get("backdrop_path") else None}
+    raise HTTPException(404, "couldn't find an unused film — try Randomize again")
+
+
 @app.get("/api/search")
 def api_search(q: str = "", count: int = 18):
     """Free-text title search across ALL of TMDB (not just the discover shortlist).
