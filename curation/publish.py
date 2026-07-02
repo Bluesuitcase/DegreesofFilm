@@ -10,6 +10,7 @@ import json
 import os
 import re
 
+import cipher
 import ledger as ledger_mod
 import manifest as manifest_mod
 
@@ -67,7 +68,7 @@ def upcoming_schedule(manifest, today=None, days=14):
             "is_today": i == 0,
             "filled": e is not None,
             "id": e.get("id") if e else None,
-            "title": e.get("title") if e else None,
+            "title": cipher.deobfuscate(e.get("title")) if e else None,   # manifest stores it obfuscated
             "accent": e.get("accent") if e else None,
         })
     return slots
@@ -86,14 +87,16 @@ def runway(manifest, today=None):
 
 
 def assemble_puzzle(movie, rungs, *, puzzle_id, date, theme, image_files):
-    """The puzzle JSON: id, date, theme {accent, bg, bg2}, images[], rungs[]."""
+    """The puzzle JSON: id, date, theme {accent, bg, bg2}, images[], rungs[].
+    Answer strings + captions are lightly obfuscated on the way out (the client
+    decodes them) so they aren't readable in devtools; decoys/prompts stay plain."""
     puzzle = {"id": puzzle_id}
     if date:
         puzzle["date"] = date
     if theme:
         puzzle["theme"] = theme
     puzzle["images"] = list(image_files)
-    puzzle["rungs"] = rungs
+    puzzle["rungs"] = cipher.encode_rungs(rungs)
     return puzzle
 
 
@@ -122,7 +125,7 @@ def publish(movie, rungs, *, theme, image_files, date,
     ledger_mod.save(led, ledger_path)
 
     man = manifest_mod.upsert(man, manifest_mod.make_entry(
-        date=date, id=pid, file=file, title=movie.get("title"),
+        date=date, id=pid, file=file, title=cipher.obfuscate(movie.get("title")),
         accent=(theme or {}).get("accent")))
     manifest_mod.save(man, manifest_path)
 

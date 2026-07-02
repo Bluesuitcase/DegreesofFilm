@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "The Dark Knight"
+        "\u0001MA0CUiEEAUZPLUMPDgQZ"
       ],
       "decoys": [
         "The Batman",
@@ -28,155 +28,155 @@
       "role": "Cast",
       "prompt": "Who played Bruce Wayne?",
       "answers": [
-        "Christian Bale"
+        "\u0001Jw0VGxYRGkwBRm8HBQk="
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Christian Bale as Bruce Wayne",
+      "caption": "\u0001Jw0VGxYRGkwBRm8HBQlNBRZHMBcQEEhPMUwfBwk=",
       "image": "images/004-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Joker?",
       "answers": [
-        "Heath Ledger"
+        "\u0001LAAGBg1FP0gLAUgU"
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Heath Ledger as Joker",
+      "caption": "\u0001LAAGBg1FP0gLAUgUSQ0eRC8IGQAX",
       "image": "images/004-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "Christopher Nolan"
+        "\u0001Jw0VGxYRHF0HA19GJwMBBQs="
       ],
       "decoys": [
         "Tim Burton",
         "Matt Reeves",
         "D.J. Caruso"
       ],
-      "caption": "Christopher Nolan",
+      "caption": "\u0001Jw0VGxYRHF0HA19GJwMBBQs=",
       "image": "images/004-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Harvey Dent?",
       "answers": [
-        "Aaron Eckhart"
+        "\u0001JQQVHQtFNk4EDkwUHQ=="
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Aaron Eckhart as Harvey Dent",
+      "caption": "\u0001JQQVHQtFNk4EDkwUHUwMF0UvExcTFlRPIkgIHQ==",
       "image": "images/004-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Alfred?",
       "answers": [
-        "Michael Caine"
+        "\u0001KQwEGgQAHw0sB0QIDA=="
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Michael Caine as Alfred",
+      "caption": "\u0001KQwEGgQAHw0sB0QIDEwMF0UmHgMXFkk=",
       "image": "images/004-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Rachel?",
       "answers": [
-        "Maggie Gyllenhaal"
+        "\u0001KQQAFQwAU2oWCkEDBwQMBQk="
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Maggie Gyllenhaal as Rachel",
+      "caption": "\u0001KQQAFQwAU2oWCkEDBwQMBQlHExZFIUwMDkgK",
       "image": "images/004-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Gordon?",
       "answers": [
-        "Gary Oldman"
+        "\u0001IwQVC0UqH0kCB0M="
       ],
       "decoys": [
         "Anne Hathaway",
         "Tom Hardy",
         "Theo James"
       ],
-      "caption": "Gary Oldman as Gordon",
+      "caption": "\u0001IwQVC0UqH0kCB0NGCB9NIwoVFgoL",
       "image": "images/004-r8.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "Wally Pfister"
+        "\u0001MwQLHhxFI0sGFVkDGw=="
       ],
       "decoys": [
         "Greig Fraser",
         "Roger Pratt",
         "Guillermo Navarro"
       ],
-      "caption": "Wally Pfister",
+      "caption": "\u0001MwQLHhxFI0sGFVkDGw==",
       "image": "images/004-r9.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "James Newton Howard",
-        "Hans Zimmer"
+        "\u0001LgQKFxZFPUgYEkIISSQCEwQVFg==",
+        "\u0001LAQJAUU/GkACA18="
       ],
       "decoys": [
         "Michael Giacchino",
         "Danny Elfman",
         "Mark Isham"
       ],
-      "caption": "James Newton Howard",
+      "caption": "\u0001LgQKFxZFPUgYEkIISSQCEwQVFg==",
       "image": "images/004-r10.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Lee Smith"
+        "\u0001KAACUjYIGlkH"
       ],
       "decoys": [
         "William Hoy",
         "Stuart Levy",
         "Jim Page"
       ],
-      "caption": "Lee Smith",
+      "caption": "\u0001KAACUjYIGlkH",
       "image": "images/004-r11.jpg"
     },
     {
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Nathan Crowley"
+        "\u0001KgQTGgQLU24dCVoKDBU="
       ],
       "decoys": [
         "James Chinlund",
         "Michelle McGahey",
         "Alec Hammond"
       ],
-      "caption": "Nathan Crowley",
+      "caption": "\u0001KgQTGgQLU24dCVoKDBU=",
       "image": "images/004-r12.jpg"
     }
   ]

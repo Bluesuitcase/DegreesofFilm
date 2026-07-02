@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "Avatar"
+        "\u0001JRMGBgQX"
       ],
       "decoys": [
         "The Matrix",
@@ -28,157 +28,157 @@
       "role": "Cast",
       "prompt": "Who played Jake Sully?",
       "answers": [
-        "Sam Worthington"
+        "\u0001NwQKUjIKAVkHD0MBHQMD"
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Sam Worthington as Jake Sully",
+      "caption": "\u0001NwQKUjIKAVkHD0MBHQMDRAQUUi8EGEhPNVgKBRU=",
       "image": "images/007-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Neytiri?",
       "answers": [
-        "Zoe Saldaña"
+        "\u0001PgoCUjYEH0kOpZwH"
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Zoe Saldaña as Neytiri",
+      "caption": "\u0001PgoCUjYEH0kOpZwHSQ0eRCsCCxEMAUQ=",
       "image": "images/007-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "James Cameron"
+        "\u0001LgQKFxZFMEwCA18JBw=="
       ],
       "decoys": [
         "George Lucas",
         "J.J. Abrams",
         "Zack Snyder"
       ],
-      "caption": "James Cameron",
+      "caption": "\u0001LgQKFxZFMEwCA18JBw==",
       "image": "images/007-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Dr. Grace Augustine?",
       "answers": [
-        "Sigourney Weaver"
+        "\u0001NwwAHRAXHUgWRnoDCBoIFg=="
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Sigourney Weaver as Dr. Grace Augustine",
+      "caption": "\u0001NwwAHRAXHUgWRnoDCBoIFkUGAUUhAQNPIV8HCglNJRAABxYRGkMK",
       "image": "images/007-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Colonel Miles Quaritch?",
       "answers": [
-        "Stephen Lang"
+        "\u0001NxECAg0AHQ0jB0MB"
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Stephen Lang as Colonel Miles Quaritch",
+      "caption": "\u0001NxECAg0AHQ0jB0MBSQ0eRCYIHgoLFkFPK0QKDB9NNRAGAAwREEU=",
       "image": "images/007-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Trudy Chacon?",
       "answers": [
-        "Michelle Rodriguez"
+        "\u0001KQwEGgAJH0hPNEICGwUKEQAd"
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Michelle Rodriguez as Trudy Chacon",
+      "caption": "\u0001KQwEGgAJH0hPNEICGwUKEQAdUgQWU3kdE0kfSS8FBQYIHA==",
       "image": "images/007-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Parker Selfridge?",
       "answers": [
-        "Giovanni Ribisi"
+        "\u0001IwwIBAQLHURPNEQEAB8E"
       ],
       "decoys": [
         "Henry Cavill",
         "Jennifer Connelly",
         "Keanu Reeves"
       ],
-      "caption": "Giovanni Ribisi as Parker Selfridge",
+      "caption": "\u0001IwwIBAQLHURPNEQEAB8ERAQUUjUEAUYKFA01DAALFgwDFQA=",
       "image": "images/007-r8.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "Mauro Fiore"
+        "\u0001KQQSAApFNUQAFEg="
       ],
       "decoys": [
         "Leon Shamroy",
         "Bill Pope",
         "Dan Mindel"
       ],
-      "caption": "Mauro Fiore",
+      "caption": "\u0001KQQSAApFNUQAFEg=",
       "image": "images/007-r9.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "James Horner"
+        "\u0001LgQKFxZFO0IdCEgU"
       ],
       "decoys": [
         "Hans Zimmer",
         "John Williams",
         "Tom Holkenborg"
       ],
-      "caption": "James Horner",
+      "caption": "\u0001LgQKFxZFO0IdCEgU",
       "image": "images/007-r10.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "James Cameron",
-        "John Refoua",
-        "Stephen E. Rivkin"
+        "\u0001LgQKFxZFMEwCA18JBw==",
+        "\u0001LgoPHEU3FksAE0w=",
+        "\u0001NxECAg0AHQ0qSA00ABoGDQs="
       ],
       "decoys": [
         "Ben Burtt",
         "Stefan Grube",
         "David Brenner"
       ],
-      "caption": "James Cameron",
+      "caption": "\u0001LgQKFxZFMEwCA18JBw==",
       "image": "images/007-r11.jpg"
     },
     {
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Rick Carter",
-        "Robert Stromberg"
+        "\u0001NgwEGUUmEl8bA18=",
+        "\u0001NgoFFxcRU34bFEILCwkfAw=="
       ],
       "decoys": [
         "Steve Joyner",
         "Gavin Bocquet",
         "Alex McDowell"
       ],
-      "caption": "Rick Carter",
+      "caption": "\u0001NgwEGUUmEl8bA18=",
       "image": "images/007-r12.jpg"
     }
   ]

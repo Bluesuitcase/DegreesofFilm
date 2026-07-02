@@ -6,8 +6,9 @@
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
 _Last updated: 2026-07-01 (v1 live; v2: schedule+search+edit #16–#17, reveal mechanic #18, auto-headshot
-credit images, Practice/endless mode, and **vibrant themed tooltips** all shipped to `main` + live. The
-ONLY static-v2 feature left is **light answer obfuscation** (+ operational: curate more puzzles)._
+credit images, Practice/endless mode, vibrant themed tooltips, and **light answer obfuscation** all
+shipped to `main` + live. **ALL static-v2 features are now done** — only operational work remains
+(curate more puzzles). Next real feature work is the v3 parking lot (needs the server move)._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -78,6 +79,18 @@ ONLY static-v2 feature left is **light answer obfuscation** (+ operational: cura
    to Play today / Modes / Skip / I Need Help (the `#help-btn` tip is new); `title` attrs removed to
    avoid double tooltips. Pure CSS (`[data-tip]::after/::before` in `style.css`) — no JS. Verified in
    preview (computed styles + screenshot); no console errors.
+5. **Light answer obfuscation** (both zones + migration) — answers/captions in puzzle files and the
+   manifest `title` now ship lightly obfuscated so they're not readable in devtools. Shared cipher:
+   `docs/cipher.js` + `curation/cipher.py` (XOR w/ key `degrees-of-film` + base64, U+0001 sentinel
+   prefix → idempotent + plaintext-passthrough; a fixed cross-language vector is asserted in both
+   `cipher.test.js` and `cipher.test.py`). Client: `app.js` `decodeRungs()` after fetch, so
+   game.js/match.js see plaintext; decoys/prompts stay plaintext. Curation: `publish.assemble_puzzle`
+   encodes rungs, `publish()`/`api_update` encode the manifest title, `upcoming_schedule` + `api_puzzle`
+   (edit-load) + `backfill` decode. Migration CLI `curation/obfuscate_puzzles.py` encoded the 7 existing
+   puzzles (170 strings) + 7 manifest titles (idempotent — re-run is a no-op). Verified end-to-end:
+   Cinephile correct-guess + surname match + decoded caption, Poser MC choices, curation schedule +
+   edit-load all round-trip; 16 suites green; no console errors. **NOT NECESSARILY DECISIVE:** it's a
+   snoop stopgap, the key is in the client (v3 server-side matching is the real fix).
 
 **Live site:** https://bluesuitcase.github.io/DegreesofFilm/ (Pages serves `main` `/docs`).
 

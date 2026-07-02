@@ -15,13 +15,15 @@ plus per-rung credit images shipped. **v2 is underway** (all still-static, no se
 tool's **week-ahead schedule**, **film search**, and **edit-existing-puzzle** are merged; the
 **reveal mechanic** (widen the film-rung crop on wrong guesses) is merged and live; **credit images
 are auto-headshots** (the manual character-still picker was removed); **Practice/endless mode** is
-built and live; and hover hints use **vibrant themed tooltips** (`data-tip`, not native `title`).
-The client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game,
-`?id=N` an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the
-practice chooser, `?practice&mode=cinephile|poser` an endless practice run. **Poser mode is built**
-(all-MC, flat +1). The **only** static-v2 feature still deferred is **light answer obfuscation**
-(plus the operational task of curating more puzzles); the v3 parking lot — **Movie Buff** (needs the
-server move), accounts/DB, Score History, server-side matching, degrees-of-separation — remains.
+built and live; hover hints use **vibrant themed tooltips** (`data-tip`, not native `title`); and
+**answers ship lightly obfuscated** (a shared XOR+base64 cipher — `docs/cipher.js` / `curation/cipher.py`
+— decoded in the client at load, so they're not readable in devtools). The client routes views by
+query string: `?` home, `?modes` mode-select, `?play` today's game, `?id=N` an archived game,
+`?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice chooser,
+`?practice&mode=cinephile|poser` an endless practice run. **Poser mode is built** (all-MC, flat +1).
+**All static-v2 features are now shipped**; the only open v2 task is operational (curate more
+puzzles). The v3 parking lot — **Movie Buff** (needs the server move), accounts/DB, Score History,
+server-side matching, degrees-of-separation — remains.
 **Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
@@ -34,11 +36,12 @@ server move), accounts/DB, Score History, server-side matching, degrees-of-separ
   a server — `file://` won't work. Serve the `docs/` folder and open `index.html`, e.g.
   `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
-  `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, and `node frame.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, `node frame.test.js`, and
+  `node cipher.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
-  `discover`, `decoys`, `manifest`, `publish`, `credits_images`) — pure-logic, no network or API key,
+  `discover`, `decoys`, `manifest`, `publish`, `credits_images`, `cipher`) — pure-logic, no network or API key,
   same PASS/FAIL + non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`,
   `credits_images.py`) hit live TMDB and need the key in `curation/.env`.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
@@ -73,8 +76,10 @@ in the (future) curation tool on your machine. Players only ever fetch finished 
 3. **PLAYER BROWSER** — no key, no backend. Vanilla ES-module JS runs the rules and the fuzzy
    matcher; daily stats/streak live in localStorage (`stats.js`).
 
-Consequence: v1 needs **no backend for players**. v1 also ships answers in plaintext in the JSON
-(readable in devtools) — accepted because there's no leaderboard yet.
+Consequence: v1 needs **no backend for players**. v1 shipped answers in plaintext in the JSON;
+**v2 added light obfuscation** (`cipher.js`/`cipher.py`) so they're not readable at a glance in
+devtools — still not real security (the key ships to the client), just an interim anti-snoop
+stopgap until v3's server-side matching.
 
 ## File layout
 
@@ -89,6 +94,8 @@ daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle da
 theme.test.js          Accent-theming tests (node theme.test.js): parse/luminance/contrast.
 stats.test.js          Stats/streak tests (node stats.test.js): recordResult streak + histogram.
 frame.test.js          Credit-image tests (node frame.test.js): pickCreditFrame still selection.
+cipher.test.js         Answer-obfuscation tests (node cipher.test.js): decode/round-trip/passthrough
+                       + a fixed vector shared with curation/cipher.test.py (cross-language parity).
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -101,6 +108,8 @@ docs/                  The entire static site = what gets hosted.
   frame.js             Which still to show per rung (pickCreditFrame): film-rung crop that widens
                        one tier per wrong guess (reveal) -> credit image + caption -> full-frame
                        fallback. Pure logic, no DOM.
+  cipher.js            Light answer de-obfuscation (decode/decodeRungs). Mirrors curation/cipher.py;
+                       app.js decodes each puzzle's rungs at load. Pure logic, no DOM.
   puzzles/
     001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
     images/001.jpg     Its frame image.
@@ -115,16 +124,22 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
                        + caption (auto, cast + crew alike), finalize image/caption + strip helper
                        fields at approve (pure core) + CLI.
   images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
-  publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
-                       next_date() defaults publish dates to the next free day (no manifest collisions);
-                       upcoming_schedule()/runway() power the week-ahead scheduling view.
+  cipher.py            Light answer obfuscation (obfuscate/deobfuscate + encode_rungs/decode_rungs):
+                       XOR+base64 with a sentinel prefix, idempotent + plaintext-passthrough. Mirrors
+                       docs/cipher.js. publish encodes on write; app.py decodes on edit-load.
+  publish.py           Approve step: assemble the puzzle file (answers/captions obfuscated via cipher)
+                       + append ledger + upsert manifest (title obfuscated); next_date() defaults
+                       publish dates to the next free day (no manifest collisions); upcoming_schedule()
+                       (decodes titles) / runway() power the week-ahead scheduling view.
   ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images pure; images=Pillow).
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images/cipher pure; images=Pillow).
   backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' credit rungs (cast + crew) with
                        TMDB headshots (maps puzzle->film via the ledger).
+  obfuscate_puzzles.py Re-runnable migration CLI: obfuscate answers/captions in existing puzzle files
+                       + manifest titles (idempotent). New publishes are encoded automatically.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
@@ -191,7 +206,12 @@ mechanic** now spends them on the film rung: `frame.js` `pickCreditFrame` takes 
 toward the full frame (clamped to `images[last]`; single-tier puzzles just stay put). Then
 `rungs[]` where each rung is
 `{ role, prompt, answers[] }`. `answers` is the list of accepted strings (alternate titles,
-language variants, name forms); the matcher accepts any of them.
+language variants, name forms); the matcher accepts any of them. **On disk the `answers` (and each
+rung's `caption`, and the manifest `title`) are lightly obfuscated** — a U+0001-sentinel-prefixed
+XOR+base64 blob (see `cipher.js`/`cipher.py`) so they aren't readable in devtools; `app.js` decodes
+the rungs at load, so `game.js`/`match.js` still see plaintext. `decoys`/`prompt` stay plaintext
+(they're player-facing and aren't the answer). Decoding is a passthrough for any un-prefixed string,
+so hand-authored plaintext puzzles still work.
 
 **Full spec adds two fields (DESIGN §4), required once the curation tool exists:**
 - `theme` — `{ accent, bg, bg2 }` sampled from the still. `accent` recolors the highlights (the

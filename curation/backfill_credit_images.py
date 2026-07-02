@@ -24,6 +24,7 @@ import sys
 import urllib.request
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cipher  # noqa: E402
 import credits_images as ci  # noqa: E402
 import ledger as ledger_mod  # noqa: E402
 import publish as publish_mod  # noqa: E402
@@ -62,6 +63,10 @@ def backfill_one(puzzle_path, film_id, key, save):
     with open(puzzle_path, encoding="utf-8") as fh:
         puzzle = json.load(fh)
 
+    # The file stores answers/captions obfuscated; decode so person-matching works,
+    # then re-encode before writing back (below).
+    puzzle["rungs"] = cipher.decode_rungs(puzzle.get("rungs", []))
+
     credits = tmdb.movie_with_credits(film_id, key).get("credits", {})
     ci.attach_person_meta(puzzle, credits)   # every credit rung defaults to its headshot
 
@@ -73,6 +78,7 @@ def backfill_one(puzzle_path, film_id, key, save):
 
     done = [(r["role"], r.get("caption"), r["image"])
             for r in puzzle["rungs"] if r.get("image")]
+    puzzle["rungs"] = cipher.encode_rungs(puzzle["rungs"])   # restore obfuscation
     with open(puzzle_path, "w", encoding="utf-8") as fh:
         json.dump(puzzle, fh, ensure_ascii=False, indent=2)
         fh.write("\n")

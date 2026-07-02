@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "Toy Story"
+        "\u0001MAoeUjYRHF8W"
       ],
       "decoys": [
         "The Super Mario Galaxy Movie",
@@ -28,127 +28,127 @@
       "role": "Cast",
       "prompt": "Who played Woody (voice)?",
       "answers": [
-        "Tom Hanks"
+        "\u0001MAoKUi0EHUYc"
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "Tom Hanks as Woody (voice)",
+      "caption": "\u0001MAoKUi0EHUYcRkwVSTsCCwEeUk0THEQMAwQ=",
       "image": "images/006-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Buzz Lightyear (voice)?",
       "answers": [
-        "Tim Allen"
+        "\u0001MAwKUiQJH0gB"
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "Tim Allen as Buzz Lightyear (voice)",
+      "caption": "\u0001MAwKUiQJH0gBRkwVSS4YHh9HPgwCG1kWA0wUSUQbCwwEF0w=",
       "image": "images/006-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "John Lasseter"
+        "\u0001LgoPHEUpEl4cA1kDGw=="
       ],
       "decoys": [
         "Phil Lord",
         "Christopher Miller",
         "Michael Jelenic"
       ],
-      "caption": "John Lasseter",
+      "caption": "\u0001LgoPHEUpEl4cA1kDGw==",
       "image": "images/006-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Mr. Potato Head (voice)?",
       "answers": [
-        "Don Rickles"
+        "\u0001IAoJUjcMEEYDA14="
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "Don Rickles as Mr. Potato Head (voice)",
+      "caption": "\u0001IAoJUjcMEEYDA15GCB9NKRdJUjUKB0wbCQ0uDA0JRE0RHQwGFgQ=",
       "image": "images/006-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Slinky Dog (voice)?",
       "answers": [
-        "Jim Varney"
+        "\u0001LgwKUjMEAUMKHw=="
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "Jim Varney as Slinky Dog (voice)",
+      "caption": "\u0001LgwKUjMEAUMKHw0HGkw+CAwJGRxFN0IIRgUQBgUOAUw=",
       "image": "images/006-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Rex (voice)?",
       "answers": [
-        "Wallace Shawn"
+        "\u0001MwQLHgQGFg08DkwRBw=="
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "Wallace Shawn as Rex (voice)",
+      "caption": "\u0001MwQLHgQGFg08DkwRB0wMF0U1Fx1FW1sAD04DQA==",
       "image": "images/006-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Hamm (voice)?",
       "answers": [
-        "John Ratzenberger"
+        "\u0001LgoPHEU3ElkVA0MEDB4KARc="
       ],
       "decoys": [
         "Anya Taylor-Joy",
         "Morgan Freeman",
         "Jack Black"
       ],
-      "caption": "John Ratzenberger as Hamm (voice)",
+      "caption": "\u0001LgoPHEU3ElkVA0MEDB4KARdHExZFO0wCCw1OHwMEBwBO",
       "image": "images/006-r8.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "Randy Newman"
+        "\u0001NgQJFhxFPUgYC0wI"
       ],
       "decoys": [
         "Michael Giacchino",
         "Mark Mothersbaugh",
         "Brian Tyler"
       ],
-      "caption": "Randy Newman",
+      "caption": "\u0001NgQJFhxFPUgYC0wI",
       "image": "images/006-r9.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Lee Unkrich",
-        "Robert Gordon"
+        "\u0001KAACUjALGF8GBUU=",
+        "\u0001NgoFFxcRU2oAFEkJBw=="
       ],
       "decoys": [
         "Chris McKay",
         "Eric E. Osmond",
         "Jim Stewart"
       ],
-      "caption": "Lee Unkrich",
+      "caption": "\u0001KAACUjALGF8GBUU=",
       "image": "images/006-r10.jpg"
     }
   ]

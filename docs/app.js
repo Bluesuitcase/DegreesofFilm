@@ -4,6 +4,7 @@ import { pickPuzzle, pickById, todayISO } from './daily.js';
 import { onAccentText } from './theme.js';
 import { loadStats, saveStats, recordResult } from './stats.js';
 import { pickCreditFrame } from './frame.js';
+import { decodeRungs } from './cipher.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
@@ -76,6 +77,10 @@ async function loadAndStart(entry) {
     $('prompt').textContent = 'Could not load the puzzle.';
     return;
   }
+  // Answers + captions ship lightly obfuscated (anti-devtools-snoop); decode them
+  // back to plaintext here so the matcher/renderer downstream never see the cipher.
+  // Plaintext (old/hand-authored) rungs pass through untouched.
+  decodeRungs(puzzle.rungs || []);
   puzzleId = puzzle.id ?? entry.id ?? 1;
   puzzleDate = puzzle.date || entry.date || todayISO();
   const playPuzzle = mode === 'poser' ? poserPuzzle(puzzle) : puzzle;

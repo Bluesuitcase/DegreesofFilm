@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "Harry Potter and the Philosopher's Stone"
+        "\u0001LAQVABxFI0IbEkgUSQ0DAEUTGgBFI0UGCkIVBhwFARdAAUU2B0IBAw=="
       ],
       "decoys": [
         "Harry Potter and the Chamber of Secrets",
@@ -28,150 +28,150 @@
       "role": "Cast",
       "prompt": "Who played Harry Potter?",
       "answers": [
-        "Daniel Radcliffe"
+        "\u0001IAQJGwAJU38OAk4KAAoLAQ=="
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Daniel Radcliffe as Harry Potter",
+      "caption": "\u0001IAQJGwAJU38OAk4KAAoLAUUGAUUtEl8dHw02BhgZARc=",
       "image": "images/005-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Ron Weasley?",
       "answers": [
-        "Rupert Grint"
+        "\u0001NhAXFxcRU2odD0MS"
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Rupert Grint as Ron Weasley",
+      "caption": "\u0001NhAXFxcRU2odD0MSSQ0eRDcIHEUyFkwcCkgf",
       "image": "images/005-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "Chris Columbus"
+        "\u0001Jw0VGxZFMEIDE0AEHB8="
       ],
       "decoys": [
         "Alfonso Cuarón",
         "Victor Fleming",
         "David Yates"
       ],
-      "caption": "Chris Columbus",
+      "caption": "\u0001Jw0VGxZFMEIDE0AEHB8=",
       "image": "images/005-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Hermione Granger?",
       "answers": [
-        "Emma Watson"
+        "\u0001IQgKE0UyElkcCUM="
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Emma Watson as Hermione Granger",
+      "caption": "\u0001IQgKE0UyElkcCUNGCB9NLAAVHwwKHUhPIV8HBwsIFg==",
       "image": "images/005-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Albus Dumbledore?",
       "answers": [
-        "Richard Harris"
+        "\u0001NgwEGgQXFw0nB18UAB8="
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Richard Harris as Albus Dumbledore",
+      "caption": "\u0001NgwEGgQXFw0nB18UAB9NBRZHMwkHBl5PIlgLCwAIAAoVFw==",
       "image": "images/005-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Draco Malfoy?",
       "answers": [
-        "Tom Felton"
+        "\u0001MAoKUiMAH1kACA=="
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Tom Felton as Draco Malfoy",
+      "caption": "\u0001MAoKUiMAH1kACA0HGkwpFgQEHUUoEkEJCVQ=",
       "image": "images/005-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Severus Snape?",
       "answers": [
-        "Alan Rickman"
+        "\u0001JQkGHEU3Gk4EC0wI"
       ],
       "decoys": [
         "Ralph Fiennes",
         "Kenneth Branagh",
         "Brendan Gleeson"
       ],
-      "caption": "Alan Rickman as Severus Snape",
+      "caption": "\u0001JQkGHEU3Gk4EC0wISQ0eRDYCBAAXBl5PNUMHGQk=",
       "image": "images/005-r8.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "John Seale"
+        "\u0001LgoPHEU2FkwDAw=="
       ],
       "decoys": [
         "Eduardo Serra",
         "Roger Pratt",
         "Bruno Delbonnel"
       ],
-      "caption": "John Seale",
+      "caption": "\u0001LgoPHEU2FkwDAw==",
       "image": "images/005-r9.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "John Williams"
+        "\u0001LgoPHEUyGkEDD0wLGg=="
       ],
       "decoys": [
         "Alexandre Desplat",
         "Nicholas Hooper",
         "Harold Arlen"
       ],
-      "caption": "John Williams",
+      "caption": "\u0001LgoPHEUyGkEDD0wLGg==",
       "image": "images/005-r10.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Richard Francis-Bruce"
+        "\u0001NgwEGgQXFw0pFEwICgUeSScVBwYA"
       ],
       "decoys": [
         "Mick Audsley",
         "Peter Honess",
         "Mark Day"
       ],
-      "caption": "Richard Francis-Bruce",
+      "caption": "\u0001NgwEGgQXFw0pFEwICgUeSScVBwYA",
       "image": "images/005-r11.jpg"
     },
     {
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Stuart Craig"
+        "\u0001NxESExcRU24dB0QB"
       ],
       "decoys": [],
-      "caption": "Stuart Craig",
+      "caption": "\u0001NxESExcRU24dB0QB",
       "image": "images/005-r12.jpg"
     }
   ]

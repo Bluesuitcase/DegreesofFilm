@@ -256,8 +256,10 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   daily-stat impact. Routes `?practice` (chooser) / `?practice&mode=…`.
 - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). The cropper
   already authors all 3 tiers; this only wires them into the client. (See the Phase 3 "optional" item.)
-- **Light answer obfuscation** — base64/cipher the in-JSON answers as an interim anti-snoop
-  measure (v1 ships them plaintext, readable in devtools).
+- **Light answer obfuscation** — *(DONE)* a shared XOR+base64 cipher (`docs/cipher.js` /
+  `curation/cipher.py`, sentinel-prefixed + idempotent) over the puzzle `answers`/`caption` and the
+  manifest `title`; the client decodes at load. Interim anti-snoop only (the key ships to the client);
+  the proper fix is v3 server-side matching. Decoys/prompts stay plaintext.
 
 #### UX polish (from playtesting 2026-06-30) — client/markup-only unless noted
 

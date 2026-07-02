@@ -14,8 +14,8 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "No Country for Old Men",
-        "No es pais para viejos"
+        "\u0001KgpHMQoQHVkdHw0ABh5NKwkDUigAHQ==",
+        "\u0001KgpHFxZFA0wGFQ0WCB4MRBMOFw8KAA=="
       ],
       "decoys": [
         "The Last Stand",
@@ -27,129 +27,129 @@
       "role": "Cast",
       "prompt": "Who played Sheriff Ed Tom Bell?",
       "answers": [
-        "Tommy Lee Jones"
+        "\u0001MAoKHxxFP0gKRmcJBwke"
       ],
       "decoys": [
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
       ],
-      "caption": "Tommy Lee Jones as Ed Tom Bell",
+      "caption": "\u0001MAoKHxxFP0gKRmcJBwkeRAQUUiABU3kACw0kDAAB",
       "image": "images/001-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Llewelyn Moss?",
       "answers": [
-        "Josh Brolin",
-        "Joshua Brolin"
+        "\u0001LgoUGkUnAUIDD0M=",
+        "\u0001LgoUGhAEU28dCUEPBw=="
       ],
       "decoys": [
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
       ],
-      "caption": "Josh Brolin as Llewelyn Moss",
+      "caption": "\u0001LgoUGkUnAUIDD0NGCB9NKAkCBQAJCkNPK0IVGg==",
       "image": "images/001-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "Coen brothers",
-        "The Coens",
-        "Joel and Ethan Coen",
-        "Joel Coen",
-        "Ethan Coen"
+        "\u0001JwoCHEUHAUIbDkgUGg==",
+        "\u0001MA0CUiYKFkMc",
+        "\u0001LgoCHkUEHUlPI1kOCAJNJwoCHA==",
+        "\u0001LgoCHkUmHEgB",
+        "\u0001IREPEwtFMEIKCA=="
       ],
       "decoys": [
         "Ron Howard",
         "Orson Welles",
         "John Boorman"
       ],
-      "caption": "Coen brothers",
+      "caption": "\u0001JwoCHEUHAUIbDkgUGg==",
       "image": "images/001-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Anton Chigurh?",
       "answers": [
-        "Javier Bardem"
+        "\u0001LgQRGwAXU28OFEkDBA=="
       ],
       "decoys": [
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
       ],
-      "caption": "Javier Bardem as Anton Chigurh",
+      "caption": "\u0001LgQRGwAXU28OFEkDBEwMF0UmHBEKHQ0sDkQBHB4F",
       "image": "images/001-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Carson Wells?",
       "answers": [
-        "Woody Harrelson",
-        "Woodrow Harrelson"
+        "\u0001MwoIFhxFO0wdFEgKGgMD",
+        "\u0001MwoIFhcKBA0nB18UDAAeCws="
       ],
       "decoys": [
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
       ],
-      "caption": "Woody Harrelson as Carson Wells",
+      "caption": "\u0001MwoIFhxFO0wdFEgKGgMDRAQUUiYEAV4ACA0xDAABFw==",
       "image": "images/001-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Carla Jean Moss?",
       "answers": [
-        "Kelly Macdonald"
+        "\u0001LwALHhxFPkwMAkIICAAJ"
       ],
       "decoys": [
         "Kevin Costner",
         "Neal McDonough",
         "Arnold Schwarzenegger"
       ],
-      "caption": "Kelly Macdonald as Carla Jean Moss",
+      "caption": "\u0001LwALHhxFPkwMAkIICAAJRAQUUiYEAUEORmcDCAJNKQoUAQ==",
       "image": "images/001-r7.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "Roger Deakins",
-        "Roger A. Deakins"
+        "\u0001NgoAFxdFN0gODUQIGg==",
+        "\u0001NgoAFxdFMgNPIkgHAgUDFw=="
       ],
       "decoys": [
         "Kim Ji-yong",
         "Philip H. Lathrop",
         "John Schwartzman"
       ],
-      "caption": "Roger Deakins",
+      "caption": "\u0001NgoAFxdFN0gODUQIGg==",
       "image": "images/001-r8.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "Carter Burwell"
+        "\u0001JwQVBgAXU28aFFoDBQA="
       ],
       "decoys": [
         "James Horner",
         "Quincy Jones",
         "Thomas Newman"
       ],
-      "caption": "Carter Burwell",
+      "caption": "\u0001JwQVBgAXU28aFFoDBQA=",
       "image": "images/001-r9.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Roderick Jaynes",
-        "Coen brothers",
-        "The Coens",
-        "Joel and Ethan Coen"
+        "\u0001NgoDFxcMEEZPLEwfBwke",
+        "\u0001JwoCHEUHAUIbDkgUGg==",
+        "\u0001MA0CUiYKFkMc",
+        "\u0001LgoCHkUEHUlPI1kOCAJNJwoCHA=="
       ],
       "decoys": [
         "Virgil W. Vogel",
@@ -161,14 +161,14 @@
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Jess Gonchor"
+        "\u0001LgAUAUUiHEMMDkIU"
       ],
       "decoys": [
         "Michael Corenblith",
         "Franco-Giacomo Carbone",
         "David Lazan"
       ],
-      "caption": "Jess Gonchor",
+      "caption": "\u0001LgAUAUUiHEMMDkIU",
       "image": "images/001-r11.jpg"
     }
   ]

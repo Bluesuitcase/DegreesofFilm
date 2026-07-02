@@ -8,6 +8,7 @@ import sys
 import tempfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import cipher  # noqa: E402
 import publish  # noqa: E402
 
 passed = failed = 0
@@ -44,7 +45,12 @@ check("assembled id", puz["id"], 7)
 check("assembled date", puz["date"], "2026-07-01")
 check("assembled accent", puz["theme"], {"accent": "#abc123"})
 check("assembled images", puz["images"], ["images/007-1.jpg"])
-check("assembled rungs carry decoys", puz["rungs"][0]["decoys"], ["A", "B", "C"])
+check("assembled rungs carry decoys (plaintext)", puz["rungs"][0]["decoys"], ["A", "B", "C"])
+check("assembled rungs obfuscate answers",
+      puz["rungs"][0]["answers"][0].startswith(cipher.SENTINEL), True)
+check("obfuscated answers decode back to plaintext",
+      cipher.deobfuscate(puz["rungs"][0]["answers"][0]), "Test Film")
+check("assemble does not mutate the caller's rungs", RUNGS[0]["answers"], ["Test Film"])
 
 # --- full publish into temp dirs ---
 with tempfile.TemporaryDirectory() as d:
@@ -59,7 +65,8 @@ with tempfile.TemporaryDirectory() as d:
     with open(res["puzzle_path"], encoding="utf-8") as fh:
         written = json.load(fh)
     check("puzzle file has accent", written["theme"]["accent"], "#abc123")
-    check("puzzle file has rungs", written["rungs"], RUNGS)
+    check("puzzle file rungs decode back to the input",
+          cipher.decode_rungs(written["rungs"]), RUNGS)
 
     with open(led, encoding="utf-8") as fh:
         ledger_data = json.load(fh)
@@ -67,9 +74,12 @@ with tempfile.TemporaryDirectory() as d:
 
     with open(man, encoding="utf-8") as fh:
         manifest_data = json.load(fh)
-    check("manifest entry written",
-          {k: manifest_data[0][k] for k in ("date", "id", "file", "title")},
+    check("manifest entry written (title obfuscated in the file)",
+          {**{k: manifest_data[0][k] for k in ("date", "id", "file")},
+           "title": cipher.deobfuscate(manifest_data[0]["title"])},
           {"date": "2026-07-01", "id": 1, "file": "001.json", "title": "Test Film"})
+    check("manifest title is actually obfuscated on disk",
+          manifest_data[0]["title"].startswith(cipher.SENTINEL), True)
 
     # republishing the same film: ledger dedupes, next id advances past 001.json
     res2 = publish.publish(MOVIE, RUNGS, theme={"accent": "#abc123"},

@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "Forrest Gump"
+        "\u0001IgoVAAAWBw0oE0AW"
       ],
       "decoys": [
         "The Curious Case of Benjamin Button",
@@ -28,154 +28,154 @@
       "role": "Cast",
       "prompt": "Who played Forrest Gump?",
       "answers": [
-        "Tom Hanks"
+        "\u0001MAoKUi0EHUYc"
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Tom Hanks as Forrest Gump",
+      "caption": "\u0001MAoKUi0EHUYcRkwVSSoCFhcCARFFNFgCFg==",
       "image": "images/003-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Jenny Curran?",
       "answers": [
-        "Robin Wright"
+        "\u0001NgoFGwtFJF8GAUUS"
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Robin Wright as Jenny Curran",
+      "caption": "\u0001NgoFGwtFJF8GAUUSSQ0eRC8CHAscU24aFF8HBw==",
       "image": "images/003-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "Robert Zemeckis"
+        "\u0001NgoFFxcRU3cKC0gFAgUe"
       ],
       "decoys": [
         "David Fincher",
         "Kevin Smith",
         "Chris Weitz"
       ],
-      "caption": "Robert Zemeckis",
+      "caption": "\u0001NgoFFxcRU3cKC0gFAgUe",
       "image": "images/003-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Lieutenant Dan Taylor?",
       "answers": [
-        "Gary Sinise"
+        "\u0001IwQVC0U2GkMGFUg="
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Gary Sinise as Lieutenant Dan Taylor",
+      "caption": "\u0001IwQVC0U2GkMGFUhGCB9NKAwCBxEAHUwBEg0iCAJNMAQeHgoX",
       "image": "images/003-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Mrs. Gump?",
       "answers": [
-        "Sally Field"
+        "\u0001NwQLHhxFNUQKCkk="
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Sally Field as Mrs. Gump",
+      "caption": "\u0001NwQLHhxFNUQKCklGCB9NKRcUXEUiBkAf",
       "image": "images/003-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Bubba Blue?",
       "answers": [
-        "Mykelti Williamson"
+        "\u0001KRwMFwkRGg04D0EKAA0AFwoJ"
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Mykelti Williamson as Bubba Blue",
+      "caption": "\u0001KRwMFwkRGg04D0EKAA0AFwoJUgQWU28aBE8HSS4BEQA=",
       "image": "images/003-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Young Forrest Gump?",
       "answers": [
-        "Michael Conner Humphreys"
+        "\u0001KQwEGgQAHw0sCUMIDB5NLBAKAg0XFlQc"
       ],
       "decoys": [
         "Brad Pitt",
         "Tom Cruise",
         "Rachel Weisz"
       ],
-      "caption": "Michael Conner Humphreys as Young Forrest Gump",
+      "caption": "\u0001KQwEGgQAHw0sCUMIDB5NLBAKAg0XFlQcRkwVSTUCEQsAUiMKAV8KFVlGLhkAFA==",
       "image": "images/003-r8.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "Don Burgess"
+        "\u0001IAoJUicQAUoKFV4="
       ],
       "decoys": [
         "Emmanuel Lubezki",
         "Janusz Kamiński",
         "Claudio Miranda"
       ],
-      "caption": "Don Burgess",
+      "caption": "\u0001IAoJUicQAUoKFV4=",
       "image": "images/003-r9.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "Alan Silvestri"
+        "\u0001JQkGHEU2GkEZA14SGwU="
       ],
       "decoys": [
         "Alexandre Desplat",
         "Nancy Wilson",
         "Patrick Doyle"
       ],
-      "caption": "Alan Silvestri",
+      "caption": "\u0001JQkGHEU2GkEZA14SGwU=",
       "image": "images/003-r10.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Arthur Schmidt"
+        "\u0001JRcTGhAXU34MDkAPDRg="
       ],
       "decoys": [
         "Kevin Smith",
         "Scott Mosier",
         "Kirk Baxter"
       ],
-      "caption": "Arthur Schmidt",
+      "caption": "\u0001JRcTGhAXU34MDkAPDRg=",
       "image": "images/003-r11.jpg"
     },
     {
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Rick Carter"
+        "\u0001NgwEGUUmEl8bA18="
       ],
       "decoys": [
         "Jim Clay",
         "Donald Graham Burt",
         "Stephen J. Lineweaver"
       ],
-      "caption": "Rick Carter",
+      "caption": "\u0001NgwEGUUmEl8bA18=",
       "image": "images/003-r12.jpg"
     }
   ]

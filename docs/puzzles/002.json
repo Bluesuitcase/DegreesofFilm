@@ -16,7 +16,7 @@
       "role": "Film",
       "prompt": "Name the film.",
       "answers": [
-        "Interstellar"
+        "\u0001LQsTFxcWB0gDCkwU"
       ],
       "decoys": [
         "Avengers: Endgame",
@@ -28,154 +28,154 @@
       "role": "Cast",
       "prompt": "Who played Cooper?",
       "answers": [
-        "Matthew McConaughey"
+        "\u0001KQQTBg0ABA0iBW4JBw0YAw0CCw=="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Matthew McConaughey as Cooper",
+      "caption": "\u0001KQQTBg0ABA0iBW4JBw0YAw0CC0UEAA0sCUIWDB4=",
       "image": "images/002-r2.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Brand?",
       "answers": [
-        "Anne Hathaway"
+        "\u0001JQsJF0UtElkHB1oHEA=="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Anne Hathaway as Brand",
+      "caption": "\u0001JQsJF0UtElkHB1oHEEwMF0UlAAQLFw==",
       "image": "images/002-r3.jpg"
     },
     {
       "role": "Director",
       "prompt": "Who directed it?",
       "answers": [
-        "Christopher Nolan"
+        "\u0001Jw0VGxYRHF0HA19GJwMBBQs="
       ],
       "decoys": [
         "Steven Spielberg",
         "J.J. Abrams",
         "Joe Russo"
       ],
-      "caption": "Christopher Nolan",
+      "caption": "\u0001Jw0VGxYRHF0HA19GJwMBBQs=",
       "image": "images/002-r4.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Professor Brand?",
       "answers": [
-        "Michael Caine"
+        "\u0001KQwEGgQAHw0sB0QIDA=="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Michael Caine as Professor Brand",
+      "caption": "\u0001KQwEGgQAHw0sB0QIDEwMF0U3AAoDFl4cCV9GKx4MCgE=",
       "image": "images/002-r5.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Murph?",
       "answers": [
-        "Jessica Chastain"
+        "\u0001LgAUAQwGEg0sDkwVHQ0ECg=="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Jessica Chastain as Murph",
+      "caption": "\u0001LgAUAQwGEg0sDkwVHQ0ECkUGAUUoBl8fDg==",
       "image": "images/002-r6.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Tom?",
       "answers": [
-        "Casey Affleck"
+        "\u0001JwQUFxxFMksJCkgFAg=="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Casey Affleck as Tom",
+      "caption": "\u0001JwQUFxxFMksJCkgFAkwMF0UzHQg=",
       "image": "images/002-r7.jpg"
     },
     {
       "role": "Cast",
       "prompt": "Who played Doyle?",
       "answers": [
-        "Wes Bentley"
+        "\u0001MwAUUicAHVkDA1Q="
       ],
       "decoys": [
         "Scarlett Johansson",
         "Brad Pitt",
         "Dwayne Johnson"
       ],
-      "caption": "Wes Bentley as Doyle",
+      "caption": "\u0001MwAUUicAHVkDA1RGCB9NIAoeHgA=",
       "image": "images/002-r8.jpg"
     },
     {
       "role": "Cinematographer",
       "prompt": "Who was the cinematographer?",
       "answers": [
-        "Hoyte van Hoytema"
+        "\u0001LAoeBgBFBUwBRmUJEBgICQQ="
       ],
       "decoys": [
         "Janusz Kamiński",
         "Greig Fraser",
         "David Tattersall"
       ],
-      "caption": "Hoyte van Hoytema",
+      "caption": "\u0001LAoeBgBFBUwBRmUJEBgICQQ=",
       "image": "images/002-r9.jpg"
     },
     {
       "role": "Composer",
       "prompt": "Who composed the score?",
       "answers": [
-        "Hans Zimmer"
+        "\u0001LAQJAUU/GkACA18="
       ],
       "decoys": [
         "Michael Giacchino",
         "John Williams",
         "Alan Silvestri"
       ],
-      "caption": "Hans Zimmer",
+      "caption": "\u0001LAQJAUU/GkACA18=",
       "image": "images/002-r10.jpg"
     },
     {
       "role": "Editor",
       "prompt": "Who edited the film?",
       "answers": [
-        "Lee Smith"
+        "\u0001KAACUjYIGlkH"
       ],
       "decoys": [
         "Michael Kahn",
         "Jeffrey Ford",
         "Hank Corwin"
       ],
-      "caption": "Lee Smith",
+      "caption": "\u0001KAACUjYIGlkH",
       "image": "images/002-r11.jpg"
     },
     {
       "role": "Production Designer",
       "prompt": "Who was the production designer?",
       "answers": [
-        "Nathan Crowley"
+        "\u0001KgQTGgQLU24dCVoKDBU="
       ],
       "decoys": [
         "Charles Wood",
         "Rick Carter",
         "Harold Michelson"
       ],
-      "caption": "Nathan Crowley",
+      "caption": "\u0001KgQTGgQLU24dCVoKDBU=",
       "image": "images/002-r12.jpg"
     }
   ]

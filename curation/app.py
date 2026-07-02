@@ -19,6 +19,7 @@ from fastapi.responses import HTMLResponse
 from pydantic import BaseModel
 
 import build_rungs
+import cipher
 import credits_images as credits_images_mod
 import decoys as decoys_mod
 import discover as discover_mod
@@ -195,6 +196,9 @@ def api_puzzle(pid: int):
         raise HTTPException(404, f"puzzle file {pid} not found")
     with open(path, encoding="utf-8") as fh:
         existing = json.load(fh)
+    # The file stores answers/captions obfuscated; decode so the curator edits
+    # plaintext and person-matching works. assemble_puzzle re-encodes on update.
+    existing["rungs"] = cipher.decode_rungs(existing.get("rungs", []))
     movie = tmdb.movie_with_credits(film_id, k)
     credits = movie.get("credits", {})
     stills = _film_stills(movie, film_id, k)
@@ -282,6 +286,6 @@ def api_update(body: Update):
     # upsert is keyed by id+date, so changing the date moves the entry cleanly.
     man = manifest_mod.upsert(manifest_mod.load(), manifest_mod.make_entry(
         date=body.date, id=pid, file=f"{stem}.json",
-        title=movie.get("title"), accent=(theme or {}).get("accent")))
+        title=cipher.obfuscate(movie.get("title")), accent=(theme or {}).get("accent")))
     manifest_mod.save(man)
     return {"id": pid, "file": f"{stem}.json", "date": body.date, "theme": theme, "updated": True}
