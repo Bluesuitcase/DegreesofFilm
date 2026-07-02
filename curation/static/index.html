@@ -237,7 +237,7 @@ async function doClearSchedule(){
       clearArmed = true;
       btn.textContent = `⚠ Clear ${info.scheduled} upcoming — click again`;
       btn.classList.add('danger');
-      $('#clearstatus').textContent = 'unschedules only (puzzle files + ledger kept).';
+      $('#clearstatus').textContent = 'unschedules + frees those films for re-use (puzzle files kept).';
       clearTimer = setTimeout(() => { disarmClear(); $('#clearstatus').textContent = ''; }, 5000);
     }catch(e){ $('#clearstatus').textContent = 'error: ' + e.message; }
     return;
@@ -247,7 +247,8 @@ async function doClearSchedule(){
     const r = await fetch('/api/clear-schedule', { method:'POST' });
     const res = await r.json();
     if(!r.ok) throw new Error(res.detail || r.status);
-    $('#clearstatus').textContent = `cleared ${res.cleared} scheduled puzzle${res.cleared===1?'':'s'}.`;
+    $('#clearstatus').textContent = `cleared ${res.cleared} scheduled puzzle${res.cleared===1?'':'s'}`
+      + (res.freed ? ` · freed ${res.freed} film${res.freed===1?'':'s'} for re-use.` : '.');
     loadSchedule();
   }catch(e){ $('#clearstatus').textContent = 'error: ' + e.message; }
 }

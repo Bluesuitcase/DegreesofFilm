@@ -34,6 +34,17 @@ check("used_ids", ledger.used_ids(led), {1, 2})
 check("is_used true", ledger.is_used(led, 1), True)
 check("is_used false", ledger.is_used(led, 99), False)
 
+# --- remove_by_puzzles: free films for cleared puzzles ---
+LED = [{"id": 10, "title": "A", "puzzle": 1},
+       {"id": 20, "title": "B", "puzzle": 2},
+       {"id": 30, "title": "C", "puzzle": 3}]
+kept, removed = ledger.remove_by_puzzles(LED, [2, 3])
+check("remove_by_puzzles keeps the rest", [r["id"] for r in kept], [10])
+check("remove_by_puzzles frees the named puzzles", [r["puzzle"] for r in removed], [2, 3])
+check("remove_by_puzzles no-op when nothing matches",
+      ledger.remove_by_puzzles(LED, [99]), (LED, []))
+check("remove_by_puzzles no-op on empty list", ledger.remove_by_puzzles([], [1]), ([], []))
+
 # --- a record must carry an id ---
 raised = False
 try:

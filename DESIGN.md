@@ -277,9 +277,9 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   section unschedules every upcoming (strictly-future) puzzle in one go, keeping today's daily + all
   past days. Two-click arm/confirm (previews the count, then commits) — no native modal. `manifest.
   clear_scheduled(manifest, today)` (pure) splits kept/removed; `GET /api/clear-schedule` previews the
-  count, `POST` commits. **Unschedules only** — drops manifest entries but leaves the puzzle files +
-  ledger untouched, so it's reversible (a future "also delete files / free the films" option could be
-  added).
+  count, `POST` commits. It **also frees the films**: `ledger.remove_by_puzzles` drops the cleared
+  puzzles' ledger records so Discover/Randomize can suggest those films again. Puzzle files are left on
+  disk; manifest + ledger are git-tracked, so the whole action is reversible via `git checkout`.
 
 #### UX polish (from playtesting 2026-06-30) — client/markup-only unless noted
 

@@ -39,6 +39,17 @@ def add(ledger, record):
     return ledger
 
 
+def remove_by_puzzles(ledger, puzzle_ids):
+    """Split the ledger into (kept, removed): `removed` = records whose `puzzle` id
+    is in `puzzle_ids`. Frees those films (so Discover/Randomize can suggest them
+    again) — used when a scheduled puzzle is cleared. Pure; caller decides to save."""
+    ids = set(puzzle_ids)
+    kept, removed = [], []
+    for rec in ledger:
+        (removed if rec.get("puzzle") in ids else kept).append(rec)
+    return kept, removed
+
+
 def save(ledger, path=DEFAULT_PATH):
     with open(path, "w", encoding="utf-8") as fh:
         json.dump(ledger, fh, ensure_ascii=False, indent=2)

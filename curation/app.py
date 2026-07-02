@@ -27,7 +27,7 @@ import images as images_mod
 import manifest as manifest_mod
 import publish as publish_mod
 import tmdb
-from ledger import load as load_ledger, used_ids
+from ledger import load as load_ledger, used_ids, remove_by_puzzles, save as save_ledger
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 IMG_BASE = "https://image.tmdb.org/t/p/original"
@@ -133,13 +133,17 @@ def api_clear_schedule_preview():
 
 @app.post("/api/clear-schedule")
 def api_clear_schedule():
-    """Unschedule every upcoming (strictly-future) puzzle: drop those entries from
-    the manifest, keeping today's daily + all past days. Puzzle files and the ledger
-    are left untouched (so it's reversible — the files can be re-scheduled)."""
+    """Unschedule every upcoming (strictly-future) puzzle AND free its film: drop
+    those manifest entries (keeping today's daily + all past days) and remove their
+    ledger records, so Discover/Randomize can suggest those films again. Puzzle files
+    are left on disk (git-tracked, so both manifest + ledger changes are reversible)."""
     today = datetime.date.today().isoformat()
-    kept, removed = manifest_mod.clear_scheduled(manifest_mod.load(), today)
-    manifest_mod.save(kept)
-    return {"cleared": len(removed), "dates": [e.get("date") for e in removed]}
+    kept_man, removed_man = manifest_mod.clear_scheduled(manifest_mod.load(), today)
+    kept_led, freed = remove_by_puzzles(load_ledger(), [e.get("id") for e in removed_man])
+    manifest_mod.save(kept_man)
+    save_ledger(kept_led)
+    return {"cleared": len(removed_man), "dates": [e.get("date") for e in removed_man],
+            "freed": len(freed), "freed_titles": [r.get("title") for r in freed]}
 
 
 @app.get("/api/discover")

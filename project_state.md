@@ -33,11 +33,14 @@ Operational (not a build item): **curate more puzzles** (ongoing content). Build
 2. Randomize **honor sort** — S · **DONE** (`/api/random?sort=` from the sort dropdown). *(Floor has no
    UI — still the `POOL_MIN_*` constants; add a floor control only if wanted.)*
 3. **Clear scheduled puzzles** — S–M · **DONE.**
-4. Randomize/Discover **exclude scheduled-but-unpublished** *(not built)* — S–M · also skip manifest films
-   (today only the ledger = published is excluded, so a scheduled-but-uncommitted film could re-appear).
+4. ~~Randomize/Discover exclude scheduled-but-unpublished~~ — **DROPPED as a non-issue** (investigated:
+   the ledger already excludes every approved film immediately + locally; there's no such gap). Instead,
+   the user chose **"free films on Clear-scheduled"** — **DONE**: clearing now also removes the cleared
+   puzzles' ledger records (`ledger.remove_by_puzzles`), re-opening those films for Discover/Randomize.
+   Puzzle files kept; manifest+ledger git-reversible. Verified live (freed Toy Story + Avatar, restored).
 5. Auto-crop **face/saliency detection** *(not built)* — M · smarter placement, avoid title cards.
 
-**Only v2 build items left: #4 and #5.**
+**Only v2 build item left: #5 (auto-crop face/saliency).**
 
 ## DONE this session — Auto-crop (curation)
 An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the
