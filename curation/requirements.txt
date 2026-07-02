@@ -4,7 +4,10 @@
 #   .venv/bin/python    -m pip install -r curation/requirements.txt    (macOS/Linux)
 #
 # The image step (curation/images.py) needs Pillow; the crop tool (curation/app.py)
-# adds FastAPI + uvicorn. Everything else is stdlib.
+# adds FastAPI + uvicorn. Auto-crop's face detection uses OpenCV (headless, no GUI
+# deps) with the classic Haar cascade — optional at runtime (images.detect_faces
+# degrades to edge-energy if it's missing). Everything else is stdlib.
 pillow>=10,<12
 fastapi>=0.110
 uvicorn>=0.29
+opencv-python-headless>=4.9,<5

@@ -54,6 +54,23 @@ check("best_window ties break top-left (flat grid)",
 check("best_window clamps an oversize window to the whole grid",
       images.best_window(GRID, 4, 3, 99, 99), (0, 0))
 
+# --- box_around (pure): centre + clamp ---
+check("box_around centres on the point",
+      images.box_around(0.5, 0.5, 0.4), {"x": 0.3, "y": 0.3, "w": 0.4, "h": 0.4})
+check("box_around clamps into the top-left corner",
+      images.box_around(0.0, 0.0, 0.4), {"x": 0.0, "y": 0.0, "w": 0.4, "h": 0.4})
+check("box_around clamps into the bottom-right corner",
+      images.box_around(1.0, 1.0, 0.4), {"x": 0.6, "y": 0.6, "w": 0.4, "h": 0.4})
+
+# --- deweight_bands (pure): a top-band hot row loses to a middle row ---
+# 3 cols x 5 rows; top row hot (10s), a middle row warm (4s), rest 0.
+BANDGRID = [10, 10, 10,   0, 0, 0,   4, 4, 4,   0, 0, 0,   0, 0, 0]
+dw = images.deweight_bands(BANDGRID, 3, 5, top=0.2, bottom=0.2, factor=0.1)
+check("deweight scales the top band by factor", dw[0:3], [1.0, 1.0, 1.0])
+check("deweight leaves the middle untouched", dw[6:9], [4, 4, 4])
+check("deweighted top row (1.0 each) now loses to the middle row (4 each)",
+      images.best_window(dw, 3, 5, 3, 1), (0, 2))
+
 # --- clamp_accent (pure) ---
 HEX = re.compile(r"^#[0-9a-f]{6}$")
 
@@ -92,6 +109,9 @@ ok("auto box is normalized in-bounds",
 ok("auto box keeps the frame aspect (w == h in normalized coords)", abs(ab["w"] - ab["h"]) < 0.02)
 _cx, _cy = ab["x"] + ab["w"] / 2, ab["y"] + ab["h"] / 2
 ok("auto box centres on the busy quadrant (bottom-right)", _cx > 0.5 and _cy > 0.5)
+
+# --- detect_faces: a flat image has no faces (also exercises the no-cv2 fallback) ---
+ok("no faces in a flat image", images.detect_faces(Image.new("RGB", (120, 80), (40, 40, 40))) == [])
 
 reddish = Image.new("RGB", (40, 40), (200, 40, 40))
 acc = to_rgb(images.sample_accent(reddish))

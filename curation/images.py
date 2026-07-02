@@ -65,6 +65,30 @@ def best_window(energy, cols, rows, win_cols, win_rows):
     return best_c, best_r
 
 
+def box_around(cx, cy, scale):
+    """A scale×scale (normalized) crop box centred on the point (cx, cy) in 0..1,
+    clamped fully inside the frame. Normalized w == h keeps the frame's pixel aspect
+    (so the reveal tiers zoom out smoothly). Pure."""
+    w = min(max(scale, 0.05), 1.0)
+    x = min(max(cx - w / 2, 0.0), 1.0 - w)
+    y = min(max(cy - w / 2, 0.0), 1.0 - w)
+    return {"x": round(x, 4), "y": round(y, 4), "w": round(w, 4), "h": round(w, 4)}
+
+
+def deweight_bands(energy, cols, rows, *, top=0.12, bottom=0.18, factor=0.35):
+    """Return a copy of the row-major energy grid with the top `top` and bottom
+    `bottom` fraction of rows scaled by `factor`. Pushes an edge-energy crop away
+    from the title-card / subtitle bands (which are edge-rich text). Pure."""
+    top_rows = int(rows * top)
+    bot_row0 = rows - int(rows * bottom)
+    out = list(energy)
+    for r in range(rows):
+        if r < top_rows or r >= bot_row0:
+            for c in range(cols):
+                out[r * cols + c] = out[r * cols + c] * factor
+    return out
+
+
 def clamp_accent(rgb, *, min_sat=0.45, min_val=0.45, max_val=0.92):
     """Hex accent from an (r,g,b), with saturation and brightness pushed into a
     legible range against the dark ink base. Pure (stdlib colorsys)."""
@@ -111,17 +135,48 @@ def crop_tiers(image, box, *, factors=DEFAULT_FACTORS, out_width=1000):
     return tiers
 
 
+def detect_faces(image):
+    """Detected face boxes [(x, y, w, h), ...] in pixel coords, LARGEST first. Uses
+    OpenCV's Haar frontal-face cascade when available; returns [] if OpenCV isn't
+    installed or nothing is found, so callers degrade gracefully to edge energy."""
+    try:
+        import cv2
+        import numpy as np
+    except Exception:
+        return []
+    try:
+        gray = np.asarray(image.convert("L"))
+        cascade = cv2.CascadeClassifier(
+            cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        if cascade.empty():
+            return []
+        h, w = gray.shape[:2]
+        floor = max(16, min(w, h) // 12)          # ignore tiny false positives
+        faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5,
+                                         minSize=(floor, floor))
+    except Exception:
+        return []
+    boxes = [tuple(int(v) for v in f) for f in faces]
+    boxes.sort(key=lambda b: b[2] * b[3], reverse=True)
+    return boxes
+
+
 def auto_crop_box(image, *, scale=0.5, sample_w=160):
-    """Suggest a tight tier-1 crop as a normalized box {x, y, w, h} (0..1): a
-    `scale`-sized window (same aspect as the frame, so the tiers zoom out smoothly)
-    placed over the busiest, most-detailed region of the still. 'Busy' = highest
-    edge energy, from a downscaled FIND_EDGES map (best_window does the search).
+    """Suggest a tight tier-1 crop as a normalized box {x, y, w, h} (0..1). If a face
+    is detected, centre the `scale`-sized box on the largest face; otherwise fall back
+    to the busiest region by edge energy (a downscaled FIND_EDGES map, with the title-
+    card bands de-weighted). Same aspect as the frame so the tiers zoom out smoothly.
     A STARTING POINT the curator reviews and approves/re-drags — not final."""
+    faces = detect_faces(image)
+    if faces:
+        x, y, fw, fh = faces[0]
+        return box_around((x + fw / 2) / image.width, (y + fh / 2) / image.height, scale)
+
     from PIL import ImageFilter
     sw = max(8, min(sample_w, image.width))
     sh = max(8, round(image.height * sw / image.width))
     edges = image.convert("L").resize((sw, sh)).filter(ImageFilter.FIND_EDGES)
-    energy = list(edges.getdata())
+    energy = deweight_bands(list(edges.getdata()), sw, sh)
     win_c = max(1, round(sw * scale))
     win_r = max(1, round(sh * scale))
     c, r = best_window(energy, sw, sh, win_c, win_r)

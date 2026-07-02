@@ -38,9 +38,16 @@ Operational (not a build item): **curate more puzzles** (ongoing content). Build
    the user chose **"free films on Clear-scheduled"** — **DONE**: clearing now also removes the cleared
    puzzles' ledger records (`ledger.remove_by_puzzles`), re-opening those films for Discover/Randomize.
    Puzzle files kept; manifest+ledger git-reversible. Verified live (freed Toy Story + Avatar, restored).
-5. Auto-crop **face/saliency detection** *(not built)* — M · smarter placement, avoid title cards.
+5. Auto-crop **face/saliency detection** — M · **DONE.** `auto_crop_box` is now face-first (OpenCV Haar
+   `detect_faces` → `box_around` the largest face); falls back to edge-energy with title-card bands
+   de-weighted (`deweight_bands`). OpenCV is optional at runtime (degrades to edge-energy if absent).
+   New dep: `opencv-python-headless>=4.9,<5` (installed in `.venv`; added to requirements.txt).
+   **NOTE:** opencv 5.0 dropped the Haar cascades, so we pin `<5` (5.0 only ships DNN FaceDetectorYN,
+   which needs a model file). Verified live: headshot → box centres on the face; faceless backdrop →
+   edge-energy fallback. images.test.py now 32.
 
-**Only v2 build item left: #5 (auto-crop face/saliency).**
+**ALL v2 build items are DONE.** Remaining v2 = operational only (curate more puzzles). Next real
+feature work is the v3 parking lot (needs the server move).
 
 ## DONE this session — Auto-crop (curation)
 An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the

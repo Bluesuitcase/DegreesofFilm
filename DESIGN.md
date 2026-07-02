@@ -265,14 +265,16 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   commits with "Use this film →". `discover.pick_random_unused`. **Honors the sort dropdown** (`?sort=`)
   so the random slice is drawn by most-voted / most-popular / highest-rated.
 - **Auto-crop (curation)** — *(DONE)* an **✨ Auto-crop** button suggests the tier-1 crop box instead
-  of hand-dragging it. Pillow-only, no extra deps: `images.auto_crop_box` places a `scale`-sized
-  window (same aspect as the frame) over the busiest region of the still, found from an edge-energy
-  (`FIND_EDGES`) map via the pure `images.best_window` (summed-area table). `GET /api/autocrop?url=`
-  returns the normalized box; the crop UI draws it as the selection overlay for the curator to
-  **approve or re-drag** — nothing is written until Approve. The tier system widens the approved box
-  out to the full frame as today. A **size slider** (`?scale=`, 0.25–0.85) tunes how tight the box is,
-  live-re-cropping on release. (Edge-energy can be fooled by title cards/subtitles, so it's a starting
-  point — hence the explicit approve step.)
+  of hand-dragging it. `images.auto_crop_box` is **face-first**: if OpenCV's Haar frontal-face cascade
+  finds a face (`images.detect_faces`), it centres the box on the largest one (`images.box_around`);
+  otherwise it falls back to the busiest region by edge energy (`FIND_EDGES` map + pure
+  `images.best_window` summed-area search), with the **title-card bands de-weighted** (`images.
+  deweight_bands`) so it avoids subtitle/title text. OpenCV (headless) is the one non-stdlib addition
+  beyond Pillow, and it's **optional at runtime** — `detect_faces` returns `[]` if cv2 is missing, so
+  auto-crop degrades to the edge-energy path. `GET /api/autocrop?url=&scale=` returns the normalized
+  box; the crop UI draws it as the selection overlay for the curator to **approve or re-drag** —
+  nothing is written until Approve. A **size slider** (0.25–0.85) tunes tightness, live-re-cropping on
+  release. It's a starting point (Haar misses angled/dark faces) — hence the explicit approve step.
 - **Clear scheduled puzzles (curation)** — *(DONE)* a **🗑 Clear scheduled** button in the schedule
   section unschedules every upcoming (strictly-future) puzzle in one go, keeping today's daily + all
   past days. Two-click arm/confirm (previews the count, then commits) — no native modal. `manifest.
