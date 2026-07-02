@@ -5,10 +5,14 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-02 (v1 live; all static-v2 features shipped. This session built two curation-only
-tools — the **"Randomize" button** and **Auto-crop** — both committed to `main` (no `docs/` change → no
-deploy). Also recorded two new parking-lot items: **Leaderboard** (v3) and **Auto-crop** (was queued as
-v3, reclassified v2 and built). Remaining: operational curate-more / v3 parking lot._
+_Last updated: 2026-07-02 (**SESSION PAUSED — user stepped away**). v1 live; ALL static-v2 features
+shipped. This session built two curation-only tools — the **"Randomize" button** (`afec469`) and
+**Auto-crop** (`7957b19`) — plus recorded parking-lot items **Leaderboard** (v3) and **Auto-crop** (v2,
+built). **State at pause: working tree clean, `main` fully pushed, no open PRs.** Live-site obfuscation
+deploy re-confirmed healthy (`004.json` answers are cipher blobs; `cipher.js` live). Note: curation-only
+commits still trigger a Pages build, but produce byte-identical `docs/` so the live game is unchanged.
+**Resume: operational curate-more / v3 parking lot (Movie Buff, accounts/DB, Leaderboard, Score History,
+server-side matching, degrees-of-separation — all need the server move).**_
 
 ## DONE this session — Auto-crop (curation)
 An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the
