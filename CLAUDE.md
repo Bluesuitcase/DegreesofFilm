@@ -10,20 +10,20 @@ brag number is **depth** — how many rungs deep you got.
 
 **`DESIGN.md` is the full spec and source of truth.** This file is the working summary;
 when the two disagree, DESIGN.md wins. **Current status: v1 COMPLETE and DEPLOYED LIVE** at
-**https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` `/docs`). All of Phase 1–3
-plus per-rung credit images shipped. **v2 is underway** (all still-static, no server): the curation
-tool's **week-ahead schedule**, **film search**, and **edit-existing-puzzle** are merged; the
-**reveal mechanic** (widen the film-rung crop on wrong guesses) is merged and live; **credit images
-are auto-headshots** (the manual character-still picker was removed); **Practice/endless mode** is
-built and live; hover hints use **vibrant themed tooltips** (`data-tip`, not native `title`); and
-**answers ship lightly obfuscated** (a shared XOR+base64 cipher — `docs/cipher.js` / `curation/cipher.py`
-— decoded in the client at load, so they're not readable in devtools). The client routes views by
-query string: `?` home, `?modes` mode-select, `?play` today's game, `?id=N` an archived game,
-`?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice chooser,
-`?practice&mode=cinephile|poser` an endless practice run. **Poser mode is built** (all-MC, flat +1).
-**All static-v2 features are now shipped**; the only open v2 task is operational (curate more
-puzzles). The v3 parking lot — **Movie Buff** (needs the server move), accounts/DB, Score History,
-server-side matching, degrees-of-separation — remains.
+**https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` `/docs`), and **ALL v2 features
+are shipped to `main`.** Player-facing v2 (`docs/`, live): **Poser mode**, **Practice/endless mode**,
+the **reveal mechanic** (widen the film-rung crop on wrong guesses), **per-rung credit images** (auto
+TMDB headshots — the manual picker was removed), **vibrant themed tooltips** (`data-tip`, not native
+`title`), and **light answer obfuscation** (a shared XOR+base64 cipher — `docs/cipher.js` /
+`curation/cipher.py` — decoded in the client at load). Curation-tool v2 (`curation/`, private): the
+**week-ahead schedule**, **film search**, **edit-existing-puzzle**, a **Randomize** film-picker
+(`/api/random`), **Auto-crop** (`/api/autocrop`, face-first via OpenCV → edge-energy fallback, with a
+size slider), and **Clear scheduled** (`/api/clear-schedule`, unschedule upcoming + free their films).
+The client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game, `?id=N`
+an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice
+chooser, `?practice&mode=cinephile|poser` an endless practice run. **The only open v2 task is
+operational (curate more puzzles).** The v3 parking lot — **Movie Buff**, accounts/DB, **Leaderboard**,
+Score History, server-side matching, degrees-of-separation (all need the server move) — remains.
 **Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
@@ -45,8 +45,10 @@ server-side matching, degrees-of-separation — remains.
   same PASS/FAIL + non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`,
   `credits_images.py`) hit live TMDB and need the key in `curation/.env`.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
-  `.venv` with `pillow` (`pip install -r curation/requirements.txt`). The box/colour math is pure;
-  the crop/sample tests use Pillow.
+  `.venv` with `pillow` (`pip install -r curation/requirements.txt`). The box/colour/window math is
+  pure; the crop/sample tests use Pillow. Auto-crop's face detection uses **`opencv-python-headless`
+  (pinned `<5`; 5.0 dropped the Haar cascades)** but it's optional — `detect_faces` degrades to the
+  edge-energy path if cv2 is missing, so the test suite passes without it.
 - **Curation crop tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
   then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
   `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB),
@@ -63,7 +65,11 @@ server-side matching, degrees-of-separation — remains.
   targets it in the approve date field, and clicking a **filled** day (or a search hit already made
   into a puzzle) opens it for **editing** (`/api/puzzle/{id}` → `/api/update`): reschedule, re-edit
   rungs/credit images, and optionally re-crop the frame; the update rewrites the puzzle in place and
-  moves its manifest entry (the ledger is untouched). Publishing auto-fills the next free day.
+  moves its manifest entry (the ledger is untouched). Publishing auto-fills the next free day. A
+  **🗑 Clear scheduled** button (`/api/clear-schedule`, two-click confirm) unschedules every upcoming
+  (strictly-future) puzzle and **frees their films** (removes their ledger records so Discover/Randomize
+  can suggest them again), keeping today + past; puzzle files are kept (manifest + ledger are
+  git-reversible).
 
 ## Architecture — three zones
 
@@ -120,14 +126,16 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   app.py               FastAPI crop tool: backend endpoints + serves the crop page. The capstone.
   static/index.html    Localhost crop UI (discover -> crop a still -> review rungs/decoys -> approve).
   tmdb.py              Tiny stdlib TMDB v3 client (load_key + get).
-  discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
+  discover.py          Find an unused film clearing the pool floor (vote_count/avg): candidates/
+                       pick_unused/pick_random_unused (Randomize) + a CLI.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
   credits_images.py    Per-rung credit images: map rungs->people, stamp each with its TMDB headshot
                        + caption (auto, cast + crew alike), finalize image/caption + strip helper
                        fields at approve (pure core) + CLI.
   images.py            Reveal-tier cropping + theme accent/palette-background sampling + auto-crop
-                       (auto_crop_box/best_window: suggest a tier-1 box over the busiest region) (Pillow) + CLI.
+                       (auto_crop_box: face-first via detect_faces/box_around, else edge-energy via
+                       best_window/deweight_bands) (Pillow; face detection uses optional OpenCV) + CLI.
   cipher.py            Light answer obfuscation (obfuscate/deobfuscate + encode_rungs/decode_rungs):
                        XOR+base64 with a sentinel prefix, idempotent + plaintext-passthrough. Mirrors
                        docs/cipher.js. publish encodes on write; app.py decodes on edit-load.
@@ -135,9 +143,12 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
                        + append ledger + upsert manifest (title obfuscated); next_date() defaults
                        publish dates to the next free day (no manifest collisions); upcoming_schedule()
                        (decodes titles) / runway() power the week-ahead scheduling view.
-  ledger.py            Used-films ledger (never repeat); reads/writes used_films.json.
+  ledger.py            Used-films ledger (never repeat); reads/writes used_films.json. remove_by_puzzles
+                       frees films when their scheduled puzzle is cleared.
   manifest.py          Writer for docs/puzzles/manifest.json (the daily index the client reads).
-  requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
+                       clear_scheduled splits kept/removed for the Clear-scheduled button.
+  requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn + opencv-python-headless<5, the last
+                       optional for auto-crop face detection) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
   *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images/cipher pure; images=Pillow).
   backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' credit rungs (cast + crew) with
