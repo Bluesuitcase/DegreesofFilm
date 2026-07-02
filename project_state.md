@@ -5,9 +5,9 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-01 (v1 live; v2: schedule+search+edit merged #16–#17, Avatar added; reveal
-mechanic MERGED — PR #18 rebased to `main`, live; **Practice/endless mode BUILT + committed direct to
-`main`** (endless run + tally, ruleset chooser). Next: light answer obfuscation + curate more puzzles._
+_Last updated: 2026-07-01 (v1 live; v2: schedule+search+edit #16–#17, reveal mechanic #18, auto-headshot
+credit images, Practice/endless mode, and **vibrant themed tooltips** all shipped to `main` + live. The
+ONLY static-v2 feature left is **light answer obfuscation** (+ operational: curate more puzzles)._
 
 ## Where we are
 - **v1 + polish + Poser + UX-polish batch merged** — PRs **#1–#11**.
@@ -71,6 +71,13 @@ mechanic MERGED — PR #18 rebased to `main`, live; **Practice/endless mode BUIL
    `finalize_rung_images` saves from `profile` (headshot); `app.py` calls `attach_person_meta`
    directly (dropped `_attach_image_options`); `backfill` reads `profile`. Tests + docs updated;
    verified end-to-end against live TMDB (`/api/film/155` returns headshot+caption, no picker fields).
+4. **Vibrant themed tooltips** (client-only, `docs/`) — replaced the plain, slow native `title`
+   hover hints with custom CSS tooltips: any element with `data-tip="…"` gets an accent-colored
+   bubble + pointer above it, ~0.11s fade (vs native ~500ms), shown on hover AND `:focus-visible`.
+   In-game the bubble uses the puzzle's accent (`var(--amber)`) with auto-contrasting text. Applied
+   to Play today / Modes / Skip / I Need Help (the `#help-btn` tip is new); `title` attrs removed to
+   avoid double tooltips. Pure CSS (`[data-tip]::after/::before` in `style.css`) — no JS. Verified in
+   preview (computed styles + screenshot); no console errors.
 
 **Live site:** https://bluesuitcase.github.io/DegreesofFilm/ (Pages serves `main` `/docs`).
 

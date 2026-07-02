@@ -13,12 +13,15 @@ when the two disagree, DESIGN.md wins. **Current status: v1 COMPLETE and DEPLOYE
 **https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` `/docs`). All of Phase 1–3
 plus per-rung credit images shipped. **v2 is underway** (all still-static, no server): the curation
 tool's **week-ahead schedule**, **film search**, and **edit-existing-puzzle** are merged; the
-**reveal mechanic** is built but sits in **open PR #18** (unmerged — its `frame.js`/`app.js`
-changes aren't on `main` yet). The client routes views by query string: `?` home, `?modes`
-mode-select, `?play` today's game, `?id=N` an archived game, `?archive` the index, `?play&mode=poser`
-a Poser game. **Poser mode is built** (all-MC, flat +1). Still deferred: **practice/endless mode**
-and **light answer obfuscation** (static v2), and the v3 parking lot — **Movie Buff** (needs the
-server move), accounts/DB, Score History, server-side matching, degrees-of-separation.
+**reveal mechanic** (widen the film-rung crop on wrong guesses) is merged and live; **credit images
+are auto-headshots** (the manual character-still picker was removed); **Practice/endless mode** is
+built and live; and hover hints use **vibrant themed tooltips** (`data-tip`, not native `title`).
+The client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game,
+`?id=N` an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the
+practice chooser, `?practice&mode=cinephile|poser` an endless practice run. **Poser mode is built**
+(all-MC, flat +1). The **only** static-v2 feature still deferred is **light answer obfuscation**
+(plus the operational task of curating more puzzles); the v3 parking lot — **Movie Buff** (needs the
+server move), accounts/DB, Score History, server-side matching, degrees-of-separation — remains.
 **Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping

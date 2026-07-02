@@ -206,6 +206,30 @@ body{
 .hidden{display:none !important}
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px}
 
+/* Vibrant, themed tooltips — replace the plain, sluggish native `title` hover.
+   Any element with a data-tip="…" gets a fast-fading amber bubble above it (on
+   hover and on keyboard focus). text-transform/letter-spacing are reset so the
+   bubble reads normally even on the uppercase controls. */
+[data-tip]{position:relative}
+[data-tip]::after{
+  content:attr(data-tip);
+  position:absolute;left:50%;bottom:calc(100% + 9px);transform:translate(-50%,3px);
+  width:max-content;max-width:230px;padding:7px 11px;border-radius:7px;
+  background:var(--amber);color:var(--on-accent);
+  font-size:12px;font-weight:600;line-height:1.35;text-align:center;
+  text-transform:none;letter-spacing:normal;
+  box-shadow:0 8px 22px rgba(0,0,0,.45);
+  opacity:0;pointer-events:none;z-index:60;
+  transition:opacity .11s ease,transform .11s ease;
+}
+[data-tip]::before{   /* pointer toward the element */
+  content:'';position:absolute;left:50%;bottom:calc(100% + 4px);transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--amber);
+  opacity:0;pointer-events:none;z-index:60;transition:opacity .11s ease;
+}
+[data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translate(-50%,0)}
+[data-tip]:hover::before,[data-tip]:focus-visible::before{opacity:1}
+
 @media (max-width:600px){
   .topbar{padding:14px 16px;align-items:center}
   .wordmark{letter-spacing:.12em;font-size:12px}

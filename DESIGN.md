@@ -251,7 +251,9 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   slots (which upcoming dates have a puzzle, which are empty) and fill them ahead so the daily
   never runs dry. `publish.next_date()` already queues each publish onto the next free day; this
   makes the schedule visible and lets the curator stock specific days deliberately. Stays private.
-- **Practice / endless mode** — needs its own pool or to draw against the used-films ledger.
+- **Practice / endless mode** — *(DONE)* an endless run through random past puzzles (drawn from the
+  manifest, minus today's daily), player picks Cinephile or Poser, running session tally, no
+  daily-stat impact. Routes `?practice` (chooser) / `?practice&mode=…`.
 - **Reveal mechanic** — spend image tiers 2–3 (e.g. a wider crop after a wrong guess). The cropper
   already authors all 3 tiers; this only wires them into the client. (See the Phase 3 "optional" item.)
 - **Light answer obfuscation** — base64/cipher the in-JSON answers as an interim anti-snoop
@@ -261,11 +263,13 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
 
 - **Home tag word order** — lead the tagline with "Play today to find out" so it follows on from
   the big title, then the "name the film / dig down" explainer. (Markup only.)
-- **Skip button cost tooltip** — hovering Skip should explain the −1 point cost (`title` attr).
+- **Skip button cost tooltip** — hovering Skip should explain the −1 point cost. *(DONE, then
+  upgraded)* — now a **vibrant themed tooltip** (`data-tip` + CSS pseudo-elements, accent-colored,
+  ~0.11s fade, also on keyboard focus) rather than the plain, slow native `title`.
 - **In-game mode label** — show which mode is being played (Cinephile / Movie Buff / Poser) above
   the still, so the player always knows the ruleset. (Client already knows `mode`.)
 - **Home CTA tooltips** — hover "Play today" → "Start Cinephile mode"; hover "Modes" → "Choose your
-  mode / difficulty". (`title` attrs.)
+  mode / difficulty". *(DONE)* — same vibrant `data-tip` tooltips as the Skip hint above.
 - **Reveal the full frame after the film rung** — once the film is named, swap the cropped still to
   the full uncropped frame. **Nearly free:** tier 3 (`images[2]`) is *already* the full frame, so
   this is a client-side `img.src` swap. Overlaps the Reveal-mechanic item above; do them together.
