@@ -122,6 +122,26 @@ def api_schedule(days: int = 14):
             "slots": publish_mod.upcoming_schedule(man, days=days)}
 
 
+@app.get("/api/clear-schedule")
+def api_clear_schedule_preview():
+    """Dry preview: how many upcoming (strictly-future) scheduled puzzles a clear
+    would remove, and their dates. Changes nothing."""
+    today = datetime.date.today().isoformat()
+    _, removed = manifest_mod.clear_scheduled(manifest_mod.load(), today)
+    return {"scheduled": len(removed), "dates": [e.get("date") for e in removed]}
+
+
+@app.post("/api/clear-schedule")
+def api_clear_schedule():
+    """Unschedule every upcoming (strictly-future) puzzle: drop those entries from
+    the manifest, keeping today's daily + all past days. Puzzle files and the ledger
+    are left untouched (so it's reversible — the files can be re-scheduled)."""
+    today = datetime.date.today().isoformat()
+    kept, removed = manifest_mod.clear_scheduled(manifest_mod.load(), today)
+    manifest_mod.save(kept)
+    return {"cleared": len(removed), "dates": [e.get("date") for e in removed]}
+
+
 @app.get("/api/discover")
 def api_discover(sort: str = "vote_count.desc", count: int = 12):
     k = _key()

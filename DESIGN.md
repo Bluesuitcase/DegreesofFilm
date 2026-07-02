@@ -271,6 +271,13 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   **approve or re-drag** — nothing is written until Approve. The tier system widens the approved box
   out to the full frame as today. (Edge-energy can be fooled by title cards/subtitles, so it's a
   starting point — hence the explicit approve step.)
+- **Clear scheduled puzzles (curation)** — *(DONE)* a **🗑 Clear scheduled** button in the schedule
+  section unschedules every upcoming (strictly-future) puzzle in one go, keeping today's daily + all
+  past days. Two-click arm/confirm (previews the count, then commits) — no native modal. `manifest.
+  clear_scheduled(manifest, today)` (pure) splits kept/removed; `GET /api/clear-schedule` previews the
+  count, `POST` commits. **Unschedules only** — drops manifest entries but leaves the puzzle files +
+  ledger untouched, so it's reversible (a future "also delete files / free the films" option could be
+  added).
 
 #### UX polish (from playtesting 2026-06-30) — client/markup-only unless noted
 

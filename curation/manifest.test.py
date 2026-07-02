@@ -49,6 +49,20 @@ check("reschedule drops the old-date entry for that id", len(r), 2)
 check("puzzle 1 now lives on the new date only",
       sorted((e["id"], e["date"]) for e in r), [(1, "2026-06-28"), (2, "2026-06-26")])
 
+# --- clear_scheduled: drop strictly-future entries, keep today + past ---
+SCHED = [
+    manifest.make_entry(date="2026-06-30", id=1, file="001.json", title="Past"),
+    manifest.make_entry(date="2026-07-02", id=2, file="002.json", title="Today"),
+    manifest.make_entry(date="2026-07-03", id=3, file="003.json", title="Future A"),
+    manifest.make_entry(date="2026-07-10", id=4, file="004.json", title="Future B"),
+]
+kept, removed = manifest.clear_scheduled(SCHED, "2026-07-02")
+check("clear keeps today + past", [e["id"] for e in kept], [1, 2])
+check("clear removes strictly-future entries", [e["id"] for e in removed], [3, 4])
+check("clear on an empty manifest is a no-op", manifest.clear_scheduled([], "2026-07-02"), ([], []))
+check("clear when nothing is scheduled ahead removes nothing",
+      manifest.clear_scheduled(SCHED[:2], "2026-07-02"), (SCHED[:2], []))
+
 # --- a date is required ---
 raised = False
 try:

@@ -5,14 +5,35 @@
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 > A parallel copy of this status also lives in auto-memory (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-02 (**SESSION PAUSED — user stepped away**). v1 live; ALL static-v2 features
-shipped. This session built two curation-only tools — the **"Randomize" button** (`afec469`) and
-**Auto-crop** (`7957b19`) — plus recorded parking-lot items **Leaderboard** (v3) and **Auto-crop** (v2,
-built). **State at pause: working tree clean, `main` fully pushed, no open PRs.** Live-site obfuscation
-deploy re-confirmed healthy (`004.json` answers are cipher blobs; `cipher.js` live). Note: curation-only
-commits still trigger a Pages build, but produce byte-identical `docs/` so the live game is unchanged.
-**Resume: operational curate-more / v3 parking lot (Movie Buff, accounts/DB, Leaderboard, Score History,
-server-side matching, degrees-of-separation — all need the server move).**_
+_Last updated: 2026-07-02. v1 live; ALL static-v2 features shipped. Curation-only tools built recently:
+**Randomize** (`afec469`), **Auto-crop** (`7957b19`), and **Clear scheduled puzzles** (this session,
+uncommitted at time of writing — see below). v3 parking lot recorded incl. **Leaderboard**. Curation-only
+commits trigger a Pages build but produce byte-identical `docs/`, so the live game is unchanged. **Resume:
+operational curate-more / v2 leftovers (see ranking below) / v3 parking lot (Movie Buff, accounts/DB,
+Leaderboard, Score History, server-side matching, degrees-of-separation — all need the server move).**_
+
+## DONE — Clear scheduled puzzles (curation)
+A **🗑 Clear scheduled** button in the crop tool's schedule section unschedules every upcoming
+(strictly-future) puzzle at once, keeping today's daily + all past days. Two-click arm/confirm
+(previews the count → commits; no native modal, so it's testable). Curation-only.
+- **Backend:** pure `manifest.clear_scheduled(manifest, today)` → (kept, removed) split; tested in
+  `manifest.test.py`. `GET /api/clear-schedule` = dry count preview, `POST` = commit (save kept).
+- **Frontend (`curation/static/index.html`):** `#clearsched` button + `.btn.danger` style;
+  `doClearSchedule()` arms on first click (shows "⚠ Clear N upcoming — click again", 5s timeout),
+  commits on second, then `loadSchedule()` refreshes.
+- **Design choice — UNSCHEDULE ONLY:** drops manifest entries; **keeps puzzle files + the ledger**
+  (reversible; films stay "used" so they won't be re-suggested). A future "also delete files / free
+  the films" variant could be added if wanted.
+- **Verified live:** dry `GET` → `{scheduled:2, dates:[07-03,07-04]}`; UI arms correctly; `POST`
+  removed exactly those 2 (kept through today), then the manifest was restored from git. 16 suites green.
+
+### v2 ranking (updated — all DONE except operational; ordered by build complexity, low→high)
+Operational (not a build item): **curate more puzzles** (ongoing content). Build items, simplest first:
+1. Auto-crop **scale slider** *(not built)* — S · expose the existing `scale` param as a UI slider.
+2. Randomize **honor sort/floor** *(not built)* — S · pass the sort dropdown through to `/api/random`.
+3. **Clear scheduled puzzles** — S–M · **DONE this session.**
+4. Randomize/Discover **exclude scheduled-but-unpublished** *(not built)* — S–M · also skip manifest films.
+5. Auto-crop **face/saliency detection** *(not built)* — M · smarter placement, avoid title cards.
 
 ## DONE this session — Auto-crop (curation)
 An **✨ Auto-crop** button in the crop tool suggests the tier-1 box instead of hand-dragging it; the

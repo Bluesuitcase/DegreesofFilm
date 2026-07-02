@@ -43,6 +43,20 @@ def upsert(manifest, entry):
     return kept
 
 
+def clear_scheduled(manifest, today):
+    """Split the manifest into (kept, removed): `removed` = entries dated strictly
+    AFTER `today` (the upcoming queue), `kept` = today's daily + all past days.
+    Pure — the caller decides whether to save. Only unschedules (drops manifest
+    entries); it does not touch puzzle files or the ledger."""
+    kept, removed = [], []
+    for e in manifest:
+        if e.get("date") and e["date"] > today:
+            removed.append(e)
+        else:
+            kept.append(e)
+    return kept, removed
+
+
 def save(manifest, path=DEFAULT_PATH):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:
