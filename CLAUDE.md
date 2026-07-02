@@ -45,7 +45,8 @@ server move), accounts/DB, Score History, server-side matching, degrees-of-separ
   then open `http://localhost:8001` (or use the `curation` entry in `.claude/launch.json`). Needs
   `curation/.env`. Flow: find a film — **free-text title search** (`/api/search`, all of TMDB) or
   **Discover** (unused shortlist) → pick a still and drag a crop box → review the drafted
-  rungs/decoys → **pick a per-rung credit image** (headshot default; character-still override) →
+  rungs/decoys (**per-rung credit images are automatic** — every cast/crew rung uses that person's
+  TMDB headshot; no manual picking) →
   **Approve**, which writes `docs/puzzles/NNN.json` + tier images + per-rung credit images, appends
   the ledger, and upserts the manifest. (FastAPI; the heavy logic lives in the modules above.) The
   top of the page shows a **week-ahead schedule** (`/api/schedule`): the coming 14 days flagged
@@ -107,8 +108,9 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   discover.py          Find an unused film clearing the pool floor (vote_count/avg) + a CLI.
   build_rungs.py       Data layer: film+credits -> ordered rung draft (pure logic) + a thin CLI.
   decoys.py            Per-rung decoys (~3 same-category wrong answers) from neighbour films + CLI.
-  credits_images.py    Per-rung credit images: map rungs->people, offer candidate stills, finalize
-                       the picked image/caption + strip helper fields at approve (pure core) + CLI.
+  credits_images.py    Per-rung credit images: map rungs->people, stamp each with its TMDB headshot
+                       + caption (auto, cast + crew alike), finalize image/caption + strip helper
+                       fields at approve (pure core) + CLI.
   images.py            Reveal-tier cropping + theme accent/palette-background sampling (Pillow) + CLI.
   publish.py           Approve step: assemble the puzzle file + append ledger + upsert manifest;
                        next_date() defaults publish dates to the next free day (no manifest collisions);
@@ -118,8 +120,8 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
   *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images pure; images=Pillow).
-  backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' CREW rungs with TMDB headshots
-                       (maps puzzle->film via the ledger; cast stills stay a manual crop-tool pass).
+  backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' credit rungs (cast + crew) with
+                       TMDB headshots (maps puzzle->film via the ledger).
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
 ```
 
@@ -198,8 +200,9 @@ language variants, name forms); the matcher accepts any of them.
   I-Need-Help multiple choice (and all of Poser later). It's a v1 *schema* requirement even though
   the hand-authored 001 puzzle omits it.
 - `image` + `caption` per rung (**both optional**) — the credit image shown *after* you answer that
-  rung: a character still for cast, a TMDB headshot for crew, with `caption` = "Name as Character"
-  (name only for crew). `image` is a filename under `puzzles/` (e.g. `images/004-r2.jpg`). The film
+  rung: the person's TMDB headshot (cast and crew alike, chosen automatically), with `caption` =
+  "Name as Character" for cast, name only for crew. `image` is a filename under `puzzles/` (e.g.
+  `images/004-r2.jpg`). The film
   rung carries neither — passing it reveals the full frame. Any rung missing `image` holds the full
   frame (`frame.js` `pickCreditFrame`). Authored by the curation tool; puzzles without them just
   keep the old tight-crop → full-frame reveal.

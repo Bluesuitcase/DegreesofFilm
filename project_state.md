@@ -63,6 +63,14 @@ mechanic MERGED — PR #18 rebased to `main`, live; **Practice/endless mode BUIL
      into `loadAndStart(entry)` so "Next film" re-runs it without a full reload. `showEnd` guards stats
      with `!isPractice` (alongside `isArchive`/`poser`), shows `practiceHtml()` tally + Next/End
      buttons, and hides the share for practice. Verified in preview; 6 node suites green.
+3. **Removed the manual cast-photo picker from the curation tool** (curation-only; no `docs/` change,
+   so no live deploy). Per-rung credit images are now **fully automatic** — every cast/crew rung uses
+   that person's TMDB headshot, no manual character-still choice. Ripped out `candidate_stills`/
+   `tagged_still_urls`/`image_pick`/`candidates` and the crop-tool `#pickers` UI + its JS/CSS.
+   `credits_images.attach_person_meta` now stamps just `character`/`profile`/`caption`;
+   `finalize_rung_images` saves from `profile` (headshot); `app.py` calls `attach_person_meta`
+   directly (dropped `_attach_image_options`); `backfill` reads `profile`. Tests + docs updated;
+   verified end-to-end against live TMDB (`/api/film/155` returns headshot+caption, no picker fields).
 
 **Live site:** https://bluesuitcase.github.io/DegreesofFilm/ (Pages serves `main` `/docs`).
 

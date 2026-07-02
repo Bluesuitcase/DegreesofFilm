@@ -2,10 +2,10 @@
 
 Every credit rung (cast + crew) gets the person's TMDB profile headshot — cast
 character stills on TMDB are too sparse to rely on, so headshots are the uniform
-default (a curator can still override a specific rung with an in-character still
-via the crop tool's picker). For each puzzle it maps back to its TMDB film via
-the ledger, fetches credits, and (reusing credits_images) saves each person's
-headshot as docs/puzzles/images/NNN-rK.jpg and sets that rung's image + caption.
+default (chosen automatically; there is no per-rung picking). For each puzzle it
+maps back to its TMDB film via the ledger, fetches credits, and (reusing
+credits_images) saves each person's headshot as docs/puzzles/images/NNN-rK.jpg
+and sets that rung's image + caption.
 
 Re-runnable and idempotent-ish: it re-derives images from TMDB each time and
 rewrites the same NNN-rK.jpg files, so running twice just refreshes them.
@@ -66,7 +66,7 @@ def backfill_one(puzzle_path, film_id, key, save):
     ci.attach_person_meta(puzzle, credits)   # every credit rung defaults to its headshot
 
     people = [r for r in puzzle["rungs"] if r.get("role") != "Film"]
-    missing = [r["answers"][0] for r in people if not r.get("image_pick")]
+    missing = [r["answers"][0] for r in people if not r.get("profile")]
 
     stem = os.path.splitext(os.path.basename(puzzle_path))[0]
     ci.finalize_rung_images(puzzle["rungs"], stem, save)

@@ -62,15 +62,6 @@ def _film_stills(movie, film_id, k):
     return stills
 
 
-def _attach_image_options(puzzle, film_id, k, credits, stills):
-    """Stamp each rung with its person meta (default headshot pick + caption) and
-    candidate stills for the per-rung image picker."""
-    credits_images_mod.attach_person_meta(puzzle, credits)
-    for rung in puzzle["rungs"]:
-        if rung.get("role") != "Film":
-            rung["candidates"] = credits_images_mod.candidate_stills(rung, film_id, k, stills)
-
-
 def _download_rgb(url):
     """Fetch a TMDB image as an RGB PIL Image (rejects non-TMDB URLs)."""
     from PIL import Image
@@ -185,7 +176,7 @@ def api_film(film_id: int):
     puzzle = build_rungs.build_puzzle(movie, credits, puzzle_id=film_id, max_cast=6)
     decoys_mod.attach_decoys(puzzle, film_id, credits, k)
     stills = _film_stills(movie, film_id, k)
-    _attach_image_options(puzzle, film_id, k, credits, stills)
+    credits_images_mod.attach_person_meta(puzzle, credits)   # auto headshot per credit rung
     return {"id": film_id, "title": movie.get("title"),
             "release_date": movie.get("release_date"),
             "stills": stills, "rungs": puzzle["rungs"]}
@@ -207,9 +198,9 @@ def api_puzzle(pid: int):
     movie = tmdb.movie_with_credits(film_id, k)
     credits = movie.get("credits", {})
     stills = _film_stills(movie, film_id, k)
-    # Re-attach picker options to the EXISTING rungs (preserving any human edits),
-    # defaulting each credit rung to its headshot pick.
-    _attach_image_options(existing, film_id, k, credits, stills)
+    # Re-stamp each EXISTING rung with its headshot + caption (preserving human edits
+    # to the rung text). Headshots are automatic — no per-rung picking.
+    credits_images_mod.attach_person_meta(existing, credits)
     return {"id": pid, "film_id": film_id, "editing": True,
             "title": movie.get("title"), "release_date": movie.get("release_date"),
             "date": existing.get("date"),

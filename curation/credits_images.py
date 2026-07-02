@@ -1,21 +1,21 @@
-"""Per-rung credit images: a character still for cast, a headshot for crew.
+"""Per-rung credit images: the person's TMDB headshot, for cast and crew alike.
 
 The image shown AFTER a rung is answered (client side: frame.js pickCreditFrame).
-Cast rungs get a curator-picked character still; crew rungs default to the
-person's TMDB profile headshot. This module has three jobs:
+Every credit rung — cast or crew — uses that person's TMDB profile headshot,
+chosen automatically with no manual per-rung picking. (Cast character stills on
+TMDB are too sparse to rely on, so headshots are the uniform default; a rung whose
+person has no headshot simply holds the full frame.) This module has two jobs:
 
   - attach_person_meta(): map each drafted rung back to its TMDB person and stamp
-    helper fields (character, person_id, profile URL, a default caption, and a
-    pre-selected image_pick). Pure — takes the credits dict, no network.
-  - candidate_stills() / tagged_still_urls(): best-effort still URLs to offer in
-    the picker (the thin network layer).
-  - finalize_rung_images(): at approve time, turn each rung's chosen image_pick
-    into a saved file + image/caption fields, then strip every helper field so the
-    published JSON keeps only the {role, prompt, answers, decoys, image, caption}
-    schema. Pure orchestration via an injected save() callback.
+    helper fields (character, profile headshot URL, and a caption). Pure — takes
+    the credits dict, no network.
+  - finalize_rung_images(): at approve time, save each rung's headshot into a file
+    + image/caption fields, then strip every helper field so the published JSON
+    keeps only the {role, prompt, answers, decoys, image, caption} schema. Pure
+    orchestration via an injected save() callback.
 
-The helper fields (character, person_id, profile, candidates, image_pick) ride
-along in the draft and the approve payload but NEVER reach the published file.
+The helper fields (character, profile) ride along in the draft and the approve
+payload but NEVER reach the published file.
 """
 import sys
 
@@ -23,12 +23,14 @@ import build_rungs
 
 IMG_BASE = "https://image.tmdb.org/t/p/original"
 
-# Roles that show a character still (and get an "as Character" caption). Every
-# other rung that gets an image is crew, shown as a headshot with a name caption.
+# Cast rungs get an "as Character" caption; every other credit rung is crew, whose
+# caption is just the name. (Both show the person's headshot — see the module doc.)
 CHARACTER_ROLES = {"Cast"}
 # Rung role -> TMDB crew `job`, to match a crew rung back to its person.
 CREW_JOBS = {role: spec["job"] for role, spec in build_rungs.ROLES.items()}
-# Fields stamped for the picker that must be stripped before publishing.
+# Helper fields stamped onto a draft rung that must be stripped before publishing.
+# (person_id/candidates/image_pick are legacy from the old picker; kept in the
+# strip list so any stale draft can't leak them into a published file.)
 HELPER_KEYS = ("character", "person_id", "profile", "candidates", "image_pick")
 
 
@@ -73,8 +75,9 @@ def _find_person(rung, credits):
 
 
 def attach_person_meta(puzzle, credits):
-    """Stamp each credit rung with the helper fields the image picker needs. Pure
-    (dict in, dict mutated) — no network, so it unit-tests directly."""
+    """Stamp each credit rung with its headshot + caption. Every credit rung — cast
+    and crew alike — uses the person's TMDB profile headshot, automatically (no
+    per-rung choice). Pure (dict in, dict mutated) — no network, unit-tests directly."""
     for rung in puzzle.get("rungs", []):
         if rung.get("role") == "Film":
             continue
@@ -82,69 +85,22 @@ def attach_person_meta(puzzle, credits):
         name = (rung.get("answers") or [""])[0]
         is_char = rung["role"] in CHARACTER_ROLES
         character = person.get("character", "") if (person and is_char) else ""
-        profile = _profile_url(person)
         rung["character"] = character or ""
-        rung["person_id"] = (person or {}).get("id")
-        rung["profile"] = profile
+        rung["profile"] = _profile_url(person)   # the headshot the rung will show
         rung["caption"] = caption_for(rung["role"], name, character)
-        # Every credit rung defaults to the person's headshot (cast character stills
-        # on TMDB are too sparse to rely on). The picker still offers candidate stills
-        # so a curator can override a rung with a real in-character still when one fits.
-        rung["image_pick"] = profile
     return puzzle
 
 
-def tagged_still_urls(person_id, film_id, key, *, limit=8, get=None):
-    """Best-effort stills of this person tagged in THIS film. Returns [] if the
-    endpoint is unavailable or empty (the curator can still use movie backdrops).
-    `get` defaults to tmdb.get; injectable so this stays unit-testable."""
-    if not person_id:
-        return []
-    if get is None:
-        import tmdb
-        get = tmdb.get
-    try:
-        data = get(f"/person/{person_id}/tagged_images", key)
-    except Exception:
-        return []
-    urls = []
-    for im in data.get("results", []):
-        media = im.get("media") or {}
-        if media.get("id") == film_id and im.get("file_path"):
-            urls.append(IMG_BASE + im["file_path"])
-            if len(urls) >= limit:
-                break
-    return urls
-
-
-def candidate_stills(rung, film_id, key, movie_stills, *, get=None):
-    """Ordered, de-duped candidate image URLs for a rung's picker: for cast, the
-    person's tagged stills first, then the movie backdrops, then their headshot as
-    a last resort; for crew, just the headshot. Pure aside from tagged_still_urls."""
-    urls = []
-    if rung.get("role") in CHARACTER_ROLES:
-        urls += tagged_still_urls(rung.get("person_id"), film_id, key, get=get)
-        urls += list(movie_stills or [])
-    if rung.get("profile"):
-        urls.append(rung["profile"])
-    seen, out = set(), []
-    for u in urls:
-        if u and u not in seen:
-            seen.add(u)
-            out.append(u)
-    return out
-
-
 def finalize_rung_images(rungs, stem, save):
-    """At approve: for each rung with a chosen image_pick, save it (via the
-    injected save(url, filename) -> None) and set image/caption; otherwise drop any
-    image/caption. Then strip every helper field, leaving publish-clean rungs.
-    Mutates and returns rungs. Pure orchestration (IO is injected)."""
+    """At approve: for each credit rung with a headshot, save it (via the injected
+    save(url, filename) -> None) and set image/caption; a rung with no headshot
+    drops any image/caption and holds the full frame. Then strip every helper field,
+    leaving publish-clean rungs. Mutates and returns rungs (IO is injected)."""
     for i, rung in enumerate(rungs, start=1):
-        pick = rung.get("image_pick")
-        if rung.get("role") != "Film" and pick:
+        headshot = rung.get("profile")
+        if rung.get("role") != "Film" and headshot:
             filename = rung_image_name(stem, i)
-            save(pick, filename)
+            save(headshot, filename)
             rung["image"] = f"images/{filename}"
             if not (rung.get("caption") or "").strip():
                 rung["caption"] = caption_for(rung.get("role"),
@@ -158,14 +114,13 @@ def finalize_rung_images(rungs, stem, save):
     return rungs
 
 
-# --- thin CLI: show a draft's per-rung image picks/candidates for a film --------
+# --- thin CLI: show a draft's per-rung credit headshots for a film --------------
 
 def _main(argv):
     import argparse
-    import decoys as decoys_mod
     import tmdb
 
-    ap = argparse.ArgumentParser(description="Show per-rung credit-image options.")
+    ap = argparse.ArgumentParser(description="Show per-rung credit headshots.")
     ap.add_argument("--id", type=int, required=True, help="TMDB movie id")
     ap.add_argument("--max-cast", type=int, default=6)
     args = ap.parse_args(argv)
@@ -180,20 +135,15 @@ def _main(argv):
     puzzle = build_rungs.build_puzzle(movie, credits, puzzle_id=args.id,
                                       max_cast=args.max_cast)
     attach_person_meta(puzzle, credits)
-    imgs = tmdb.get(f"/movie/{args.id}/images", key)
-    stills = [IMG_BASE + b["file_path"] for b in imgs.get("backdrops", [])[:12]
-              if b.get("file_path")]
 
-    print(f"{movie.get('title')} — per-rung credit images:")
+    print(f"{movie.get('title')} — per-rung credit headshots:")
     for i, r in enumerate(puzzle["rungs"], start=1):
         if r["role"] == "Film":
             print(f"  rung {i:>2} [{r['role']:<19}] (film — full-frame reveal)")
             continue
-        cands = candidate_stills(r, args.id, key, stills)
-        pick = r.get("image_pick") or "(none — curator picks)"
+        shot = r.get("profile") or "(no TMDB headshot — holds full frame)"
         print(f"  rung {i:>2} [{r['role']:<19}] {r['caption']}")
-        print(f"          default pick: {pick}")
-        print(f"          {len(cands)} candidate(s)")
+        print(f"          headshot: {shot}")
     return 0
 
 
