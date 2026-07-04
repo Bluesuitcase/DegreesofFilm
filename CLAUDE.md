@@ -3,6 +3,13 @@
 > **New session? Read [`project_state.md`](project_state.md) FIRST**, then keep it updated as you
 > work. It's the running handoff — current task, decisions, next steps. This file (CLAUDE.md)
 > explains how the code works; `project_state.md` tracks where we are right now.
+>
+> **Then LOAD THE RELEVANT SKILL before working.** As of 2026-07-03 a 16-skill maintenance library
+> lives in [`.claude/skills/`](.claude/skills/) (`degreesoffilm-*`), surfaced by trigger description.
+> They encode the runbooks, invariants, config catalog, debugging playbook, and settled battles —
+> e.g. `degreesoffilm-change-control` before committing, `degreesoffilm-run-and-operate` to publish a
+> puzzle, `degreesoffilm-failure-archaeology` before "improving" anything. If a code change
+> invalidates a fact a skill states, fix that skill in the same session (see `degreesoffilm-docs-and-writing`).
 
 A daily browser game testing film knowledge. You're shown a cropped frame from a film
 (title hidden), name it, then dig down through its credits from famous to obscure. The
@@ -93,6 +100,11 @@ stopgap until v3's server-side matching.
 ## File layout
 
 ```
+.claude/skills/        16-skill maintenance library (degreesoffilm-*, 2026-07-03) — runbooks,
+                       invariants, config catalog, debugging, failure archaeology, v3 campaign,
+                       research frontier + methodology. Load the relevant one before working.
+                       Ships scripts/validate_content.py (content integrity) + puzzle_report.py.
+                       _BUILD-STATE.md there is the (deletable) build record, not a skill.
 DESIGN.md              Full v1 spec + build roadmap + v2/v3 parking lot.
 CLAUDE.md              This file (how the code works).
 project_state.md       Running session handoff — current task, decisions, next steps. Read FIRST.

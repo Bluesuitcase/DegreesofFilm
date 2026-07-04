@@ -5,9 +5,32 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-02. **v1 is live and ALL v2 features are shipped to `main`.** Working tree
-clean, everything pushed, no open PRs. **Resume with: operational (curate more puzzles) and/or start
-the v3 "server move."** Full v2/v3 backlog is in `DESIGN.md` §6._
+_Last updated: 2026-07-03. **v1 live, ALL v2 shipped, and a full 16-skill maintenance library now
+exists at `.claude/skills/` and is pushed to `main`.** Working tree clean, everything pushed, no open
+PRs, tip `c3e15b0`. **Resume with: operational (curate more puzzles) and/or start the v3 "server
+move" — and from now on, LOAD THE RELEVANT SKILL FIRST** (they encode the runbooks, invariants, and
+settled battles). Full v2/v3 backlog is in `DESIGN.md` §6._
+
+## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
+- **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
+  multi-agent authoring, then a 3-reviewer (factual/doctrine/usability) + fixer pass; every command,
+  constant, hash, and worked example was verified against the repo. **Before any task, load the
+  matching skill** — the harness lists them by trigger description. Highlights:
+  `change-control` (what may land where — READ before committing), `run-and-operate` (the publishing
+  runbook), `failure-archaeology` (settled battles — don't re-fight them), `architecture-contract`
+  (invariants), `debugging-playbook` (symptom→fix), `diagnostics-and-tooling` (ships
+  `scripts/validate_content.py` — run it before/after any content change), `server-move-campaign`
+  (the decision-gated v3 plan), `research-frontier` (where to advance SOTA).
+- **The build record** is `.claude/skills/_BUILD-STATE.md` (marked BUILD COMPLETE; safe to delete —
+  it's not a skill and nothing references it).
+- **Four repo issues found + FIXED during the build** (all on `main` now): home-page QUOTES named two
+  puzzle films → swapped for unused films (`ee4ec54`, spoiler fix); curation approve message printed
+  "accent undefined" → reads `j.theme?.accent` (`44b044d`); TMDB footer wording aligned to TMDB's
+  current terms (`c5b86d2`); stale `frame.js` header comment corrected (`d23c52a`). The content
+  validator now passes fully clean (8 groups, 0 warnings).
+- **Maintenance rule going forward:** when a code change invalidates a fact a skill states, update
+  that skill + its Provenance date in the SAME session (this session did exactly that for all four
+  fixes). See `docs-and-writing`.
 
 ## Status at a glance
 - **v1 — COMPLETE + DEPLOYED LIVE:** https://bluesuitcase.github.io/DegreesofFilm/ (GitHub Pages,
@@ -47,19 +70,40 @@ the v3 "server move."** Full v2/v3 backlog is in `DESIGN.md` §6._
   so Discover/Randomize can suggest them again. Keeps files; manifest+ledger git-reversible.
 
 ## Next steps (pick up here)
-1. **Operational — curate more puzzles** (the one open v2 task). Run the crop tool
+0. **Load the relevant skill first** (new this session). For curating puzzles →
+   `degreesoffilm-run-and-operate` + `degreesoffilm-validation-and-qa`'s content-QA checklist; for v3
+   → `degreesoffilm-server-move-campaign`; before committing anything → `degreesoffilm-change-control`.
+1. **Operational — curate more puzzles** (the one open v2 task; **runway = 2 days as of 2026-07-03**,
+   pool runs through 2026-07-04). Run the crop tool
    (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`, needs `curation/.env`):
    Randomize → face-aware Auto-crop → review the drafted rungs → Approve (auto-fills the next free day,
-   writes the puzzle + images + credit headshots, appends the ledger, upserts the manifest). Then
-   `git commit`/push `docs/` to deploy.
-2. **v3 parking lot** — all needs the server move. Two tracks (full list + complexity in DESIGN.md §6):
-   - **Stay-static (no backend needed):** Score History (client-only), Movie Buff (prebaked popular-
-     title index), true degrees-of-separation (prebaked film/person graph).
+   writes the puzzle + images + credit headshots, appends the ledger, upserts the manifest). **Then run
+   `scripts/validate_content.py` (diagnostics skill) before committing**, use a spoiler-safe commit
+   message ("Add puzzle NNN (YYYY-MM-DD)" — no film title until the date passes), and push `docs/`.
+2. **v3 parking lot** — most needs the server move (`degreesoffilm-server-move-campaign` is the
+   decision-gated plan). Two tracks (full list in DESIGN.md §6, research angles in
+   `degreesoffilm-research-frontier`):
+   - **Stay-static (no backend):** Score History (client-only), **Movie Buff** (prebaked popular-title
+     index — the frontier skill found this is static-possible, NOT strictly server-gated), true
+     degrees-of-separation (prebaked film/person graph).
    - **Server-move track (needs backend, in dependency order):** **Accounts + DB** → **Server-side
      matching** → **Leaderboard** (sortable by mode/user/total, asterisk when a total is mostly
      easy-mode) + cross-device stats. Also: commercial TMDB agreement (only if it scales/monetizes).
+3. **Housekeeping (optional):** two orphaned worktree dirs (`.claude/worktrees/adoring-blackburn-*`,
+   `loving-maxwell-*`) are git-deregistered + gitignored but Windows-locked; delete them once the
+   sessions holding them close (`rm -rf .claude/worktrees/*`). Also consider copying the skills to the
+   user-global `~/.claude/skills/` if you want them in every project's Customize→Skills (treat the
+   in-repo copy as source of truth).
 
 ## Key decisions (why things are the way they are)
+- **Skill library is project-scoped (2026-07-03):** it lives in the repo at `.claude/skills/`, NOT the
+  user-global `~/.claude/skills/` — so it travels with the repo and every session/collaborator here
+  gets it. **Why:** the skills describe *this* project; they should be versioned with it. Trade-off:
+  they don't show in the global Customize→Skills UI unless also copied there (deferred).
+- **Skills cite past incidents by hash + puzzle number, never film title, until the puzzle date has
+  passed (2026-07-03):** the library is public once committed, so naming a future-dated puzzle's film
+  in a skill would itself be a spoiler leak. This rule is written into `failure-archaeology` and
+  `docs-and-writing`; the doctrine reviewer caught the library violating it and the fixer scrubbed it.
 - **Credit ordering:** cast by TMDB **billing order** (popularity only a tiebreaker), **director
   early**, technical crew deepest; a human reorders edge cases. Popularity-sort was **rejected** — it
   buried Heath Ledger's Joker at rung 13.
@@ -93,11 +137,17 @@ the v3 "server move."** Full v2/v3 backlog is in `DESIGN.md` §6._
   manifest-collision footgun (multiple same-day publishes silently overwrote each other).
 
 ## Workflow / gotchas
-- **Shipping this session:** curation-only changes (no `docs/` change) were committed **direct to
-  `main`** per the user's repeated choice — they don't deploy the live game (Pages rebuilds but
-  produces byte-identical `docs/`). Earlier player-facing work went via **branch → PR → rebase-merge →
-  delete branch**. Confirm with the user how they want each change to land (they've been choosing
-  commit-direct for curation-only).
+- **Shipping this session (2026-07-03):** the skill library + all four fixes landed **direct to
+  `main`** per the user's choice (the library/docs are curation-adjacent; the two player-facing fixes
+  — QUOTES, footer — were small and pre-verified). **Linear history is required** (the repo has no
+  merge commits): when a parallel worktree session had independently pushed the same QUOTES fix,
+  integration was done by **`git rebase origin/main`** (which auto-dropped the duplicate cherry-pick),
+  NOT `git merge`. Confirm landing mode per change; player-facing work still normally goes
+  branch → PR → rebase-merge (see `degreesoffilm-change-control`).
+- **Parallel worktree sessions:** the two "fix" chips ran in `.claude/worktrees/*` and could push to
+  `main` independently — expect possible divergence; `git fetch` + rebase before pushing.
+- **Shipping earlier:** curation-only changes (no `docs/` change) were committed direct to `main`;
+  earlier player-facing work went via branch → PR → rebase-merge → delete branch.
 - **`gh` CLI:** works **directly in the Bash tool** this session (the tool environment supplies auth) —
   no manual token dance was needed. If it ever shows logged-out, fall back to the `GH_TOKEN`-from-cached-
   credential trick (see the `gh-auth-via-cached-token` memory).
