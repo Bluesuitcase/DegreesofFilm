@@ -42,9 +42,10 @@ curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.
 - **v3 — SCOPED (GATE 0 passed 2026-07-04), nothing built:** owner chose **Phase 1 only**
   (server-side matching, $0 ceiling). See the v3 GATE 0 section above. The rest of the parking lot
   stays parked.
-- **Content:** 7 puzzles (001–007), dated **2026-06-28 .. 07-04**. **Runway is DRY — 07-04 is the
-  last stocked day (today as of this update)** — `pickPuzzle` falls back to the most-recent so the
-  daily won't 404, but it stops being *new* tomorrow. Curating more is the urgent operational task.
+- **Content:** 11 puzzles (001–011), dated **2026-06-28 .. 07-08**. **Runway = 5 days** (stocked
+  through 2026-07-08) after the 2026-07-04 curation batch (008–011 — pushed `bd20e79`; titles omitted
+  here, they're future-dated = spoilers). 009 was trimmed to 9 rungs (dropped three unquizzable
+  bit-part cast rungs). Keep curating to extend the runway.
 - **Tests:** 7 JS suites + 8 Python (pure) + `images` (Pillow) — **all green**. Details at the bottom.
 
 ## What's shipped in v2 (all on `main`)
