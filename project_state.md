@@ -5,11 +5,12 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-03. **v1 live, ALL v2 shipped, and a full 16-skill maintenance library now
-exists at `.claude/skills/` and is pushed to `main`.** Working tree clean, everything pushed, no open
-PRs, tip `c3e15b0`. **Resume with: operational (curate more puzzles) and/or start the v3 "server
-move" — and from now on, LOAD THE RELEVANT SKILL FIRST** (they encode the runbooks, invariants, and
-settled battles). Full v2/v3 backlog is in `DESIGN.md` §6._
+_Last updated: 2026-07-04. **v1 live, ALL v2 shipped, 16-skill library on `main`.** Tip `ea5e70c`,
+tree clean, no open PRs. **NEW: v3 GATE 0 passed 2026-07-04 — the server move is scoped** (see the
+v3 section below): **Phase 1 only** (server-side matching), $0 cost ceiling, R5 intact. **Content
+runway is DRY: the last stocked daily is TODAY (2026-07-04)** — curating more puzzles is urgent.
+LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`; curation →
+`degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
 
 ## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
 - **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
@@ -36,10 +37,12 @@ settled battles). Full v2/v3 backlog is in `DESIGN.md` §6._
 - **v1 — COMPLETE + DEPLOYED LIVE:** https://bluesuitcase.github.io/DegreesofFilm/ (GitHub Pages,
   `main` `/docs`; pushes touching `docs/` auto-deploy).
 - **v2 — COMPLETE:** every static-v2 feature is built, tested, and on `main` (list below).
-- **v3 — NOT STARTED:** the parking lot; all of it needs the **server move** (a real backend).
-- **Content:** 7 puzzles (001–007), dated **2026-06-28 .. 07-04**. **Pool is thin past 07-04** —
-  `pickPuzzle` falls back to the most-recent so the daily won't 404, but it stops being *new*.
-  Curating more is the main open operational task.
+- **v3 — SCOPED (GATE 0 passed 2026-07-04), nothing built:** owner chose **Phase 1 only**
+  (server-side matching, $0 ceiling). See the v3 GATE 0 section above. The rest of the parking lot
+  stays parked.
+- **Content:** 7 puzzles (001–007), dated **2026-06-28 .. 07-04**. **Runway is DRY — 07-04 is the
+  last stocked day (today as of this update)** — `pickPuzzle` falls back to the most-recent so the
+  daily won't 404, but it stops being *new* tomorrow. Curating more is the urgent operational task.
 - **Tests:** 7 JS suites + 8 Python (pure) + `images` (Pillow) — **all green**. Details at the bottom.
 
 ## What's shipped in v2 (all on `main`)
@@ -68,6 +71,44 @@ settled battles). Full v2/v3 backlog is in `DESIGN.md` §6._
 - **Clear scheduled** [`125c4a5`, `c0329a2`] — `/api/clear-schedule` (GET dry count, POST commit)
   unschedules all upcoming (strictly-future) puzzles AND frees their films (`ledger.remove_by_puzzles`)
   so Discover/Randomize can suggest them again. Keeps files; manifest+ledger git-reversible.
+
+## ⭐ v3 GATE 0 — PASSED 2026-07-04 (server-move campaign scoped)
+
+Per `degreesoffilm-server-move-campaign` Phase 0. **No code written yet** — next step is the
+Phase 1 hosting decision + spike.
+
+**Owner answers (recorded in writing, 2026-07-04):**
+1. **Scope: Phase 1 ONLY** — the server-side `/match` endpoint that retires the plaintext-answers
+   wart. Phases 2 (accounts/DB) and 3 (leaderboard) are NOT in scope; revisit after GATE 1 has been
+   green a while and there's evidence of demand.
+2. **Cost ceiling (R6): $0/month — free tiers only.** Kill the phase if it can't stay free.
+3. **Auth (future Phase 2, recorded now): magic-link email.** Moot until Phase 2 is ever green-lit.
+4. **Stripping answers from PAST puzzle files: NO — R5 stays as-is.** Archive playable forever
+   without the server. Only NEW post-cutover puzzles would ever be server-only (§6 step 5, itself
+   gated on ≥14 days stability + separate owner sign-off).
+- Latency target: **p95 < 300 ms** accepted as the campaign default (owner did not override).
+
+**GATE 0 baselines (re-captured 2026-07-04 — all match the 2026-07-03 capture):**
+- 7 JS suites green: match 25, game 34, daily 11, theme 15, stats 17, frame 16, cipher 19.
+- Pure-module probe: `true / 'won' / true` — `match.js`/`game.js`/`cipher.js` run in Node unchanged
+  (the campaign's key asset: zero-port server reuse).
+- Content: 7 puzzles (ids 1–7, 2026-06-28..07-04), 92 images, manifest consistent. Tip `ea5e70c`.
+
+**Kill criteria (abandon/pause Phase 1 if any becomes true):**
+- No hosting option runs `/match` within the **$0** ceiling (rate limiting included).
+- GATE 1 check 1 can't pass — i.e. static play breaks with the flag off and can't be restored (R1).
+- The design ends up needing the TMDB key on the server (R2 violation — redesign or stop).
+- The phase stalls **>1 month** mid-migration — roll back (`MATCH_API=''`) rather than leave a
+  half-state.
+- Note: the project has **no analytics**, so player demand is unknowable; Phase 1 is justified by
+  the wart alone, not by demand claims.
+
+**Next v3 action:** Phase 1 hosting decision — **Cloudflare Workers + KV is rank 1** (JS runtime
+runs `match.js` unchanged, free tier fits $0, no cold starts); Vercel/Netlify rank 2; FastAPI/VPS
+rank 3 (forfeits the zero-port asset — avoid). **RE-VERIFY vendor free-tier facts live before
+choosing** (they're as-of-early-2026 training data), write the choice + rejected alternatives here,
+then build the spike per §3 (endpoint contract, `MATCH_API` flag + 2 s fallback, publish
+`answers_sink` artifact, backfill CLI) and run GATE 1's four numeric checks.
 
 ## Next steps (pick up here)
 0. **Load the relevant skill first** (new this session). For curating puzzles →
