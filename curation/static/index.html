@@ -486,7 +486,7 @@ $('#approve').onclick = async ()=>{
     res.className='ok';
     res.textContent = editing
       ? `✓ updated ${j.file} (id ${j.id}) — scheduled ${j.date}${hasCrop?', frame re-cropped':''}.`
-      : `✓ wrote ${j.file} (id ${j.id}, accent ${j.accent})\n  + tier images, ledger, manifest updated.`;
+      : `✓ wrote ${j.file} (id ${j.id}, accent ${j.theme?.accent})\n  + tier images, ledger, manifest updated.`;
     loadSchedule();   // the day's puzzle changed — refresh the runway
     if(!editing) fetch('/api/next-date').then(r=>r.json()).then(j=>{ if(j.date) $('#date').value=j.date; }).catch(()=>{});
   }catch(e){ res.className='err'; res.textContent='error: '+e.message; }
