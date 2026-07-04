@@ -173,9 +173,9 @@ git-reversible until committed); **step 12 (push) makes it public**.
    (sampled unless overridden).
 7. **Approve & write puzzle** — `POST /api/approve`. **Point of no return for the working
    tree**: this writes real files (list in step 9) and appends the ledger + upserts the
-   manifest. Expect "✓ wrote NNN.json (id N, …) + tier images, ledger, manifest updated."
-   (Known cosmetic quirk as of 2026-07-03: the success line prints "accent undefined" —
-   the approve response carries `theme`, not `accent`. The written files are fine.)
+   manifest. Expect "✓ wrote NNN.json (id N, accent #rrggbb) + tier images, ledger,
+   manifest updated." (An earlier "accent undefined" quirk here was fixed in `e7c1f69`,
+   2026-07-03 — see degreesoffilm-failure-archaeology entry 13.)
 8. **Verify locally, before any commit:**
    - Run the content validator if present:
      `.venv/Scripts/python .claude/skills/degreesoffilm-diagnostics-and-tooling/scripts/validate_content.py`
@@ -336,8 +336,7 @@ spoiler rule — are project-specific.
   `curation/{backfill_credit_images,obfuscate_puzzles}.py`, `docs/app.js` `init()`,
   `docs/daily.js`, `.claude/launch.json`, and `docs/puzzles/` contents. No live-write
   endpoint or server was run.
-- Volatile facts: puzzle pool/runway numbers (dated above); the "accent undefined"
-  cosmetic quirk (line ~489 of `curation/static/index.html`).
+- Volatile facts: puzzle pool/runway numbers (dated above).
 - Re-verify one-liners:
   - Endpoints: `grep -n "@app\." curation/app.py`
   - Routes: `grep -n "params.has" docs/app.js`

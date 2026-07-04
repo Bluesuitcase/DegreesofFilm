@@ -26,7 +26,7 @@ only in session-handoff docs (not reconstructible from git alone) are labeled
 | 10 | "Poser/practice/archive runs don't update stats — bug?" | SETTLED design — deliberate isolation guards in app.js |
 | 11 | "Put the film title in the content commit message" | RULE-CREATED — two leaks happened; number/date only |
 | 12 | "Home QUOTES film names are harmless" | OPEN — two quotes currently name films in the puzzle set |
-| 13 | "Approve message shows `accent undefined`" | OPEN — known field-name mismatch, cosmetic |
+| 13 | "Approve message shows `accent undefined`" | FIXED `e7c1f69` (2026-07-03) — UI now reads `j.theme?.accent` |
 | 14 | "Stack a PR on an unmerged PR" | RULE-CREATED — #13-on-#12 dirty-diff dance; prefer sequential |
 | 15 | "Ship UX polish ad hoc" | Precedent — batch from a playtest, one PR per item (#7–#11) |
 | 16 | "Monetize / scale up TMDB usage" | PARKED — commercial TMDB agreement gated on real monetization |
@@ -295,23 +295,25 @@ Status → Do not → Unless.** Past tense for the story; imperative for the rul
 - **Unless** already fixed when you read this — verify with:
   `grep -n "Toy Story\|Dark Knight" docs/app.js` (empty = fixed; update this entry).
 
-### 13. Approve success message shows "accent undefined" — OPEN
+### 13. Approve success message shows "accent undefined" — FIXED
 
 - **Symptom/Idea:** Found 2026-07-03 during skill authoring: after a successful
-  Approve, the curation UI prints ``✓ wrote NNN.json (id N, accent undefined)``.
-- **Finding:** Field-name mismatch. `curation/static/index.html` line ~489 reads
-  `j.accent`, but `curation/app.py` `api_approve` (~lines 290–304) returns
-  `publish()`'s `{id, file, puzzle_path}` plus `res["theme"] = theme` — there is no
-  top-level `accent` key (the accent is at `j.theme.accent`). Cosmetic only: the
-  puzzle, images, ledger, and manifest are all written correctly.
-- **Evidence:** `curation/static/index.html` line 489; `curation/app.py` lines
-  290–304; `curation/publish.py` return dict (line ~132). All verified 2026-07-03;
-  a chipped fix had NOT landed at HEAD `10668ca`.
-- **Status:** OPEN (one-line fix: read `j.theme?.accent` or return `accent`
-  server-side; curation-only → direct-to-main precedent applies).
-- **Do not** misread the "undefined" as a failed publish — check the files, not the
-  toast.
-- **Unless** already fixed — verify with: `grep -n "j.accent" curation/static/index.html`.
+  Approve, the curation UI printed ``✓ wrote NNN.json (id N, accent undefined)``.
+- **Finding:** Field-name mismatch. `curation/static/index.html` read `j.accent`,
+  but `curation/app.py` `api_approve` returns `publish()`'s `{id, file, puzzle_path}`
+  plus `res["theme"] = theme` — no top-level `accent` key (the accent lives at
+  `j.theme.accent`). Cosmetic only: the puzzle, images, ledger, and manifest were
+  always written correctly.
+- **Fix:** commit `e7c1f69` ("Curation: fix \"accent undefined\" in approve success
+  message", 2026-07-03) — the UI now reads `j.theme?.accent`. Curation-only change,
+  landed direct to main per precedent.
+- **Evidence:** `curation/static/index.html` line ~489 (now `j.theme?.accent`);
+  `curation/app.py` `api_approve`; `curation/publish.py` return dict; `git show e7c1f69`.
+- **Status:** FIXED (2026-07-03).
+- **Do not** re-add a top-level `accent` key server-side "for symmetry" — the UI-side
+  read is the settled fix.
+- **Unless** the message regresses — verify with:
+  `grep -n "j.theme?.accent" curation/static/index.html` (present = fixed).
 
 ### 14. Stacked PR #13-on-#12 — the rebase dance
 

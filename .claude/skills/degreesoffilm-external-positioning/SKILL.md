@@ -59,7 +59,7 @@ in `docs/index.html` (lines 120–140 as of 2026-07-03):
       ...
     </svg>
   </a>
-  <p>This product uses the TMDB API but is not endorsed or certified by TMDB.</p>
+  <p>This product uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</p>
 </footer>
 ```
 
@@ -74,13 +74,13 @@ in `docs/index.html` (lines 120–140 as of 2026-07-03):
 3. Note the in-repo comment above the footer: the SVG is a **rendition** of the TMDB mark,
    not the official logo file. For strict brand compliance (i.e., before any high-visibility
    launch), swap in an official logo from themoviedb.org/about/logos.
-4. **Wording drift check** (verified 2026-07-03 against themoviedb.org/api-terms-of-use):
-   TMDB's current terms phrase the notice as "uses TMDB and the TMDB APIs but is not
-   endorsed, certified, or otherwise approved by TMDB." The shipped footer uses the older
-   FAQ wording ("uses the TMDB API but is not endorsed or certified by TMDB"), which still
-   appears on developer.themoviedb.org/docs/faq (verified 2026-07-03). Before a public
-   launch, re-read the current terms and update the sentence if TMDB's required wording has
-   moved — that update goes through change control like any `docs/` edit.
+4. **Wording drift — RESOLVED 2026-07-03.** The footer sentence now uses TMDB's current
+   terms phrasing ("uses TMDB and the TMDB APIs but is not endorsed, certified, or
+   otherwise approved by TMDB", verified 2026-07-03 against themoviedb.org/api-terms-of-use),
+   replacing the older FAQ wording it originally shipped with in `c2f59c3`. The discipline
+   stands: before any public launch, re-read the current terms and update the sentence
+   again if TMDB's required wording has moved — that update goes through change control
+   like any `docs/` edit.
 
 ### 1.3 The non-commercial / commercial line (as TMDB draws it)
 
@@ -301,7 +301,7 @@ discipline, the exact hashes and file paths.
   (developer.themoviedb.org/docs/rate-limiting), Framed (framed.wtf). Cine2Nerdle, Actorle,
   Wordle/Connections rows are **as of training data — re-verify before public comparison**.
 - Re-verify one-liners:
-  - Footer intact: `grep -n "not endorsed or certified by TMDB" docs/index.html`
+  - Footer intact: `grep -n "otherwise approved by TMDB" docs/index.html`
   - Key/analytics absent: `grep -rin "api_key\|gtag\|analytics" docs/ | head`
   - QUOTES-vs-puzzles conflict: compare `grep -n "QUOTES = \[" -A 8 docs/app.js` titles
     against `curation/used_films.json`

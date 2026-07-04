@@ -151,9 +151,10 @@ pool (`practicePool`).
 *Verify:* `grep -n "recordResult" docs/app.js` → one import, one guarded call.
 
 **I11 — TMDB attribution footer is mandatory.** `docs/index.html` ships a footer with the
-TMDB mark and the exact sentence "This product uses the TMDB API but is not endorsed or
-certified by TMDB." DESIGN §5 lists it as a ship-blocker; it never comes off.
-*Verify:* `grep -c "not endorsed or certified by TMDB" docs/index.html` → `1`
+TMDB mark and the exact sentence "This product uses TMDB and the TMDB APIs but is not
+endorsed, certified, or otherwise approved by TMDB." (updated 2026-07-03 to TMDB's current
+terms phrasing). DESIGN §5 lists it as a ship-blocker; it never comes off.
+*Verify:* `grep -c "otherwise approved by TMDB" docs/index.html` → `1`
 
 **I12 — IMMUTABLE PAST (owner rule, not code-enforced).** Never modify a published puzzle
 dated ≤ today — players played it; their shared results reference it. Edits (reschedule,
@@ -321,7 +322,7 @@ exact cipher KEY, and every constant cited here.
   - Key confinement (I1): `grep -rniE "api_key|tmdb_api_key|api\.themoviedb|image\.tmdb" docs/` → nothing
   - Cipher parity + frozen vector (I7): `node cipher.test.js && python curation/cipher.test.py`
   - Manifest/ledger uniqueness (I6/I8): the two `python -c` one-liners in §2 → `True` twice
-  - Attribution (I11): `grep -c "not endorsed or certified by TMDB" docs/index.html` → `1`
+  - Attribution (I11): `grep -c "otherwise approved by TMDB" docs/index.html` → `1`
   - Pool runway (W3): `python -c "import json;m=json.load(open('docs/puzzles/manifest.json'));print(max(e['date'] for e in m))"`
   - Puzzle schema (§3.1): re-read `docs/puzzles/004.json` + `curation/publish.py assemble_puzzle`
 - If a code change invalidates any fact here, update this file and this date in the same
