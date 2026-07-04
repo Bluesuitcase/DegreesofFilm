@@ -1,0 +1,183 @@
+{
+  "id": 11,
+  "date": "2026-07-08",
+  "theme": {
+    "accent": "#987254",
+    "bg": "#151a24",
+    "bg2": "#473229"
+  },
+  "images": [
+    "images/011-1.jpg",
+    "images/011-2.jpg",
+    "images/011-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001LwwLHkUnGkEDXA0wBgBDRFQ="
+      ],
+      "decoys": [
+        "Kill Bill: The Whole Bloody Affair",
+        "I Spit on Your Grave",
+        "Wanted"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played The Bride?",
+      "answers": [
+        "\u0001MQgGUjENBl8CB0M="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001MQgGUjENBl8CB0NGCB9NMA0CUicXGkkK",
+      "image": "images/011-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played O-Ren Ishii?",
+      "answers": [
+        "\u0001KBAEC0UpGlg="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001KBAEC0UpGlhPB15GJkE/AQtHOxYNGkQ=",
+      "image": "images/011-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NRACHBEMHQ07B18HBxgECgo="
+      ],
+      "decoys": [
+        "Frank Miller",
+        "Timur Bekmambetov",
+        "Isaac Florentine"
+      ],
+      "caption": "\u0001NRACHBEMHQ07B18HBxgECgo=",
+      "image": "images/011-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Vernita Green?",
+      "answers": [
+        "\u0001MgwRGwYEU2xBRmsJEQ=="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001MgwRGwYEU2xBRmsJEUwMF0UxFxcLGlkORmoUDAkD",
+      "image": "images/011-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Elle Driver?",
+      "answers": [
+        "\u0001IAQVCwlFO0wBCEwO"
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001IAQVCwlFO0wBCEwOSQ0eRCALHgBFN18GEEgU",
+      "image": "images/011-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Bill?",
+      "answers": [
+        "\u0001IAQRGwFFMEwdFEwCAAII"
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001IAQRGwFFMEwdFEwCAAIIRAQUUicMH0E=",
+      "image": "images/011-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Budd?",
+      "answers": [
+        "\u0001KQwEGgQAHw0iB0kVDAI="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Morgan Freeman",
+        "Angelina Jolie"
+      ],
+      "caption": "\u0001KQwEGgQAHw0iB0kVDAJNBRZHMBABFw==",
+      "image": "images/011-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001NgoFFxcRU38GBUUHGwgeCws="
+      ],
+      "decoys": [
+        "Mitchell Amundsen",
+        "Mark Irwin",
+        "Mart Taniel"
+      ],
+      "caption": "\u0001NgoFFxcRU38GBUUHGwgeCws=",
+      "image": "images/011-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001Nj8m"
+      ],
+      "decoys": [
+        "Danny Elfman",
+        "Jóhann Jóhannsson",
+        "Carl Thiel"
+      ],
+      "caption": "\u0001Nj8m",
+      "image": "images/011-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001NwQLHhxFPkgBDUg="
+      ],
+      "decoys": [
+        "Stuart Baird",
+        "Robert A. Ferretti",
+        "Steven Kemper"
+      ],
+      "caption": "\u0001NwQLHhxFPkgBDUg=",
+      "image": "images/011-r11.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001PQoPFwxFJ0wBA0kH",
+        "\u0001IAQRGwFFJEwcBUI="
+      ],
+      "decoys": [
+        "Dins Danielsen",
+        "John Myhre",
+        "Caylah Eddleblute"
+      ],
+      "caption": "\u0001PQoPFwxFJ0wBA0kH",
+      "image": "images/011-r12.jpg"
+    }
+  ]
+}

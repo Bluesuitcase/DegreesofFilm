@@ -1,0 +1,139 @@
+{
+  "id": 9,
+  "date": "2026-07-06",
+  "theme": {
+    "accent": "#987254",
+    "bg": "#131f24",
+    "bg2": "#473028"
+  },
+  "images": [
+    "images/009-1.jpg",
+    "images/009-2.jpg",
+    "images/009-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001Jw0GHgkAHUoKFF4="
+      ],
+      "decoys": [
+        "Gone Girl",
+        "Unfaithful",
+        "Closer"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Tashi Donaldson?",
+      "answers": [
+        "\u0001PgAJFgQcEg=="
+      ],
+      "decoys": [
+        "Jennifer Connelly",
+        "Ana de Armas",
+        "Leonardo DiCaprio"
+      ],
+      "caption": "\u0001PgAJFgQcEg0OFQ0yCB8FDUUjHQsEH0kcCUM=",
+      "image": "images/009-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Art Donaldson?",
+      "answers": [
+        "\u0001KQwMF0UjEkQcEg=="
+      ],
+      "decoys": [
+        "Jennifer Connelly",
+        "Ana de Armas",
+        "Leonardo DiCaprio"
+      ],
+      "caption": "\u0001KQwMF0UjEkQcEg0HGkwsFhFHNgoLEkELFUII",
+      "image": "images/009-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001KBAEE0UiBkwLB0oIAAIC"
+      ],
+      "decoys": [
+        "David Fincher",
+        "Sam Mendes",
+        "Adrian Lyne"
+      ],
+      "caption": "\u0001KBAEE0UiBkwLB0oIAAIC",
+      "image": "images/009-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Patrick Zweig?",
+      "answers": [
+        "\u0001LgoUGkUqVG4ACEMJGw=="
+      ],
+      "decoys": [
+        "Jennifer Connelly",
+        "Ana de Armas",
+        "Leonardo DiCaprio"
+      ],
+      "caption": "\u0001LgoUGkUqVG4ACEMJG0wMF0U3ExEXGk4ERncRDAUK",
+      "image": "images/009-r5.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001NwQeHQgHG1hPK1gNDQkIFBcIHw=="
+      ],
+      "decoys": [
+        "Roger Deakins",
+        "Jeff Cronenweth",
+        "Victor J. Kemper"
+      ],
+      "caption": "\u0001NwQeHQgHG1hPK1gNDQkIFBcIHw==",
+      "image": "images/009-r6.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001MBcCHBFFIUgVCEIU",
+        "\u0001JRETGwYQAA09CV4V"
+      ],
+      "decoys": [
+        "Thomas Newman",
+        "Marco Beltrami",
+        "Dave Grusin"
+      ],
+      "caption": "\u0001MBcCHBFFIUgVCEIU",
+      "image": "images/009-r7.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001KQQVEQpFMEIcEkw="
+      ],
+      "decoys": [
+        "Tim Squyres",
+        "Tariq Anwar",
+        "Leo Trombetta"
+      ],
+      "caption": "\u0001KQQVEQpFMEIcEkw=",
+      "image": "images/009-r8.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001KQAVGxYWEg0jCUAECB4JCw=="
+      ],
+      "decoys": [
+        "Kristi Zea",
+        "Steve Summersgill",
+        "Jeannine Oppewall"
+      ]
+    }
+  ]
+}

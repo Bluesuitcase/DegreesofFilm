@@ -1,0 +1,180 @@
+{
+  "id": 8,
+  "date": "2026-07-05",
+  "theme": {
+    "accent": "#987254",
+    "bg": "#121224",
+    "bg2": "#47292c"
+  },
+  "images": [
+    "images/008-1.jpg",
+    "images/008-2.jpg",
+    "images/008-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001KwsEF0UwA0IBRkxGPQUAAUUOHEUkHkgdD04H"
+      ],
+      "decoys": [
+        "The Godfather Part II",
+        "GoodFellas",
+        "American Psycho"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Noodles?",
+      "answers": [
+        "\u0001NgoFFxcRU2kKRmMPGwM="
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001NgoFFxcRU2kKRmMPGwNNBRZHPAoKF0EKFQ==",
+      "image": "images/008-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Max?",
+      "answers": [
+        "\u0001LgQKFxZFJEIAAl4="
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001LgQKFxZFJEIAAl5GCB9NKQQf",
+      "image": "images/008-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NwAVFQwKU2EKCUMD"
+      ],
+      "decoys": [
+        "Martin Scorsese",
+        "Ridley Scott",
+        "Francis Ford Coppola"
+      ],
+      "caption": "\u0001NwAVFQwKU2EKCUMD",
+      "image": "images/008-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Deborah?",
+      "answers": [
+        "\u0001IQkOCAQHFlkHRmAFLgMbARcJ"
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001IQkOCAQHFlkHRmAFLgMbARcJUgQWU2kKBEIUCAQ=",
+      "image": "images/008-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Frankie?",
+      "answers": [
+        "\u0001LgoCUjUAAE4G"
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001LgoCUjUAAE4GRkwVSSofBQsMGwA=",
+      "image": "images/008-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Joe?",
+      "answers": [
+        "\u0001JhAVBkU8HFgBAQ=="
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001JhAVBkU8HFgBAQ0HGkwnCwA=",
+      "image": "images/008-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Carol?",
+      "answers": [
+        "\u0001MBACAQEECg04A0EC"
+      ],
+      "decoys": [
+        "Denzel Washington",
+        "Josh Brolin",
+        "Al Pacino"
+      ],
+      "caption": "\u0001MBACAQEECg04A0ECSQ0eRCYGAAoJ",
+      "image": "images/008-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001MAoJGwsKU2kKCkEPSS8CCAkO"
+      ],
+      "decoys": [
+        "Robert Richardson",
+        "Reynaldo Villalobos",
+        "Andrzej Sekula"
+      ],
+      "caption": "\u0001MAoJGwsKU2kKCkEPSS8CCAkO",
+      "image": "images/008-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001IQsJGwpFPkIdFEQFBgII"
+      ],
+      "decoys": [
+        "John Cale",
+        "Wojciech Kilar",
+        "Patrick Doyle"
+      ],
+      "caption": "\u0001IQsJGwpFPkIdFEQFBgII",
+      "image": "images/008-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001KgwJHUUnEl8OAUEP"
+      ],
+      "decoys": [
+        "Thelma Schoonmaker",
+        "Pietro Scalia",
+        "Bill Pankow"
+      ],
+      "caption": "\u0001KgwJHUUnEl8OAUEP",
+      "image": "images/008-r11.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001IwwIBAQLHURPKEwSCAAYBwYO"
+      ],
+      "decoys": [
+        "Dante Ferretti",
+        "Kristi Zea",
+        "Arthur Max"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,176 @@
+{
+  "id": 10,
+  "date": "2026-07-07",
+  "theme": {
+    "accent": "#987254",
+    "bg": "#152415",
+    "bg2": "#472d28"
+  },
+  "images": [
+    "images/010-1.jpg",
+    "images/010-2.jpg",
+    "images/010-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001NxEGHAFFEVRPK0g="
+      ],
+      "decoys": [
+        "True Grit",
+        "Lawless",
+        "The Village"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Gordie Lachance?",
+      "answers": [
+        "\u0001MwwLUjINFkwbCUM="
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001MwwLUjINFkwbCUNGCB9NIwoVFgwAU2EOBUUHBw8I",
+      "image": "images/010-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Chris Chambers?",
+      "answers": [
+        "\u0001NgwRFxdFI0UAA0MPEQ=="
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001NgwRFxdFI0UAA0MPEUwMF0UkGhcMAA0sDkwLCwkfFw==",
+      "image": "images/010-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NgoFUjcAGkMKFA=="
+      ],
+      "decoys": [
+        "M. Night Shyamalan",
+        "Joel Coen",
+        "Ethan Coen"
+      ],
+      "caption": "\u0001NgoFUjcAGkMKFA==",
+      "image": "images/010-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Teddy Duchamp?",
+      "answers": [
+        "\u0001JwoVFxxFNUgDAkAHBw=="
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001JwoVFxxFNUgDAkAHB0wMF0UzFwEBCg0rE04OCAEd",
+      "image": "images/010-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Vern Tessio?",
+      "answers": [
+        "\u0001LgAVABxFPAosCUMIDAAB"
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001LgAVABxFPAosCUMIDAABRAQUUjMAAUNPMkgVGgUC",
+      "image": "images/010-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Ace Merrill?",
+      "answers": [
+        "\u0001LwwCFAAXU34aEkUDGwAMCgE="
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001LwwCFAAXU34aEkUDGwAMCgFHExZFMk4KRmADGx4ECAk=",
+      "image": "images/010-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Billy Tessio?",
+      "answers": [
+        "\u0001JwQUFxxFIEQKC0wVEwcC"
+      ],
+      "decoys": [
+        "Jason Statham",
+        "Tom Holland",
+        "Gary Oldman"
+      ],
+      "caption": "\u0001JwQUFxxFIEQKC0wVEwcCRAQUUicMH0EWRnkDGh8ECw==",
+      "image": "images/010-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001MA0IHwQWU2kKCg00HBgF"
+      ],
+      "decoys": [
+        "Roger Deakins",
+        "Lol Crawley",
+        "Vilmos Zsigmond"
+      ]
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001LgQEGUUrGlkVFU4ODA=="
+      ],
+      "decoys": [
+        "James Newton Howard",
+        "Saunder Jurriaans",
+        "Carter Burwell"
+      ],
+      "caption": "\u0001LgQEGUUrGlkVFU4ODA==",
+      "image": "images/010-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001NgoFFxcRU2EKD0oOHQMD"
+      ],
+      "decoys": [
+        "Joel Coen",
+        "Ethan Coen",
+        "Gela Babluani"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001LktHNgALHUQcRnoHGgQECgITHQs="
+      ],
+      "decoys": [
+        "Jane Musky",
+        "Jess Gonchor",
+        "Craig Lathrop"
+      ]
+    }
+  ]
+}
