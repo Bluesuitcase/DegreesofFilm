@@ -1,0 +1,25 @@
+# Degrees of Film — /match Worker (v3 Phase 1). Deploy: `wrangler deploy` from
+# this directory (needs a Cloudflare account + `wrangler login`).
+#
+# BEFORE FIRST DEPLOY:
+#   1. wrangler kv namespace create ANSWERS        -> paste the id below
+#   2. push answers: python curation/backfill_answers.py --out server/answers-bulk.json
+#      then: wrangler kv bulk put server/answers-bulk.json --namespace-id <id>
+#   3. wrangler deploy
+name = "dof-match"
+main = "worker.js"
+compatibility_date = "2026-07-04"
+
+[[kv_namespaces]]
+binding = "ANSWERS"
+id = "TODO_SET_AFTER_ACCOUNT_SETUP"   # from `wrangler kv namespace create ANSWERS`
+
+# Rate limit: 60 req/min/IP (the campaign's §3.1 number — period must be 10 or 60).
+# If the binding turns out to be unavailable on the free plan at deploy time, the
+# worker degrades to unlimited (env.RATE_LIMITER guard) — swap in an in-Worker
+# token bucket in that case.
+[[unsafe.bindings]]
+name = "RATE_LIMITER"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 60, period = 60 }

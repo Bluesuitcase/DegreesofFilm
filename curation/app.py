@@ -26,6 +26,7 @@ import discover as discover_mod
 import images as images_mod
 import manifest as manifest_mod
 import publish as publish_mod
+import push_answers
 import tmdb
 from ledger import load as load_ledger, used_ids, remove_by_puzzles, save as save_ledger
 
@@ -300,7 +301,8 @@ def api_approve(body: Approve):
     credits_images_mod.finalize_rung_images(body.rungs, stem, _credit_saver())
 
     res = publish_mod.publish(movie, body.rungs, theme=theme,
-                              image_files=image_files, date=body.date, puzzle_id=pid)
+                              image_files=image_files, date=body.date, puzzle_id=pid,
+                              answers_sink=push_answers.file_sink())
     res["theme"] = theme
     return res
 
@@ -352,4 +354,5 @@ def api_update(body: Update):
         date=body.date, id=pid, file=f"{stem}.json",
         title=cipher.obfuscate(movie.get("title")), accent=(theme or {}).get("accent")))
     manifest_mod.save(man)
+    push_answers.file_sink()(pid, body.rungs)   # keep the /match answers artifact current
     return {"id": pid, "file": f"{stem}.json", "date": body.date, "theme": theme, "updated": True}

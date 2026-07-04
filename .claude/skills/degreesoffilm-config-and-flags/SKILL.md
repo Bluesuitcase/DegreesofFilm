@@ -219,6 +219,13 @@ JS=$(node -e "import('./docs/cipher.js').then(c=>console.log(c.encode('parity-ch
 | Publish paths | `PUZZLES_DIR=docs/puzzles` (publish.py), images `docs/puzzles/images` (app.py `IMG_DIR`), ledger `curation/used_films.json` (ledger.py), manifest `docs/puzzles/manifest.json` (manifest.py) | respective modules | where content lands; stem format `f"{id:03d}"` | change-control |
 | Manifest `FIELDS` | `('date','id','file','title','accent')` | curation/manifest.py | entry schema; upsert keyed by date AND id | test-first (manifest.test.py) |
 | `next_date` | day after the latest manifest date, else today | curation/publish.py | collision-proof default publish date (the 2026-06-30 collision fix) | test-first (publish.test.py) |
+| `MATCH_API` (v3 Phase 1, added 2026-07-04) | `''` (= server matching OFF) | docs/app.js | when set to the deployed /match Worker origin, guesses are verified by `POST /match` (cinephile mode only — poser's trimmed ladder re-indexes rungs); any failure falls back to local matching | change-control (player-facing) + server-move-campaign GATE 1 |
+| `?servermatch` | `0` forces local matching | docs/app.js `init()` | per-session override of `MATCH_API` | change-control |
+| `MATCH_TIMEOUT_MS` | 2000 | docs/app.js | /match fetch abort timeout before local fallback — the R1 availability gate | change-control |
+| Worker CORS origin | `https://bluesuitcase.github.io` (`ALLOWED_ORIGIN`) | server/worker.js | pinned CORS (not `*`); Pages is a different origin than the Worker | change-control |
+| Worker rate limit | 60 req/min/IP (`{limit:60, period:60}`) | server/wrangler.toml | /match abuse gate; binding optional — worker degrades to unlimited if absent | server-move-campaign §3.1 |
+| Worker answers cache | `CACHE_TTL_MS` 5 min | server/worker.js | per-isolate KV-read cache; bounds staleness after an edit-republish | free |
+| Answers artifact | `server/answers-bulk.json` (**gitignored** — plaintext) | curation/push_answers.py `DEFAULT_PATH` | the KV bulk-upload file; rebuilt by `python curation/backfill_answers.py` | change-control (never commit) |
 
 ```bash
 grep -n "^API = \|timeout=20" curation/tmdb.py; grep -n "IMG_BASE = " curation/credits_images.py curation/app.py

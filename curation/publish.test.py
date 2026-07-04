@@ -90,6 +90,21 @@ with tempfile.TemporaryDirectory() as d:
         check("ledger still has one entry (deduped by film id)",
               len(json.load(fh)), 1)
 
+# --- answers_sink (v3 Phase 1): the optional fourth artifact ---
+with tempfile.TemporaryDirectory() as d:
+    pdir = os.path.join(d, "puzzles")
+    led = os.path.join(d, "used_films.json")
+    man = os.path.join(d, "manifest.json")
+    fed = []
+    res = publish.publish(MOVIE, RUNGS, theme=None, image_files=[], date="2026-07-01",
+                          puzzles_dir=pdir, ledger_path=led, manifest_path=man,
+                          answers_sink=lambda pid, rungs: fed.append((pid, rungs)))
+    check("answers_sink fed once", len(fed), 1)
+    check("answers_sink gets the puzzle id", fed[0][0], res["id"])
+    check("answers_sink gets PLAINTEXT rungs (not obfuscated)",
+          fed[0][1][0]["answers"], ["Test Film"])
+    # default None = no sink, publish still works (proven by every case above)
+
 # --- next_date: queues onto the day after the latest puzzle (no collisions) ---
 check("next_date empty -> today", publish.next_date([], today="2026-07-05"), "2026-07-05")
 check("next_date -> latest + 1 day",

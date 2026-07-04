@@ -43,12 +43,13 @@ Score History, server-side matching, degrees-of-separation (all need the server 
   a server — `file://` won't work. Serve the `docs/` folder and open `index.html`, e.g.
   `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
-  `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, `node frame.test.js`, and
-  `node cipher.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, `node frame.test.js`,
+  `node cipher.test.js`, and `node worker.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
-  files can `import` the ES modules under `docs/`.
+  files can `import` the ES modules under `docs/`. The matcher's case table lives in
+  `match.cases.js` (shared by match.test.js and worker.test.js) — add cases there.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
-  `discover`, `decoys`, `manifest`, `publish`, `credits_images`, `cipher`) — pure-logic, no network or API key,
+  `discover`, `decoys`, `manifest`, `publish`, `credits_images`, `cipher`, `push_answers`) — pure-logic, no network or API key,
   same PASS/FAIL + non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`,
   `credits_images.py`) hit live TMDB and need the key in `curation/.env`.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
@@ -109,8 +110,13 @@ DESIGN.md              Full v1 spec + build roadmap + v2/v3 parking lot.
 CLAUDE.md              This file (how the code works).
 project_state.md       Running session handoff — current task, decisions, next steps. Read FIRST.
 package.json           Just { "type": "module" }.
+match.cases.js         The matcher contract as data: [guess, answers, expected, label] rows.
+                       Shared by match.test.js + worker.test.js (+ the GATE 1 live parity check).
 match.test.js          Matcher tests (node match.test.js). Cases mirror puzzle 001's answers.
-game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs.
+game.test.js           Rules/scoring tests (node game.test.js): scoring curve + scripted playthroughs
+                       + applyVerdict (server-verdict path) semantics/parity.
+worker.test.js         /match Worker tests (node worker.test.js): in-process against a stub KV env —
+                       full match.cases.js parity, no-answer-leak contract, CORS, rate limit.
 daily.test.js          Daily-selection tests (node daily.test.js): pickPuzzle date logic.
 theme.test.js          Accent-theming tests (node theme.test.js): parse/luminance/contrast.
 stats.test.js          Stats/streak tests (node stats.test.js): recordResult streak + histogram.
@@ -162,12 +168,23 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   requirements.txt     Curation pip deps (Pillow + FastAPI/uvicorn + opencv-python-headless<5, the last
                        optional for auto-crop face detection) for the repo-root .venv.
   used_films.json      Version-controlled ledger of films already turned into puzzles.
-  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images/cipher pure; images=Pillow).
+  *.test.py            Tests (build_rungs/ledger/discover/decoys/manifest/publish/credits_images/cipher/
+                       push_answers pure; images=Pillow).
   backfill_credit_images.py  Re-runnable CLI: fill existing puzzles' credit rungs (cast + crew) with
                        TMDB headshots (maps puzzle->film via the ledger).
   obfuscate_puzzles.py Re-runnable migration CLI: obfuscate answers/captions in existing puzzle files
                        + manifest titles (idempotent). New publishes are encoded automatically.
+  push_answers.py      v3 Phase 1: builds the /match Worker's PLAINTEXT answers artifact
+                       (server/answers-bulk.json, GITIGNORED) as a `wrangler kv bulk put` file;
+                       file_sink() is publish()'s answers_sink so approve/update keep it current.
+  backfill_answers.py  Re-runnable CLI: rebuild the whole answers artifact from the published
+                       puzzles (decodes via cipher). Needed at Phase 1 cutover + rollback.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
+server/                v3 Phase 1 (NOT deployed yet) — the /match Cloudflare Worker.
+  worker.js            POST /match {puzzleId, rungIndex, guess} -> {correct[, canonical]}.
+                       Imports docs/match.js UNCHANGED (parity by reuse). Answers in KV,
+                       pinned CORS, 60/min/IP rate limit. Off in the client (app.js MATCH_API='').
+  wrangler.toml        Worker config + the deploy runbook in its header comment.
 ```
 
 **Layering, keep it clean:** `match.js` has no imports. `game.js` imports only `match.js`.

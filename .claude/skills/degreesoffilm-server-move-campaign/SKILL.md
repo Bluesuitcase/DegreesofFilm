@@ -8,8 +8,10 @@ description: >
   a database, or cross-device stats; building the leaderboard; unblocking Movie Buff
   mode's backend dependency; anyone says "move off static", "add a backend", or
   "validate scores server-side"; or someone proposes hashing/encrypting answers
-  client-side (a fenced wrong path — see inside before agreeing). NOTHING in this
-  campaign is built as of 2026-07-03: every phase is CANDIDATE, every gate OPEN.
+  client-side (a fenced wrong path — see inside before agreeing). Status as of
+  2026-07-04: GATE 0 PASSED (scope = Phase 1 only, $0 ceiling, Cloudflare Workers +
+  KV); the Phase 1 spike is BUILT (GATE 1 pending deploy — needs the owner's
+  Cloudflare account); Phases 2–3 remain CANDIDATE and out of scope.
 ---
 
 # Degrees of Film — the v3 server-move campaign
@@ -86,11 +88,17 @@ the burden of proving parity forever — rank it accordingly.
 | Cipher scheme | XOR key `'degrees-of-film'`, sentinel U+0001, base64, idempotent, plaintext-passthrough | read `docs/cipher.js` lines 7–8; `node cipher.test.js` (19 pass) |
 | Stats schema | `{played, wins, bestDepth, currentStreak, maxStreak, lastDate, lastDepth, histogram}` under `'dof-stats-v1'` | read `docs/stats.js` lines 4–13 |
 | Matcher contract | 25 cases, all pass | `node match.test.js` |
-| Game rules suite | 34 cases, all pass | `node game.test.js` |
+| Game rules suite | 34 cases, all pass (51 since 2026-07-04 — applyVerdict block added) | `node game.test.js` |
 | Where a /match call slots | `docs/app.js` `onGuess()` (line ~334) calls `game.guess(v)` (line ~338); puzzle decode at `decodeRungs(puzzle.rungs)` (line ~83) | `grep -n "game.guess\|decodeRungs" docs/app.js` |
 | What publishing writes | `curation/publish.py publish()`: puzzle JSON (answers encoded, line 99) + ledger append + manifest upsert | read `curation/publish.py` lines 103–133 |
 
-## 2. Phase 0 — decision & baseline  [CANDIDATE]
+## 2. Phase 0 — decision & baseline  [DONE 2026-07-04 — GATE 0 PASSED]
+
+Evidence: all baselines re-captured and matched (suites 25/34/11/15/17/16/19, probe
+`true / 'won' / true`, 7 puzzles, 92 images); owner answers + kill criteria recorded
+in project_state.md (**Phase 1 only, $0 ceiling, magic-link if Phase 2 ever revives,
+R5 intact**); hosting decision = **Cloudflare Workers + KV** (vendor facts
+re-verified live that day, rejected alternatives recorded).
 
 **Entry criteria:** owner has said "start v3" (or a v3 feature). Nothing else.
 
@@ -121,7 +129,17 @@ the burden of proving parity forever — rank it accordingly.
 written in project_state.md; kill criteria written. All 7 suites green
 (25/34/11/15/17/16/19 or higher). No code written yet.
 
-## 3. Phase 1 — server-side matching spike  [CANDIDATE]
+## 3. Phase 1 — server-side matching spike  [SPIKE BUILT 2026-07-04 — GATE 1 PENDING DEPLOY]
+
+Built on branch `v3-phase1-server-match`: `server/worker.js` (+ `wrangler.toml`),
+`worker.test.js` (17 cases incl. the full 25-case parity run in-process),
+`Game.applyVerdict` (test-first, game.test.js 34→51), `MATCH_API` + 2 s fallback in
+app.js, `publish.py answers_sink` (publish.test.py 36→39), `curation/push_answers.py`
++ `backfill_answers.py` (+17-case suite), the matcher case table extracted to
+`match.cases.js` (shared client/server). `MATCH_API = ''` — ships OFF (§6 step 1).
+GATE 1 check 1's local half verified in-browser 2026-07-04; **checks 2–4 need the
+deployed endpoint — blocked on the owner's Cloudflare account + wrangler login.**
+Deploy steps: `server/wrangler.toml` header comment.
 
 The smallest slice that retires the plaintext wart. No accounts, no DB, no writes —
 one stateless endpoint.
@@ -502,7 +520,10 @@ enumerability, and every vendor fact.
   (output: `true / 'won' / true`); all 7 JS suites run: match 25, game 34, daily 11,
   theme 15, stats 17, frame 16, cipher 19 — all pass; baselines: 7 manifest entries
   (2026-06-28..07-04), 92 images.
-- **Nothing in this campaign is built.** All phases CANDIDATE as of 2026-07-03. When
+- **Status 2026-07-04:** Phase 0 DONE (GATE 0 passed — owner scope: Phase 1 only,
+  $0 ceiling, R5 intact); hosting = Cloudflare Workers + KV; Phase 1 spike BUILT
+  (GATE 1 pending deploy). Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
+- Previously: nothing built, all phases CANDIDATE as of 2026-07-03. When
   one ships, update its status header + this section in the same session.
 - Vendor facts (Cloudflare/Vercel/Netlify/Fly/Supabase/Firebase tiers, cold starts)
   are **as of training data (early 2026)** — RE-VERIFY EVERY VENDOR FACT BEFORE

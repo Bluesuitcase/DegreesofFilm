@@ -219,3 +219,8 @@ __marimo__/
 
 # Claude Code — machine-local settings (keep launch.json shared, ignore the rest)
 .claude/settings.local.json
+
+# v3 Phase 1 — PLAINTEXT answers artifact for the /match Worker (KV bulk upload).
+# Never commit: it's the un-obfuscated answer set. Rebuild any time with
+# `python curation/backfill_answers.py`.
+server/answers-bulk.json

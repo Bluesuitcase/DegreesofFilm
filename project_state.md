@@ -5,12 +5,14 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-04. **v1 live, ALL v2 shipped, 16-skill library on `main`.** Tip `ea5e70c`,
-tree clean, no open PRs. **NEW: v3 GATE 0 passed 2026-07-04 — the server move is scoped** (see the
-v3 section below): **Phase 1 only** (server-side matching), $0 cost ceiling, R5 intact. **Content
-runway is DRY: the last stocked daily is TODAY (2026-07-04)** — curating more puzzles is urgent.
-LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`; curation →
-`degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
+_Last updated: 2026-07-04. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 GATE 0
+passed + hosting decided (Cloudflare Workers + KV) + the ENTIRE Phase 1 spike is BUILT on branch
+`v3-phase1-server-match`** (Worker + client flag OFF + publish artifact + backfill; all 18 suites
+green; see the v3 section below). **GATE 1 checks 2–4 are blocked on the owner creating a
+Cloudflare account** (+ `wrangler login`) — that is the ONLY thing standing between the spike and
+the gate. **Content runway is DRY: the last stocked daily is TODAY (2026-07-04)** — curating more
+puzzles is urgent. LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`;
+curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
 
 ## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
 - **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
@@ -122,10 +124,33 @@ zero-port `match.js` asset + ~$6/mo breaks the $0 ceiling).
 **Owner dependency before the spike can deploy:** a Cloudflare account + `wrangler` login, and a
 scoped API token for the publish push (lives in gitignored `curation/.env`, NOT the TMDB key).
 
-**Next v3 action:** build the Phase 1 spike per campaign §3 — Worker (imports `docs/match.js`
-unchanged) + KV answers store, `MATCH_API` flag + 2 s fallback in `app.js` (test-first `game.test.js`
-cases for the verdict path), `answers_sink` kwarg in `publish.py`, backfill CLI — then run GATE 1's
-four numeric checks. Player-facing client change ships via PR (change-control).
+**Phase 1 spike — BUILT 2026-07-04, branch `v3-phase1-server-match` (PR pending):**
+- `server/worker.js` — POST /match, imports `docs/match.js` UNCHANGED; KV answers
+  (`answers:<id>`), 5-min isolate cache, CORS pinned to the Pages origin, 60/min/IP rate limit
+  (binding optional — degrades to unlimited). `server/wrangler.toml` carries the deploy runbook.
+- `worker.test.js` (17) — in-process vs a stub KV env: **full 25-case match.cases.js parity**,
+  wrong-guess body is EXACTLY `{correct:false}`, canonical on correct, 400/404/405, CORS, 429.
+- `match.cases.js` — the matcher contract extracted as data (match.test.js + worker.test.js both
+  consume it; the GATE 1 live parity check will too). match.test.js still 25/25.
+- `docs/game.js applyVerdict(correct)` — test-first (game.test.js 34→51 incl. a guess-vs-verdict
+  parity run); `guess()` now delegates to it, so both paths are provably the same machine.
+- `docs/app.js` — `MATCH_API = ''` (**OFF — shipped state, §6 step 1**), `?servermatch=0` override,
+  async `onGuess` with in-flight guard, `resolveGuess()`: POST /match with a 2 s abort → ANY failure
+  falls back to local matching. Cinephile-only (poser's trimmed ladder re-indexes rungs).
+- `curation/publish.py answers_sink=None` kwarg (publish.test.py 36→39) +
+  `curation/push_answers.py` (KV-bulk artifact, `file_sink` upserts) + `curation/backfill_answers.py`
+  (rebuild-all CLI; dry-run verified against the real 7 puzzles) + push_answers.test.py (17).
+  app.py approve/update wired to the sink. **`server/answers-bulk.json` is GITIGNORED (plaintext).**
+- Verified: all 18 suites green (8 JS: 25/51/11/15/17/16/19/17 + 10 Py incl. images 32); content
+  validator 8 groups clean; in-browser flag-off playthrough = exact static request set, wrong-guess
+  reveal + correct-guess advance both work, `?id=1` archive route fine (GATE 1 check 1 local half).
+
+**Next v3 actions (in order):**
+1. Land the spike PR (flag is OFF — zero player-facing behavior change; change-control reviewed).
+2. **OWNER: create a Cloudflare account + `wrangler login`** — the only blocker for GATE 1.
+3. Deploy per `server/wrangler.toml` header (KV namespace create → paste id → backfill → bulk put
+   → deploy), set `MATCH_API` to the Worker URL locally, run GATE 1 checks 2–4 (no answer material,
+   25/25 live parity, p95 < 300 ms + fallback drill). Only then consider §6 step 2 (flip default on).
 
 ## Next steps (pick up here)
 0. **Load the relevant skill first** (new this session). For curating puzzles →
