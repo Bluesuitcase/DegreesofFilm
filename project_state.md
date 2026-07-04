@@ -103,12 +103,29 @@ Phase 1 hosting decision + spike.
 - Note: the project has **no analytics**, so player demand is unknowable; Phase 1 is justified by
   the wart alone, not by demand claims.
 
-**Next v3 action:** Phase 1 hosting decision — **Cloudflare Workers + KV is rank 1** (JS runtime
-runs `match.js` unchanged, free tier fits $0, no cold starts); Vercel/Netlify rank 2; FastAPI/VPS
-rank 3 (forfeits the zero-port asset — avoid). **RE-VERIFY vendor free-tier facts live before
-choosing** (they're as-of-early-2026 training data), write the choice + rejected alternatives here,
-then build the spike per §3 (endpoint contract, `MATCH_API` flag + 2 s fallback, publish
-`answers_sink` artifact, backfill CLI) and run GATE 1's four numeric checks.
+**Phase 1 hosting decision — MADE 2026-07-04: Cloudflare Workers + KV.** Vendor facts re-verified
+live that day (developers.cloudflare.com pricing/limits pages + 2026 roundups):
+- **Workers free: 100k requests/day, 10 ms CPU/invocation.** A legit game ≈ 36 `/match` calls →
+  even ~500 players/day ≈ 18k req/day, 5× headroom. `matchGuess` is microseconds — 10 ms is ample.
+- **KV free: 100k reads/day, 1k writes/day, 1 GB.** One read per request worst case (answers blob
+  keyed `answers:<puzzleId>`; cacheable in isolate memory); writes only at publish (~1/day).
+- **Rate limiting:** Workers Rate Limiting binding — `period` must be 10 or 60 s, so the campaign's
+  60 req/min/IP is literally `{period: 60, limit: 60}` keyed by IP. Docs state no plan restriction
+  (verify at `wrangler deploy`; fallback if gated: in-Worker token bucket — acceptable, the answer
+  space was always enumerable so the oracle adds little).
+- Isolate model → no cold starts → p95 < 300 ms realistic. Free `*.workers.dev` origin; CORS pinned
+  to `https://bluesuitcase.github.io`.
+**Rejected:** Vercel Hobby (1M invocations/mo but a **4 h active-CPU/mo cap that hard-pauses the
+deployment** when hit — an availability cliff — plus non-commercial-only terms); Netlify free
+(125k invocations/mo ≈ 4k/day — thin headroom, plus cold starts); FastAPI/VPS (forfeits the
+zero-port `match.js` asset + ~$6/mo breaks the $0 ceiling).
+**Owner dependency before the spike can deploy:** a Cloudflare account + `wrangler` login, and a
+scoped API token for the publish push (lives in gitignored `curation/.env`, NOT the TMDB key).
+
+**Next v3 action:** build the Phase 1 spike per campaign §3 — Worker (imports `docs/match.js`
+unchanged) + KV answers store, `MATCH_API` flag + 2 s fallback in `app.js` (test-first `game.test.js`
+cases for the verdict path), `answers_sink` kwarg in `publish.py`, backfill CLI — then run GATE 1's
+four numeric checks. Player-facing client change ships via PR (change-control).
 
 ## Next steps (pick up here)
 0. **Load the relevant skill first** (new this session). For curating puzzles →
