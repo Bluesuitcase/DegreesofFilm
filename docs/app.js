@@ -127,9 +127,9 @@ const QUOTES = [
   ['“Round up the usual suspects.”', 'Casablanca'],
   ['“I’ll be back.”', 'The Terminator'],
   ['“You talkin’ to me?”', 'Taxi Driver'],
-  ['“Why so serious?”', 'The Dark Knight'],
+  ['“May the Force be with you.”', 'Star Wars'],
   ['“There is no spoon.”', 'The Matrix'],
-  ['“To infinity and beyond!”', 'Toy Story'],
+  ['“You can’t handle the truth!”', 'A Few Good Men'],
 ];
 
 function enterLobby() {
