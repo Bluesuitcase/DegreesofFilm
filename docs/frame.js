@@ -7,7 +7,8 @@
 //     tier per wrong guess (revealTier), up to the full frame — each miss shows
 //     more of the shot;
 //   - once you pass a credit rung, it swaps to that person's image + caption
-//     (character still for cast, headshot for crew);
+//     (their TMDB headshot, cast and crew alike; cast captions read "Name as
+//     Character", crew captions are the name alone);
 //   - any rung without its own image holds the full uncropped frame (the widest
 //     tier, images[last]) — which is also what the film rung reveals, so the
 //     old post-film-rung reveal falls straight out of this rule.

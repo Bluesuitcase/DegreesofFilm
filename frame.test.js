@@ -37,8 +37,8 @@ check('reveal ignores negative tiers', pickCreditFrame(0, rungs, frames, -1),
 check('after film rung -> full frame', pickCreditFrame(1, rungs, frames),
   { src: 'images/004-3.jpg', caption: '' });
 
-// index 2: passed the first cast rung -> its character still + caption.
-check('after cast rung -> character still', pickCreditFrame(2, rungs, frames),
+// index 2: passed the first cast rung -> its headshot + "Name as Character" caption.
+check('after cast rung -> headshot + character caption', pickCreditFrame(2, rungs, frames),
   { src: 'images/004-r2.jpg', caption: 'Bale as Bruce Wayne' });
 
 // index 3: passed the director -> headshot + name-only caption.
