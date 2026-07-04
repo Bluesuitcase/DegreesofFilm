@@ -104,9 +104,15 @@ def publish(movie, rungs, *, theme, image_files, date,
             puzzles_dir=PUZZLES_DIR,
             ledger_path=ledger_mod.DEFAULT_PATH,
             manifest_path=manifest_mod.DEFAULT_PATH,
-            puzzle_id=None):
+            puzzle_id=None,
+            answers_sink=None):
     """Write the puzzle file, append the ledger, upsert the manifest.
-    Returns a small summary dict. Image files must already be written."""
+    Returns a small summary dict. Image files must already be written.
+
+    answers_sink (v3 Phase 1, optional): a callable (puzzle_id, rungs) fed the
+    PLAINTEXT rungs after the file is written — e.g. push_answers.file_sink(),
+    which maintains the local KV-bulk artifact for the /match Worker. Default
+    None = no fourth artifact (today's behavior)."""
     led = ledger_mod.load(ledger_path)
     man = manifest_mod.load(manifest_path)
     pid = puzzle_id or next_id(puzzles_dir, man)
@@ -128,5 +134,8 @@ def publish(movie, rungs, *, theme, image_files, date,
         date=date, id=pid, file=file, title=cipher.obfuscate(movie.get("title")),
         accent=(theme or {}).get("accent")))
     manifest_mod.save(man, manifest_path)
+
+    if answers_sink:
+        answers_sink(pid, rungs)
 
     return {"id": pid, "file": file, "puzzle_path": os.path.join(puzzles_dir, file)}

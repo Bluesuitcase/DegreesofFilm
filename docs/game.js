@@ -35,7 +35,15 @@ export class Game {
 
   guess(text) {
     if (this.status !== 'playing') return { result: 'noop' };
-    if (matchGuess(text, this.currentRung.answers)) {
+    return this.applyVerdict(matchGuess(text, this.currentRung.answers));
+  }
+
+  // Apply a correct/incorrect verdict to the current rung — the same state
+  // machine as guess(), minus the matching. This is how server-side matching
+  // (v3 Phase 1) drives the game: app.js asks /match, then applies the verdict.
+  applyVerdict(correct) {
+    if (this.status !== 'playing') return { result: 'noop' };
+    if (correct) {
       this.score += this.mode === 'poser' ? 1 : (this.helped ? 0 : scoreForRung(this.index + 1));
       this._advance();
       return { result: this.status === 'won' ? 'won' : 'correct' };

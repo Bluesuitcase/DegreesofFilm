@@ -317,6 +317,15 @@ exact cipher KEY, and every constant cited here.
   constant, commit hash, and grep result above was verified by reading the named file or
   running the command in this repo; test counts confirmed by running the suites
   (cipher 19 JS + 22 py, game 34, match 25, daily 11, publish 36, manifest 13, ledger 12 — all green).
+- **Update 2026-07-04 (v3 Phase 1 spike, branch `v3-phase1-server-match`):** a fourth
+  zone is being introduced — `server/` (the /match Cloudflare Worker), which imports
+  `docs/match.js` UNCHANGED (deliberate: parity by reuse). `docs/game.js` gained
+  `applyVerdict(correct)` (`guess()` now delegates to it — same machine, no import
+  changes); `docs/app.js` gained the `MATCH_API` flag (off by default) + a 2 s-timeout
+  local fallback. Counts now: game 51, publish 39; new suites worker.test.js (17) +
+  push_answers.test.py (17); the matcher case table moved to `match.cases.js`.
+  The import-graph invariant is UNCHANGED for docs/ (match imports nothing; game
+  imports only match; game/match/cipher stay DOM- and network-free).
 - Drift-prone facts and their re-verification one-liners:
   - Import graph (I2): `grep -n "^import" docs/*.js`
   - Key confinement (I1): `grep -rniE "api_key|tmdb_api_key|api\.themoviedb|image\.tmdb" docs/` → nothing

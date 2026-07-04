@@ -14,6 +14,17 @@ const practiceTally = { films: 0, cleared: 0, depth: 0 };
 const POSER_RUNGS = 7;
 const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
 
+// Server-side matching (v3 Phase 1). '' = OFF — local matching, today's behavior.
+// Set to the deployed /match Worker origin (e.g. 'https://dof-match.X.workers.dev')
+// to turn it on. ?servermatch=0 forces local matching regardless. When on, guesses
+// are verified by POST /match with a 2 s timeout; ANY failure (timeout, network,
+// non-200, bad body) falls back to local matching — the endpoint being down must
+// never block play. Poser is excluded (its trimmed ladder re-indexes rungs, so
+// rungIndex wouldn't line up server-side).
+const MATCH_API = '';
+const MATCH_TIMEOUT_MS = 2000;
+let serverMatch = false, guessInFlight = false;
+
 async function init() {
   const params = new URLSearchParams(location.search);
   if (params.has('modes')) return renderModes();
@@ -34,6 +45,7 @@ async function init() {
 
   isPractice = params.has('practice');
   mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
+  serverMatch = !!MATCH_API && mode === 'cinephile' && params.get('servermatch') !== '0';
 
   let entry;
   if (isPractice) {
@@ -331,11 +343,37 @@ function flash(msg, kind) {
   f.className = 'feedback show ' + (kind || '');
 }
 
-function onGuess() {
-  if (!game || game.status !== 'playing') return;
+// Decide a guess: server verdict when server matching is on, local matcher
+// otherwise — and local as the fallback for ANY server failure. Both paths
+// drive the same Game state machine (guess() vs applyVerdict()).
+async function resolveGuess(text) {
+  if (!serverMatch || puzzleId == null) return game.guess(text);
+  try {
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), MATCH_TIMEOUT_MS);
+    const res = await fetch(MATCH_API + '/match', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ puzzleId, rungIndex: game.index, guess: text }),
+      signal: ctrl.signal,
+    });
+    clearTimeout(timer);
+    if (!res.ok) throw new Error('status ' + res.status);
+    const { correct } = await res.json();
+    if (typeof correct !== 'boolean') throw new Error('bad body');
+    return game.applyVerdict(correct);
+  } catch (e) {
+    return game.guess(text);   // pre-cutover puzzles still carry answers locally
+  }
+}
+
+async function onGuess() {
+  if (!game || game.status !== 'playing' || guessInFlight) return;
   const v = $('guess').value.trim();
   if (!v) return;
-  const r = game.guess(v);
+  guessInFlight = true;
+  let r;
+  try { r = await resolveGuess(v); } finally { guessInFlight = false; }
   $('guess').value = '';
   if (r.result === 'correct') flash('Correct — keep digging.', 'good');
   else if (r.result === 'wrong') {

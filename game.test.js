@@ -105,5 +105,48 @@ check('poser depth tracks normally', P.depth, 4);
 check('poser mode flag set', P.mode, 'poser');
 check('default mode is cinephile', new Game(puzzle).mode, 'cinephile');
 
+// --- applyVerdict: a server-supplied verdict drives the SAME state machine ---
+// (v3 Phase 1: app.js asks /match "correct?", then applies the verdict here.
+// Semantics must be indistinguishable from a local guess() with that outcome.)
+let V = new Game(puzzle);
+check('verdict true scores like a correct guess', V.applyVerdict(true).result, 'correct');
+check('verdict true adds curve points', V.score, 1);
+check('verdict true advances depth', V.depth, 1);
+const vw = V.applyVerdict(false);
+check('verdict false is wrong', vw.result, 'wrong');
+check('verdict false reports attemptsLeft', vw.attemptsLeft, 2);
+check('verdict false burns an attempt', V.attemptsLeft, 2);
+V.applyVerdict(false);
+check('third false verdict strikes out', V.applyVerdict(false).result, 'strikeout');
+check('strikeout by verdict ends run', V.status, 'over');
+check('verdict after end is noop', V.applyVerdict(true).result, 'noop');
+
+// winning via verdicts
+let VW = new Game(puzzle);
+for (let i = 0; i < 5; i++) VW.applyVerdict(true);
+check('all-true verdicts -> won', VW.status, 'won');
+check('verdict win score matches guess win score', VW.score, 15);
+
+// helped rung: verdict-correct still scores 0
+let VH = new Game(helpPuzzle);
+VH.useHelp();
+VH.applyVerdict(true);
+check('verdict on helped rung scores 0', VH.score, 0);
+check('verdict on helped rung advances', VH.depth, 1);
+
+// poser mode: flat +1
+let VP = new Game(puzzle, { mode: 'poser' });
+VP.applyVerdict(true); VP.applyVerdict(true);
+check('poser verdicts score flat +1', VP.score, 2);
+
+// parity: a mixed scripted run driven by verdicts == the same run driven by guesses
+let GA = new Game(puzzle);
+GA.guess('Alpha'); GA.guess('x'); GA.guess('Bravo'); GA.skip(); GA.guess('Delta');
+let GB = new Game(puzzle);
+GB.applyVerdict(true); GB.applyVerdict(false); GB.applyVerdict(true); GB.skip(); GB.applyVerdict(true);
+check('verdict-driven run: same depth', GB.depth, GA.depth);
+check('verdict-driven run: same score', GB.score, GA.score);
+check('verdict-driven run: same status', GB.status, GA.status);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

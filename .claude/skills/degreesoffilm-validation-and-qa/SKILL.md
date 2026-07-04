@@ -50,16 +50,17 @@ manual verification you did. Do not imply test coverage that does not exist.
 
 ## 2. Test inventory and reverse map
 
-16 suites. No framework, no npm scripts (`package.json` is only `{"type":"module"}`),
+18 suites. No framework, no npm scripts (`package.json` is only `{"type":"module"}`),
 no network, no API key. Every suite prints `PASS`/`FAIL` lines, ends with
 `N passed, M failed`, and exits non-zero on any failure. All commands run from the
-repo root. Counts below were measured by running all 16 on **2026-07-03** (all green);
+repo root. Counts below were measured by running all 18 on **2026-07-04** (all green);
 counts drift as tests are added — a LOWER count than stated here is a red flag (§6).
 
 | Suite | Module(s) under test | What it actually guards | Count | Command |
 |---|---|---|---|---|
-| `match.test.js` | `docs/match.js` | **The fairness contract**: 25 guess→match/reject rows (exact, typo tolerance, foreign titles ± diacritics, surname-only, wrong-surname rejection, empty/nonsense). Mirrors puzzle 001's real answers. | 25 | `node match.test.js` |
-| `game.test.js` | `docs/game.js` | Scoring curve rungs 1–12 asserted verbatim; scripted playthroughs: strikeout at 3 wrong, skip cap (6th skip ends run), win state, I-Need-Help (score-0, attempt burn, no-decoy denial, MAX_HELPS cap), Poser flat +1. | 34 | `node game.test.js` |
+| `match.test.js` | `docs/match.js` | **The fairness contract**: 25 guess→match/reject rows (exact, typo tolerance, foreign titles ± diacritics, surname-only, wrong-surname rejection, empty/nonsense). Mirrors puzzle 001's real answers. **The case table itself lives in `match.cases.js`** (since 2026-07-04, shared with worker.test.js) — add cases THERE. | 25 | `node match.test.js` |
+| `game.test.js` | `docs/game.js` | Scoring curve rungs 1–12 asserted verbatim; scripted playthroughs: strikeout at 3 wrong, skip cap (6th skip ends run), win state, I-Need-Help (score-0, attempt burn, no-decoy denial, MAX_HELPS cap), Poser flat +1; `applyVerdict` (v3 server-verdict path) semantics + guess-vs-verdict parity run. | 51 | `node game.test.js` |
+| `worker.test.js` | `server/worker.js` (+ `docs/match.js`) | The /match Worker in-process (stub KV env): **full match.cases.js parity (25/25)**, wrong-guess body is exactly `{correct:false}` (no answer material), canonical on correct, 400/404/405 validation, pinned CORS + preflight, rate-limit 429/pass. | 17 | `node worker.test.js` |
 | `daily.test.js` | `docs/daily.js` | `pickPuzzle` date logic (exact / most-recent-prior / earliest / gap-day / empty), `todayISO` zero-padding, `pickById` for the archive. | 11 | `node daily.test.js` |
 | `theme.test.js` | `docs/theme.js` | `parseHex` (3/6-digit, garbage rejection), luminance ordering, `onAccentText` dark-ink-vs-bone contrast picks. | 15 | `node theme.test.js` |
 | `stats.test.js` | `docs/stats.js` (pure part) | `recordResult`: streak extend/reset/max, same-day idempotence, histogram, input non-mutation. NOT load/save. | 17 | `node stats.test.js` |
@@ -70,7 +71,8 @@ counts drift as tests are added — a LOWER count than stated here is a red flag
 | `discover.test.py` | `curation/discover.py` | Pool floor inclusive at ≥800 votes / ≥6.5 avg, used-film exclusion, `pick_random_unused` with an injected fake rng. | 11 | `python curation/discover.test.py` |
 | `decoys.test.py` | `curation/decoys.py` | `pick_decoys` pure core: excludes the correct answer case-insensitively, dedupes, respects n/exclude-set, tolerates short pools + blank names. | 6 | `python curation/decoys.test.py` |
 | `manifest.test.py` | `curation/manifest.py` | Upsert semantics: date-sorted, same-date REPLACE (one puzzle/day — the collision class), reschedule drops the stale entry, `clear_scheduled` keeps today+past, save/reload. | 13 | `python curation/manifest.test.py` |
-| `publish.test.py` | `curation/publish.py` (+ `cipher`) | `next_id` scan, `assemble_puzzle` obfuscates answers but not decoys, full `publish()` into **temp dirs** (puzzle+ledger+manifest writes, obfuscated titles, dedupe), `next_date` collision avoidance, `upcoming_schedule`, `runway`. | 36 | `python curation/publish.test.py` |
+| `publish.test.py` | `curation/publish.py` (+ `cipher`) | `next_id` scan, `assemble_puzzle` obfuscates answers but not decoys, full `publish()` into **temp dirs** (puzzle+ledger+manifest writes, obfuscated titles, dedupe), `next_date` collision avoidance, `upcoming_schedule`, `runway`, `answers_sink` hook (fed once, plaintext, right id). | 39 | `python curation/publish.test.py` |
+| `push_answers.test.py` | `curation/push_answers.py` + `backfill_answers.py` | The /match answers artifact: payload shape (answers only, ladder order), `wrangler kv bulk` entry format (value is a JSON string), upsert dedupe/non-mutation, `file_sink` temp-dir round-trip, backfill decodes obfuscated puzzles + skips missing files. | 17 | `python curation/push_answers.test.py` |
 | `credits_images.test.py` | `curation/credits_images.py` | `caption_for` (cast "Name as Character", crew name-only, Film blank), `NNN-rK.jpg` naming, `attach_person_meta` headshot mapping, `finalize_rung_images` with an **injected fake save** — helper fields stripped, headshot-less rungs skipped. | 22 | `python curation/credits_images.test.py` |
 | `cipher.test.py` | `curation/cipher.py` | The SAME fixed vector as `cipher.test.js` (parity lock, §4), round-trips, sentinel, passthrough, idempotence, None handling, `encode_rungs`/`decode_rungs` non-mutation + scope. | 22 | `python curation/cipher.test.py` |
 | `images.test.py` | `curation/images.py` | Tier expansion + clamping, `best_window` edge-energy (hot-block/tie/oversize), `box_around` clamps, `deweight_bands`, accent/background color clamps, Pillow `crop_tiers`/`auto_crop_box`/`sample_accent`, `detect_faces` no-face path (degrades to `[]` without cv2 — suite passes either way). | 32 | `.venv/Scripts/python curation/images.test.py` |
@@ -78,8 +80,8 @@ counts drift as tests are added — a LOWER count than stated here is a red flag
 Run-everything one-liners (Git Bash, from repo root):
 
 ```bash
-for t in match game daily theme stats frame cipher; do node $t.test.js || echo "** $t FAILED"; done
-for t in build_rungs ledger discover decoys manifest publish credits_images cipher; do python curation/$t.test.py || echo "** $t FAILED"; done
+for t in match game daily theme stats frame cipher worker; do node $t.test.js || echo "** $t FAILED"; done
+for t in build_rungs ledger discover decoys manifest publish credits_images cipher push_answers; do python curation/$t.test.py || echo "** $t FAILED"; done
 .venv/Scripts/python curation/images.test.py    # .venv/bin/python on macOS/Linux
 ```
 
