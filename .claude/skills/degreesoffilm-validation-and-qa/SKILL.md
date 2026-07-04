@@ -300,12 +300,11 @@ answers are curator-eyes-only — inspect with
    degreesoffilm-change-control).
 9. **Validator green** — `validate_content.py` passes before you push (E4).
 
-Known open violation to be aware of (not per-puzzle, but this checklist's spirit): a
-known OPEN spoiler issue in the home-page QUOTES as of 2026-07-03 (puzzle 4's and
-puzzle 6's films quoted) — check current state with the validator's quotes-vs-ledger
-group (`validate_content.py`, E4); full account: degreesoffilm-failure-archaeology
-entry 12. If it's fixed by the time you read this, the WARN disappears — trust the
-validator, not this note.
+Standing check (not per-puzzle, but this checklist's spirit): the home-page QUOTES must
+never name a film in the puzzle set. A prior violation was **FIXED `ee4ec54`, 2026-07-03**;
+the validator's quotes-vs-ledger group (`validate_content.py`, E4) now PASSES and re-fires
+if a QUOTES edit or a newly-published film re-introduces an overlap — trust the validator,
+not this note. Full account: degreesoffilm-failure-archaeology entry 12.
 
 ## 6. Acceptance thresholds
 

@@ -25,7 +25,7 @@ only in session-handoff docs (not reconstructible from git alone) are labeled
 | 9 | "Add a Score History screen now" | PARKED — deliberately v3, with accounts/DB |
 | 10 | "Poser/practice/archive runs don't update stats — bug?" | SETTLED design — deliberate isolation guards in app.js |
 | 11 | "Put the film title in the content commit message" | RULE-CREATED — two leaks happened; number/date only |
-| 12 | "Home QUOTES film names are harmless" | OPEN — two quotes currently name films in the puzzle set |
+| 12 | "Home QUOTES film names are harmless" | FIXED `ee4ec54` (2026-07-03) — spoiler quotes swapped for unused films |
 | 13 | "Approve message shows `accent undefined`" | FIXED `e7c1f69` (2026-07-03) — UI now reads `j.theme?.accent` |
 | 14 | "Stack a PR on an unmerged PR" | RULE-CREATED — #13-on-#12 dirty-diff dance; prefer sequential |
 | 15 | "Ship UX polish ad hoc" | Precedent — batch from a playtest, one PR per item (#7–#11) |
@@ -279,20 +279,21 @@ Status → Do not → Unless.** Past tense for the story; imperative for the rul
 - **Symptom/Idea:** Found 2026-07-03 during the architecture-contract review: the
   home screen's rotating quotes cite their source films, and the owner's spoiler rule
   says quotes must come from films NOT in the puzzle set.
-- **Finding:** As of 2026-07-03, `docs/app.js` `QUOTES` (lines ~126–133) includes
-  "Why so serious?" — *The Dark Knight* (puzzle 4, date passed) — and a second quote
-  crediting puzzle 6's film (dated 2026-07-03; title withheld here per entry 11's
-  citation rule until its date passes); both films are in `curation/used_films.json`.
-  A player on the home screen can see the answer to an archived daily. A fix was chipped to the
-  owner; it had NOT landed as of 2026-07-03 (HEAD `10668ca`, both quotes still
-  present).
-- **Evidence:** `docs/app.js` lines 126–133 (verified today); `curation/used_films.json`
-  entries for puzzles 4 and 6.
-- **Status:** OPEN (fix = swap those two quotes for films outside the puzzle set;
-  player-facing docs/ change → PR path).
-- **Do not** add new quotes without checking `used_films.json` first — and future
-  curation of those quoted films re-creates this bug, so re-check on every publish.
-- **Unless** already fixed when you read this — verify with:
+- **Finding:** `docs/app.js` `QUOTES` had quoted "Why so serious?" (*The Dark Knight*,
+  puzzle 4) and a second one-liner crediting puzzle 6's film (title withheld per entry
+  11's citation rule until its date passes) — both films are in `curation/used_films.json`,
+  so a player on the home screen could see the answer to an archived daily.
+- **Fix:** commit `ee4ec54` ("Home quotes: drop spoiler quotes from puzzle films",
+  2026-07-03) swapped both for one-liners from films outside the puzzle set (Star Wars,
+  A Few Good Men — verified not in the ledger). The content validator's quotes-vs-ledger
+  group now PASSES.
+- **Evidence:** `git show ee4ec54`; `docs/app.js` lines ~126–133; the validator group in
+  degreesoffilm-diagnostics-and-tooling.
+- **Status:** FIXED (2026-07-03).
+- **Do not** add new quotes without checking `used_films.json` first — and note that
+  publishing a puzzle whose film is already quoted re-creates this bug, so the
+  quotes-vs-ledger check runs on every publish (it's a standing guard, not a one-off).
+- **Unless** it regresses — verify with:
   `grep -n "Toy Story\|Dark Knight" docs/app.js` (empty = fixed; update this entry).
 
 ### 13. Approve success message shows "accent undefined" — FIXED

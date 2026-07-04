@@ -78,9 +78,7 @@ PASS  images: all 92 referenced images exist on disk
 PASS  decode: 177 obfuscated strings decode cleanly
 PASS  rung-shape: every rung has answers; Film rung is first
 PASS  ledger-crosscheck: 7 ledger records <-> 7 manifest entries, 1:1
-WARN  quotes-vs-ledger: 2 problem(s)
-        - QUOTES names 'The Dark Knight' — it is puzzle 4 in the ledger (spoiler)
-        - QUOTES names 'Toy Story' — it is puzzle 6 in the ledger (spoiler)
+PASS  quotes-vs-ledger: none of the 6 quote films are in the ledger
 INFO  decoy-coverage: puzzle 1: 11/11 rungs have decoys
 INFO  decoy-coverage: puzzle 2: 12/12 rungs have decoys
 INFO  decoy-coverage: puzzle 3: 12/12 rungs have decoys
@@ -90,8 +88,13 @@ INFO  decoy-coverage: puzzle 6: 10/10 rungs have decoys
 INFO  decoy-coverage: puzzle 7: 12/12 rungs have decoys
 INFO  runway: 2 consecutive stocked day(s) from 2026-07-03
 
-7 group(s) passed, 0 failed, 1 warning(s)
+8 group(s) passed, 0 failed, 0 warning(s)
 ```
+
+(Illustration — what a WARN looks like when it *does* fire: a `quotes-vs-ledger`
+violation prints `WARN  quotes-vs-ledger: N problem(s)` with a `- QUOTES names 'X' — it
+is puzzle N in the ledger (spoiler)` line each, and the summary reads `… , M warning(s)`;
+exit stays 0 unless `--strict`.)
 
 Note: 92 referenced images exactly equals the 92 files in `docs/puzzles/images/` — zero
 orphans as of 2026-07-03.
@@ -244,14 +247,14 @@ All read-only; all verified working 2026-07-03.
    port verification); the discipline for turning a hunch into an accepted result lives
    in degreesoffilm-research-methodology. Fixes land per degreesoffilm-change-control.
 
-## Known findings as of 2026-07-03 (real, unfixed — do not silently "fix")
+## Known findings as of 2026-07-03
 
-1. **quotes-vs-ledger WARN (live spoiler-rule violation):** `docs/app.js` QUOTES contains
-   'The Dark Knight' (= puzzle 4, dated 2026-07-01, date passed) and a quote crediting
-   puzzle 6's film (dated 2026-07-03). Found 2026-07-03; already chipped for the owner by
-   degreesoffilm-architecture-contract. If a fix lands, the WARN disappears — re-run the
-   validator rather than trusting this note. Full account:
-   degreesoffilm-failure-archaeology entry 12.
+1. **quotes-vs-ledger — FIXED (`ee4ec54`, 2026-07-03).** `docs/app.js` QUOTES had quoted
+   two films that were puzzle answers; the two quotes were swapped for films outside the
+   puzzle set, and the validator's quotes-vs-ledger group now PASSES. (Full account:
+   degreesoffilm-failure-archaeology entry 12.) The check is permanent — it will re-fire
+   if a future QUOTES edit or a newly-published film re-introduces an overlap, so keep
+   running it.
 2. **Runway = 2** (2026-07-03): puzzles run out after 2026-07-04. Operational, not a bug.
 3. **Puzzle 5 rung 12 (Production Designer) has 0 decoys** — I-Need-Help unavailable
    there. Legal per the schema; curator judgment call.

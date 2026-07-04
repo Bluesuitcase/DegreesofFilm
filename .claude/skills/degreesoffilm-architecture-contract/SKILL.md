@@ -176,9 +176,9 @@ Also cross-check the QUOTES list against `curation/used_films.json` titles:
 ```
 python -c "import json,re;src=open('docs/app.js',encoding='utf-8').read();q=set(re.findall(r\"', '([^']+)'\\]\",src.split('const QUOTES')[1].split('];')[0]));l={r['title'] for r in json.load(open('curation/used_films.json'))};print(sorted(q&l) or 'OK')"
 ```
-**Known OPEN spoiler issue in the home-page QUOTES as of 2026-07-03** (puzzle 4's and
-puzzle 6's films quoted) — check current state with the validator's quotes-vs-ledger group
-(or the probe above); full account: degreesoffilm-failure-archaeology entry 12.
+A home-page QUOTES spoiler issue (two quotes named puzzle films) was **FIXED `ee4ec54`,
+2026-07-03**; the probe above should print `OK`. The check is a standing guard — publishing
+a puzzle whose film is already quoted re-fires it. Full account: degreesoffilm-failure-archaeology entry 12.
 
 ## 3. Data contracts
 

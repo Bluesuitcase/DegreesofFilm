@@ -266,12 +266,11 @@ python -c "import json;c=json.load(open('.claude/launch.json'));print([(x['name'
 
 > **⚠ 4. QUOTES spoiler constraint.** The home-screen `QUOTES` in docs/app.js must only
 > quote films NOT in `curation/used_films.json` (a quote names its film — that spoils a
-> puzzle). Known OPEN spoiler issue in the home-page QUOTES as of 2026-07-03 (puzzle 4's
-> and puzzle 6's films quoted) — check current state with the validator's quotes-vs-ledger
-> group or the overlap probe (table B / master block); full account:
-> degreesoffilm-failure-archaeology entry 12. Do NOT silently "fix" it; route through
-> **degreesoffilm-change-control**. Whenever you add a QUOTES entry OR publish a puzzle, run
-> the overlap probe and expect `none`.
+> puzzle). A prior violation here (two quotes named puzzle films) was **FIXED `ee4ec54`,
+> 2026-07-03** (full account: degreesoffilm-failure-archaeology entry 12). This is a
+> standing constraint, not a one-off: whenever you add a QUOTES entry OR publish a puzzle,
+> run the overlap probe (table B / master block) and expect `none`; changes here are
+> player-facing → route through **degreesoffilm-change-control**.
 
 > **⚠ 5. The scoring curve is asserted verbatim by game.test.js.**
 > `check('score curve rungs 1-12', curve, [1,2,3,4,5,7,9,11,13,15,16,17])` — any change to

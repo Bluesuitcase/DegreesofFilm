@@ -245,11 +245,11 @@ Run ALL of these before any announcement, listing, or press/readme push. One num
    subject, and `3d7d17e` named puzzle 007's film before its date — the lesson behind the
    rule: content commits say puzzle NUMBER/date only until the date passes (history was NOT
    rewritten; don't). Check: `git log --oneline -20` — no future-dated puzzle's film named.
-   **Known OPEN spoiler issue in the home-page QUOTES as of 2026-07-03** (puzzle 4's and
-   puzzle 6's films quoted) — full account: degreesoffilm-failure-archaeology entry 12.
-   **Do not announce publicly while home-page quotes name puzzle films**; check current
-   state with the validator's quotes-vs-ledger group, or cross-check `QUOTES` titles
-   against `curation/used_films.json`.
+   A home-page QUOTES spoiler issue (two quotes named puzzle films) was **FIXED `ee4ec54`,
+   2026-07-03** (full account: degreesoffilm-failure-archaeology entry 12). The rule stands:
+   **do not announce publicly while any home-page quote names a puzzle film** — confirm with
+   the validator's quotes-vs-ledger group, or cross-check `QUOTES` titles against
+   `curation/used_films.json`, before every announcement.
 3. **TMDB terms re-read at announcement time** (themoviedb.org/api-terms-of-use +
    developer.themoviedb.org/docs/faq): still non-commercial? notice wording unchanged?
    (§1.2 rule 4). If anything monetizes: §1.3 gate + §2.3 lawyer questions FIRST.
