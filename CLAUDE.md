@@ -29,12 +29,16 @@ size slider), and **Clear scheduled** (`/api/clear-schedule`, unschedule upcomin
 The client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game, `?id=N`
 an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice
 chooser, `?practice&mode=cinephile|poser` an endless practice run. **The only open v2 task is
-operational (curate more puzzles).** The v3 parking lot — **Movie Buff**, accounts/DB, **Leaderboard**,
-Score History, server-side matching, degrees-of-separation (all need the server move) — remains.
+operational (curate more puzzles).** v3 status (2026-07-04): **GATE 0 passed and the Phase 1
+server-side-matching spike is BUILT and merged** — the `server/` Worker + a client flag that ships
+**OFF** (`MATCH_API=''` in app.js); deploy + GATE 1 are blocked on a Cloudflare account. The rest of
+the v3 parking lot — **Movie Buff** (static-possible via a prebaked title index), accounts/DB,
+**Leaderboard**, Score History, degrees-of-separation — stays parked;
+`degreesoffilm-server-move-campaign` is the decision-gated plan.
 **Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
-> between films). True degrees-of-separation is a deferred v2 mode.
+> between films). True degrees-of-separation is a deferred v3-parking-lot mode.
 
 ## Run & test
 
@@ -82,7 +86,8 @@ Score History, server-side matching, degrees-of-separation (all need the server 
 ## Architecture — three zones
 
 The whole design turns on one fact: **the TMDB API key never reaches a player.** It lives only
-in the (future) curation tool on your machine. Players only ever fetch finished static files.
+in the curation tool on your machine (`curation/`, built). Players only ever fetch finished
+static files.
 
 1. **PRIVATE (your machine)** — *built (FastAPI).* The `curation/` tool holds the key, queries TMDB,
    crops images with Pillow, and writes puzzle files. Owns the used-films ledger (never repeat a
@@ -138,8 +143,9 @@ docs/                  The entire static site = what gets hosted.
   cipher.js            Light answer de-obfuscation (decode/decodeRungs). Mirrors curation/cipher.py;
                        app.js decodes each puzzle's rungs at load. Pure logic, no DOM.
   puzzles/
-    001.json           The one hand-authored Phase 0 puzzle (No Country for Old Men).
-    images/001.jpg     Its frame image.
+    001.json           The hand-authored Phase 0 puzzle (No Country for Old Men); 002+ are
+                       tool-published. manifest.json is the daily index.
+    images/001.jpg     Its frame image (tool-published puzzles add NNN-{1,2,3}.jpg tiers + NNN-rK.jpg headshots).
 curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.env, gitignored).
   app.py               FastAPI crop tool: backend endpoints + serves the crop page. The capstone.
   static/index.html    Localhost crop UI (discover -> crop a still -> review rungs/decoys -> approve).
@@ -233,11 +239,14 @@ daily streak/stats.
   trim + all-MC rendering live in `app.js` (`poserPuzzle` / `renderChoices`).
 
 **Still deferred (DESIGN §6 parking lot), don't assume these exist:**
-- **Movie Buff** mode — TMDB title autocomplete on the film rung; needs the **v2 server move**
-  (a live browser TMDB call would leak the key), so it stays "coming soon" on the mode-select.
-- The rest of the v2/v3 parking lot (practice/endless, light answer obfuscation,
-  accounts/DB, Score History, server-side matching, degrees-of-separation, …). *(Shipped since:
-  curate-a-week-ahead schedule, film search + edit-existing-puzzle, and the reveal mechanic.)*
+- **Movie Buff** mode — title autocomplete on the film rung; stays "coming soon" on the
+  mode-select. A live browser TMDB call would leak the key; the research-frontier skill found a
+  **prebaked popular-title index** makes it static-possible (no server required).
+- **Server-side matching** — the v3 Phase 1 spike is *built* (`server/`, suites green) but **not
+  deployed and OFF in the client** (`MATCH_API=''`); don't assume the endpoint exists.
+- The rest of the v3 parking lot: accounts/DB, Leaderboard, Score History, true
+  degrees-of-separation. *(Formerly parked but since shipped in v2: practice/endless, light answer
+  obfuscation, the week-ahead schedule, film search + edit-existing-puzzle, the reveal mechanic.)*
 
 ## Puzzle file schema
 
@@ -257,7 +266,7 @@ the rungs at load, so `game.js`/`match.js` still see plaintext. `decoys`/`prompt
 (they're player-facing and aren't the answer). Decoding is a passthrough for any un-prefixed string,
 so hand-authored plaintext puzzles still work.
 
-**Full spec adds two fields (DESIGN §4), required once the curation tool exists:**
+**Full spec adds these fields (DESIGN §4), required once the curation tool exists:**
 - `theme` — `{ accent, bg, bg2 }` sampled from the still. `accent` recolors the highlights (the
   guess-button text auto-contrasts via `theme.js`); `bg`/`bg2` are deep, film-hued tones that tint
   the surfaces and a top→bottom background gradient (`applyTheme` in app.js). Only **bone text stays

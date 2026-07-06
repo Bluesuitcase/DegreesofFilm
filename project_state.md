@@ -6,13 +6,14 @@
 > (`degreesoffilm-status.md`).
 
 _Last updated: 2026-07-04. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 GATE 0
-passed + hosting decided (Cloudflare Workers + KV) + the ENTIRE Phase 1 spike is BUILT on branch
-`v3-phase1-server-match`** (Worker + client flag OFF + publish artifact + backfill; all 18 suites
-green; see the v3 section below). **GATE 1 checks 2–4 are blocked on the owner creating a
-Cloudflare account** (+ `wrangler login`) — that is the ONLY thing standing between the spike and
-the gate. **Content runway is DRY: the last stocked daily is TODAY (2026-07-04)** — curating more
-puzzles is urgent. LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`;
-curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
+passed + hosting decided (Cloudflare Workers + KV) + the ENTIRE Phase 1 spike is MERGED to `main`**
+([PR #20], flag OFF — zero player-facing change; Worker + client flag + publish artifact +
+backfill; all 18 suites green; see the v3 section below). **GATE 1 checks 2–4 are blocked on the
+owner creating a Cloudflare account** (+ `wrangler login`) — that is the ONLY thing standing
+between the spike and the gate. **Content runway = 5 days** (008–011 published 2026-07-04, stocked
+through 07-08 — keep curating to extend it). LOAD THE RELEVANT SKILL FIRST (v3 →
+`degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
+backlog is in `DESIGN.md` §6._
 
 ## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
 - **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
