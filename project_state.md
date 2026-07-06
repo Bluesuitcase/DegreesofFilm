@@ -40,14 +40,17 @@ backlog is in `DESIGN.md` §6._
 - **v1 — COMPLETE + DEPLOYED LIVE:** https://bluesuitcase.github.io/DegreesofFilm/ (GitHub Pages,
   `main` `/docs`; pushes touching `docs/` auto-deploy).
 - **v2 — COMPLETE:** every static-v2 feature is built, tested, and on `main` (list below).
-- **v3 — SCOPED (GATE 0 passed 2026-07-04), nothing built:** owner chose **Phase 1 only**
-  (server-side matching, $0 ceiling). See the v3 GATE 0 section above. The rest of the parking lot
-  stays parked.
+- **v3 — Phase 1 spike MERGED, shipped OFF (2026-07-04):** owner chose **Phase 1 only**
+  (server-side matching, $0 ceiling); GATE 0 passed; hosting = Cloudflare Workers + KV; the spike
+  landed via [PR #20] (`41fe9e8`) with `MATCH_API=''`. **GATE 1 blocked on the owner's Cloudflare
+  account.** See the v3 sections below. The rest of the parking lot stays parked.
 - **Content:** 11 puzzles (001–011), dated **2026-06-28 .. 07-08**. **Runway = 5 days** (stocked
   through 2026-07-08) after the 2026-07-04 curation batch (008–011 — pushed `bd20e79`; titles omitted
   here, they're future-dated = spoilers). 009 was trimmed to 9 rungs (dropped three unquizzable
   bit-part cast rungs). Keep curating to extend the runway.
-- **Tests:** 7 JS suites + 8 Python (pure) + `images` (Pillow) — **all green**. Details at the bottom.
+- **Tests:** 8 JS suites + 9 Python (pure) + `images` (Pillow) — **all green as of 2026-07-04**
+  (JS: match 25, game 51, daily 11, theme 15, stats 17, frame 16, cipher 19, worker 17). Details at
+  the bottom.
 
 ## What's shipped in v2 (all on `main`)
 **Player-facing (`docs/`, live):**
@@ -78,8 +81,8 @@ backlog is in `DESIGN.md` §6._
 
 ## ⭐ v3 GATE 0 — PASSED 2026-07-04 (server-move campaign scoped)
 
-Per `degreesoffilm-server-move-campaign` Phase 0. **No code written yet** — next step is the
-Phase 1 hosting decision + spike.
+Per `degreesoffilm-server-move-campaign` Phase 0. (The hosting decision and the Phase 1 spike
+both followed the same day — see below.)
 
 **Owner answers (recorded in writing, 2026-07-04):**
 1. **Scope: Phase 1 ONLY** — the server-side `/match` endpoint that retires the plaintext-answers
@@ -126,7 +129,8 @@ zero-port `match.js` asset + ~$6/mo breaks the $0 ceiling).
 **Owner dependency before the spike can deploy:** a Cloudflare account + `wrangler` login, and a
 scoped API token for the publish push (lives in gitignored `curation/.env`, NOT the TMDB key).
 
-**Phase 1 spike — BUILT 2026-07-04, branch `v3-phase1-server-match` (PR pending):**
+**Phase 1 spike — BUILT + MERGED 2026-07-04 ([PR #20] → `41fe9e8`, rebase-merge, branch deleted;
+Pages redeploy confirmed, live app.js carries the flag OFF):**
 - `server/worker.js` — POST /match, imports `docs/match.js` UNCHANGED; KV answers
   (`answers:<id>`), 5-min isolate cache, CORS pinned to the Pages origin, 60/min/IP rate limit
   (binding optional — degrades to unlimited). `server/wrangler.toml` carries the deploy runbook.
@@ -147,33 +151,37 @@ scoped API token for the publish push (lives in gitignored `curation/.env`, NOT 
   validator 8 groups clean; in-browser flag-off playthrough = exact static request set, wrong-guess
   reveal + correct-guess advance both work, `?id=1` archive route fine (GATE 1 check 1 local half).
 
-**Next v3 actions (in order):**
-1. Land the spike PR (flag is OFF — zero player-facing behavior change; change-control reviewed).
-2. **OWNER: create a Cloudflare account + `wrangler login`** — the only blocker for GATE 1.
-3. Deploy per `server/wrangler.toml` header (KV namespace create → paste id → backfill → bulk put
-   → deploy), set `MATCH_API` to the Worker URL locally, run GATE 1 checks 2–4 (no answer material,
-   25/25 live parity, p95 < 300 ms + fallback drill). Only then consider §6 step 2 (flip default on).
+**Next v3 actions (in order — spike PR already landed):**
+1. **OWNER: create a Cloudflare account + `wrangler login`** — the only blocker for GATE 1.
+2. Deploy per `server/wrangler.toml` header (KV namespace create → paste id →
+   `python curation/backfill_answers.py` → `wrangler kv bulk put` → `wrangler deploy`), set
+   `MATCH_API` to the Worker URL locally, run GATE 1 checks 2–4 (no answer material, 25/25 live
+   parity via match.cases.js, p95 < 300 ms + fallback drill). Only after GATE 1 is green ≥14 days
+   consider §6 step 2 (flip the default on).
 
 ## Next steps (pick up here)
 0. **Load the relevant skill first** (new this session). For curating puzzles →
    `degreesoffilm-run-and-operate` + `degreesoffilm-validation-and-qa`'s content-QA checklist; for v3
    → `degreesoffilm-server-move-campaign`; before committing anything → `degreesoffilm-change-control`.
-1. **Operational — curate more puzzles** (the one open v2 task; **runway = 2 days as of 2026-07-03**,
-   pool runs through 2026-07-04). Run the crop tool
-   (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`, needs `curation/.env`):
-   Randomize → face-aware Auto-crop → review the drafted rungs → Approve (auto-fills the next free day,
-   writes the puzzle + images + credit headshots, appends the ledger, upserts the manifest). **Then run
-   `scripts/validate_content.py` (diagnostics skill) before committing**, use a spoiler-safe commit
-   message ("Add puzzle NNN (YYYY-MM-DD)" — no film title until the date passes), and push `docs/`.
-2. **v3 parking lot** — most needs the server move (`degreesoffilm-server-move-campaign` is the
-   decision-gated plan). Two tracks (full list in DESIGN.md §6, research angles in
-   `degreesoffilm-research-frontier`):
+1. **v3 GATE 1 — OWNER ACTION: create a Cloudflare account + `wrangler login`**, then deploy per
+   `server/wrangler.toml`'s header and run GATE 1 checks 2–4 (see "Next v3 actions" above). This is
+   the single thing standing between the merged spike and retiring the plaintext wart.
+2. **Operational — keep curating** (**runway = 5 days as of 2026-07-04**, stocked through 07-08).
+   Run the crop tool (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
+   needs `curation/.env`): Randomize → face-aware Auto-crop → review the drafted rungs → Approve
+   (auto-fills the next free day). **Then run `scripts/validate_content.py` (diagnostics skill)
+   before committing**, use a spoiler-safe commit message ("Add puzzle NNN (YYYY-MM-DD)" — no film
+   title until the date passes), and push `docs/`. NOTE from the 07-04 batch: check the QA flags
+   below (bit-part rungs; don't let the editor touch today's/past puzzles).
+3. **v3 parking lot (everything else — out of the owner's chosen scope for now).** Two tracks
+   (full list in DESIGN.md §6, research angles in `degreesoffilm-research-frontier`):
    - **Stay-static (no backend):** Score History (client-only), **Movie Buff** (prebaked popular-title
      index — the frontier skill found this is static-possible, NOT strictly server-gated), true
      degrees-of-separation (prebaked film/person graph).
-   - **Server-move track (needs backend, in dependency order):** **Accounts + DB** → **Server-side
-     matching** → **Leaderboard** (sortable by mode/user/total, asterisk when a total is mostly
-     easy-mode) + cross-device stats. Also: commercial TMDB agreement (only if it scales/monetizes).
+   - **Server-move track (needs backend, in campaign order):** server-side matching (Phase 1 —
+     spike DONE, gate pending) → **Accounts + DB** (Phase 2) → **Leaderboard** (Phase 3; sortable by
+     mode/user/total, asterisk when a total is mostly easy-mode) + cross-device stats. Also:
+     commercial TMDB agreement (only if it scales/monetizes).
 3. **Housekeeping (optional):** two orphaned worktree dirs (`.claude/worktrees/adoring-blackburn-*`,
    `loving-maxwell-*`) are git-deregistered + gitignored but Windows-locked; delete them once the
    sessions holding them close (`rm -rf .claude/worktrees/*`). Also consider copying the skills to the
@@ -181,6 +189,17 @@ scoped API token for the publish push (lives in gitignored `curation/.env`, NOT 
    in-repo copy as source of truth).
 
 ## Key decisions (why things are the way they are)
+- **v3 scope = Phase 1 only, $0 ceiling, R5 intact (2026-07-04, GATE 0):** full owner answers +
+  kill criteria in the GATE 0 section above. **Rejected:** Phases 2–3 now (no demand evidence —
+  the project has no analytics), Vercel/Netlify/VPS hosting (reasons recorded above).
+- **007 mid-day re-crop REVERTED (2026-07-04):** the curation editor re-cropped puzzle 007 (that
+  day's LIVE daily) as a side effect of an edit-session; owner chose revert per IMMUTABLE PAST —
+  players keep the frame they'd already seen. **Rule confirmed: the tool happily edits any id;
+  the discipline is ours.** Watch for this whenever the editor was opened on a filled past/today slot.
+- **009 trimmed to 9 rungs before publish (2026-07-04):** dropped three unquizzable bit-part cast
+  rungs (umpire/physio/security guard — a three-hander's billing order falls off a cliff). Quality
+  rule of thumb: if nobody could be quizzed on the credit, cut the rung. Trimming via `/api/update`
+  leaves **orphaned `NNN-rK.jpg` files** — delete the ones no longer referenced before staging.
 - **Skill library is project-scoped (2026-07-03):** it lives in the repo at `.claude/skills/`, NOT the
   user-global `~/.claude/skills/` — so it travels with the repo and every session/collaborator here
   gets it. **Why:** the skills describe *this* project; they should be versioned with it. Trade-off:
@@ -222,6 +241,16 @@ scoped API token for the publish push (lives in gitignored `curation/.env`, NOT 
   manifest-collision footgun (multiple same-day publishes silently overwrote each other).
 
 ## Workflow / gotchas
+- **Shipping 2026-07-04:** the v3 spike went **branch → PR #20 → rebase-merge** (player-facing
+  docs/ changes, per change-control); the puzzle batch + doc updates went **direct to `main`**
+  (content/docs precedent). All pushed; tip at session end: see `git log`.
+- **Live-site cache after a content push:** the `bluesuitcase.github.io` Fastly edge can serve a
+  stale `manifest.json` for a while even after the Pages build succeeds. **Harmless by design** —
+  the client's fetch is date-keyed (`?d=<todayISO>`), so the next day's request is a fresh cache
+  key. Verify pushes against `raw.githubusercontent.com` (bypasses the edge), not the Pages URL.
+- **Reusable project templates (2026-07-04):** a starter kit distilled from this project's doc
+  system lives at `C:\Claude\_templates\` (CLAUDE.md + project_state.md + SETUP.md) — machine-local,
+  not in this repo.
 - **Shipping this session (2026-07-03):** the skill library + all four fixes landed **direct to
   `main`** per the user's choice (the library/docs are curation-adjacent; the two player-facing fixes
   — QUOTES, footer — were small and pre-verified). **Linear history is required** (the repo has no
@@ -252,8 +281,8 @@ scoped API token for the publish push (lives in gitignored `curation/.env`, NOT 
   `?id=N`.
 - **Curation tool:** `.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001` (or the
   `curation` entry in `.claude/launch.json`). Needs `curation/.env`.
-- **JS tests (repo root):** `node match.test.js game.test.js daily.test.js theme.test.js stats.test.js
-  frame.test.js cipher.test.js`.
+- **JS tests (repo root):** `for t in match game daily theme stats frame cipher worker; do node
+  $t.test.js; done` (matcher case table lives in `match.cases.js` — add cases there).
 - **Python tests:** `python curation/{build_rungs,ledger,discover,decoys,manifest,publish,credits_images,
-  cipher}.test.py` (pure); `.venv/Scripts/python curation/images.test.py` (Pillow; the `detect_faces`
-  test degrades gracefully without cv2).
+  cipher,push_answers}.test.py` (pure); `.venv/Scripts/python curation/images.test.py` (Pillow; the
+  `detect_faces` test degrades gracefully without cv2).

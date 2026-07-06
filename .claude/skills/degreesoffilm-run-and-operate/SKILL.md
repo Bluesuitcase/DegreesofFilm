@@ -293,8 +293,13 @@ There is **no headless publish** — approving (writing a puzzle) goes through t
 
 - **Check the runway** whenever you touch the project: the schedule strip, or key-less
   `curl -s http://localhost:8001/api/schedule` (`runway` = consecutive stocked days from
-  today; `publish.runway()`). As of **2026-07-03** the pool is puzzles 001–007 dated
-  2026-06-28 → 2026-07-04 — a **2-day runway**. Curating more is the one open v2 task.
+  today; `publish.runway()`). As of **2026-07-04** the pool is puzzles 001–011 dated
+  2026-06-28 → 2026-07-08 — a **5-day runway**. Keep curating to extend it.
+- **Two traps confirmed in the 2026-07-04 batch:** (1) opening a filled TODAY/past slot in the
+  editor and re-saving silently re-crops a LIVE puzzle — IMMUTABLE PAST is on you; diff `docs/`
+  before staging and revert anything dated ≤ today (007 was caught and reverted this way).
+  (2) Trimming rungs via `/api/update` leaves **orphaned `NNN-rK.jpg` headshots** — delete the
+  unreferenced ones before staging (009 left r9–r11 orphans).
 - **Keep several days stocked.** Publishing auto-queues onto the next free day, so a
   batch session (pick → crop → approve, repeat) extends the runway one day per approve.
 - **When the pool runs dry, nothing crashes**: `pickPuzzle` (docs/daily.js) falls back to
