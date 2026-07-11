@@ -40,12 +40,14 @@ def next_id(puzzles_dir=PUZZLES_DIR, manifest=None):
 def next_date(manifest, today=None):
     """The next free publish date: the day after the latest puzzle in the manifest
     (so back-to-back publishes queue onto distinct days instead of colliding on
-    'today'), or today if the manifest is empty. Pure."""
+    'today'), clamped to never fall before today — a lapsed runway must not
+    backdate publishes. Today if the manifest is empty. Pure."""
     today = today or datetime.date.today().isoformat()
     dates = [e["date"] for e in manifest if e.get("date")]
     if not dates:
         return today
-    return (datetime.date.fromisoformat(max(dates)) + datetime.timedelta(days=1)).isoformat()
+    after_latest = (datetime.date.fromisoformat(max(dates)) + datetime.timedelta(days=1)).isoformat()
+    return max(after_latest, today)
 
 
 def upcoming_schedule(manifest, today=None, days=14):

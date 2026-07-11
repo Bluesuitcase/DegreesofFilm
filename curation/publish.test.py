@@ -112,6 +112,12 @@ check("next_date -> latest + 1 day",
       "2026-07-03")
 check("next_date ignores undated entries",
       publish.next_date([{"id": 1}, {"date": "2026-06-30"}], today="2026-06-01"), "2026-07-01")
+# A lapsed runway must not backdate publishes: "day after the latest puzzle" can be
+# in the past (the 2026-07-11 incident published to 07-09/07-10) — clamp to today.
+check("next_date never returns a past date (lapsed runway -> today)",
+      publish.next_date([{"date": "2026-07-08"}], today="2026-07-11"), "2026-07-11")
+check("next_date lapsed by exactly one day -> today",
+      publish.next_date([{"date": "2026-07-10"}], today="2026-07-11"), "2026-07-11")
 
 # --- upcoming_schedule: the week-ahead view ---
 MAN = [

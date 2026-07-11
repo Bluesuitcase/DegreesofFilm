@@ -211,18 +211,30 @@ async function loadSchedule(){
         d.style.cursor = 'pointer';
         d.onclick = () => loadPuzzleForEdit(slot.id);
       } else {
+        d.dataset.date = slot.date;
         d.innerHTML = dow + `<span class="mt">empty →</span>`;
         d.onclick = () => {
           $('#date').value = slot.date;
-          document.querySelectorAll('.day .mt').forEach(m => m.textContent = 'empty →');
-          d.querySelector('.mt').textContent = 'targeted ✓';
+          markTargeted();
           $('#dstatus').textContent = 'approve date set to ' + slot.date;
         };
       }
       box.appendChild(d);
     });
+    markTargeted();
   }catch(e){ $('#runway').textContent = 'schedule unavailable: ' + e.message; }
 }
+// The strip's "targeted ✓" marker is DERIVED from the date input — the one value
+// approve actually sends — so the label can never drift from reality (the 07-11
+// incident: a stale async next-date overwrite clobbered a click-targeted date and
+// two puzzles published to past days while the strip still said "targeted ✓").
+function markTargeted(){
+  const t = $('#date').value;
+  document.querySelectorAll('#sched .day.empty .mt').forEach(m => {
+    m.textContent = (m.closest('.day').dataset.date === t) ? 'targeted ✓' : 'empty →';
+  });
+}
+$('#date').addEventListener('input', markTargeted);
 loadSchedule();
 
 // Clear scheduled: unschedule every upcoming (strictly-future) puzzle. Two-click
@@ -493,7 +505,12 @@ $('#approve').onclick = async ()=>{
       ? `✓ updated ${j.file} (id ${j.id}) — scheduled ${j.date}${hasCrop?', frame re-cropped':''}.`
       : `✓ wrote ${j.file} (id ${j.id}, accent ${j.theme?.accent})\n  + tier images, ledger, manifest updated.`;
     loadSchedule();   // the day's puzzle changed — refresh the runway
-    if(!editing) fetch('/api/next-date').then(r=>r.json()).then(j=>{ if(j.date) $('#date').value=j.date; }).catch(()=>{});
+    // Advance the date to the next free day ONLY if the field still holds the date
+    // this approve just consumed — never clobber a target the curator set meanwhile.
+    if(!editing) fetch('/api/next-date').then(r=>r.json()).then(j=>{
+      if(j.date && $('#date').value === body.date) $('#date').value = j.date;
+      markTargeted();
+    }).catch(()=>{});
   }catch(e){ res.className='err'; res.textContent='error: '+e.message; }
   finally{ $('#approve').disabled=false; }
 };
