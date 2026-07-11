@@ -36,7 +36,7 @@ Cinephile guesses are verified by POST /match with a 2 s local-match fallback (`
 forces local); puzzle JSON still ships obfuscated answers as the fallback until §6 step 5 (gated on
 ≥14 days' stability). The rest of
 the v3 parking lot — accounts/DB,
-**Leaderboard**, Score History, degrees-of-separation — stays parked;
+**Leaderboard**, degrees-of-separation — stays parked;
 `degreesoffilm-server-move-campaign` is the decision-gated plan.
 **Read `project_state.md` for exactly where we are and what's next.**
 
@@ -140,7 +140,8 @@ docs/                  The entire static site = what gets hosted.
   match.js             Fuzzy answer matching. Pure logic, no DOM.
   daily.js             Daily/archive selection from the manifest (pickPuzzle/pickById). Pure, no DOM.
   theme.js             Accent theming colour math (luminance/contrast). Pure logic, no DOM.
-  stats.js             localStorage stats + streak (recordResult is pure; load/save touch storage).
+  stats.js             localStorage stats + streak + per-day score history (recordResult is pure;
+                       load/save touch storage). ?history renders the history map.
   frame.js             Which still to show per rung (pickCreditFrame): film-rung crop that widens
                        one tier per wrong guess (reveal) -> credit image + caption -> full-frame
                        fallback. Pure logic, no DOM.
@@ -262,7 +263,7 @@ daily streak/stats.
   `https://dof-match.bluesuitcase.workers.dev` verifies cinephile guesses (2 s local fallback;
   `?servermatch=0` forces local). Still pending: §6 step 5 (stop embedding answers in NEW puzzle
   files) — gated on ≥14 days' stability + owner sign-off.
-- The rest of the v3 parking lot: accounts/DB, Leaderboard, Score History, true
+- The rest of the v3 parking lot: accounts/DB, Leaderboard, true
   degrees-of-separation. *(Formerly parked but since shipped in v2: practice/endless, light answer
   obfuscation, the week-ahead schedule, film search + edit-existing-puzzle, the reveal mechanic.)*
 

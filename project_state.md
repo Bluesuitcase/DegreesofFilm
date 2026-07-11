@@ -16,7 +16,11 @@ prototype + [PR #23] promotion → `6f199b9`, live-verified): `?play&mode=buff` 
 film-rung autocomplete from the prebaked static top-5k title index (`curation/title_index.py` →
 `docs/title-index.json`, 46 KB gz, ledger coverage asserted 21/21; `docs/buff.js` + buff.test.js
 11 cases — 9 JS suites now). The last "coming soon" tile is lit; no server, no key exposure; buff
-runs don't touch daily stats. **Content: 21 puzzles
+runs don't touch daily stats. **⭐ SCORE HISTORY also SHIPPED 2026-07-11** ([PR #24] → `00fbb0d`):
+`?history` lists this device's Cinephile daily results (new `stats.history` per-day map in
+recordResult, test-first 17→24, additive/R4-safe — old localStorage blobs gain it on their next
+daily); rows link to `?id=N` replays; entry points on home + the end screen. Recording starts at
+ship. The stay-static parking lot is now down to ONE item: true degrees-of-separation. **Content: 21 puzzles
 (001–021), runway = 8 days** (012–021 pushed `89ccdbb` on 07-11; 012/013 are past-dated 07-09/07-10
 archive backfill — see Key decisions; KV answers synced, 21 keys). LOAD THE RELEVANT SKILL FIRST
 (v3 → `degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
@@ -220,9 +224,8 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    below (bit-part rungs; don't let the editor touch today's/past puzzles).
 3. **v3 parking lot (everything else — out of the owner's chosen scope for now).** Two tracks
    (full list in DESIGN.md §6, research angles in `degreesoffilm-research-frontier`):
-   - **Stay-static (no backend):** Score History (client-only), true degrees-of-separation
-     (prebaked film/person graph). *(Movie Buff — SHIPPED 2026-07-11 via the prebaked title
-     index, see the header.)*
+   - **Stay-static (no backend):** true degrees-of-separation (prebaked film/person graph) is
+     the LAST one. *(Movie Buff and Score History — both SHIPPED 2026-07-11, see the header.)*
    - **Server-move track (needs backend, in campaign order):** server-side matching (Phase 1 —
      **LIVE 2026-07-11**; §6 step 5 pending its 14-day soak) → **Accounts + DB** (Phase 2) →
      **Leaderboard** (Phase 3; sortable by mode/user/total, asterisk when a total is mostly

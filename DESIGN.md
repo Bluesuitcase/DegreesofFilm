@@ -317,8 +317,11 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   total**. Flag a total with an **asterisk** when the majority of it came from the easier modes
   (Movie Buff / Poser), so a mostly-easy-mode total is visibly distinguished from a Cinephile total.
   Needs accounts + DB (per-user, per-mode score storage) — sits with them.
-- **Score History** — a screen of the player's previous daily scores. Doable client-only, but far
-  more useful backed by accounts/DB (cross-device, durable), so it lands here with them.
+- ~~Score History~~ — **SHIPPED 2026-07-11, client-only** (`?history`): `stats.js` records a
+  per-day `history` map (date → depth/score/won) alongside the aggregates; the view lists this
+  device's Cinephile dailies with archive-replay links. Recording starts at ship (earlier days
+  were never stored). The accounts/DB upgrade (cross-device, durable) remains a Phase 2 item —
+  this is the local-first version DESIGN said was doable.
 - **Server-side matching** → answers never leave the backend (the clean fix for the plaintext
   wart, vs. v2's stopgap obfuscation).
 - **True degrees-of-separation** mode — connect film A → film B via a shared person; a second game
