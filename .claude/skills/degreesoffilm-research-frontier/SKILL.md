@@ -249,7 +249,13 @@ say so) — and one person who isn't you completes it.
 - Don't bulk-crawl TMDB to build a huge graph speculatively — measure the per-challenge
   subgraph option first; it may need only the credits the pipeline already pulls.
 
-### 2b. Movie Buff via a prebaked title index [OPEN/CANDIDATE]
+### 2b. Movie Buff via a prebaked title index [SHIPPED 2026-07-11 — record only]
+
+> **PROMOTED AND SHIPPED 2026-07-11.** All three steps executed (curation/title_index.py,
+> docs/buff.js + docs/title-index.json, PRs #22/#23); milestone met and beaten: 5k titles =
+> 124.4 KB raw / 45.9 KB gzip, ledger coverage 21/21 asserted at build time, 0.05 ms/keystroke
+> filter via the shipped normalize(), index fetched only in buff mode, `?play&mode=buff` live.
+> Story in project_state.md. The section below is kept as the design record — nothing open here.
 
 **Why current SOTA fails / why the gate is softer than believed.** Movie Buff (title
 autocomplete on the film rung) is parked in DESIGN §6 v3 — but read the entry: "Needs a

@@ -73,7 +73,7 @@ All routing lives in `docs/app.js` `init()` (query string on `docs/index.html`).
 
 | Name | Value | Defined in | What it does | Gate |
 |---|---|---|---|---|
-| Routes | `?` home · `?modes` · `?play` daily · `?play&mode=poser` · `?id=N` archive replay · `?archive` index · `?practice` chooser · `?practice&mode=cinephile\|poser` endless | docs/app.js `init()` | view selection; unknown `mode` values fall back to `cinephile` | change-control (player-facing) |
+| Routes | `?` home · `?modes` · `?play` daily · `?play&mode=poser` · `?play&mode=buff` (Movie Buff, added 2026-07-11: cinephile rules + film-rung autocomplete from `title-index.json`, fetched only in this mode; no daily-stats writes) · `?id=N` archive replay · `?archive` index · `?practice` chooser · `?practice&mode=cinephile\|poser` endless | docs/app.js `init()` | view selection; unknown `mode` values fall back to `cinephile` | change-control (player-facing) |
 | `MODE_LABELS` | `{cinephile:'Cinephile', poser:'Poser', buff:'Movie Buff'}` | docs/app.js | mode-badge text (`buff` is v3 — label exists, mode doesn't) | free |
 | `QUOTES` | 6 film-quote one-liners (the master-block overlap probe prints the live list; two currently collide with the puzzle set) | docs/app.js | home-screen quote, rotates by day number `% QUOTES.length` | change-control — **spoiler constraint, see trap box 4** |
 | `ROASTS` | 4 tiers: poser×4, buff×4, almost×2, cinephile×3 lines | docs/app.js | end-screen roast pool, random pick within tier | free (tone; keep spoiler-free) |

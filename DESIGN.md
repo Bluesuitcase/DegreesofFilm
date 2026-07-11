@@ -66,11 +66,12 @@ How many degrees deep can you go?
 - **Cinephile** — the rules above, the full dig. **This is v1.**
 - **Poser** *(fast-follow)* — all multiple choice, drops the obscure deep rungs, flat **+1**
   per correct answer. A lighter, easier game. Reuses the `decoys` system. No architecture change.
-- **Movie Buff** *(fast-follow, gated on the v2 server move)* — Cinephile rules plus a title
-  autocomplete on the film rung drawing from **all** TMDB titles (so the dropdown doesn't leak
-  which films are eligible). This is the one feature that needs a backend or a large prebaked
-  title index — a live TMDB call from the browser would expose the key — so it's tied to the
-  server move. See parking lot.
+- **Movie Buff** *(SHIPPED 2026-07-11, no server needed)* — Cinephile rules plus a title
+  autocomplete on the film rung drawing from a **prebaked top-5k popular-title index** built
+  TMDB-wide (so the dropdown doesn't leak which films are eligible — index membership carries
+  ~no signal, and the build asserts every published film is present). The prebaked-index escape
+  hatch made this static: no backend, no live TMDB call, key-leak ban intact. Buff runs don't
+  touch the daily streak/stats (easier-mode rule, like Poser).
 - The **mode-select screen** ships in v1 with Cinephile lit and the other two shown as
   "coming soon," each with a short, funny cinema-term rules blurb.
 
@@ -306,9 +307,11 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
 
 ### v3 — needs the backend / scale (the server move)
 
-- **Movie Buff mode** — all-TMDB title autocomplete on the film rung. Needs a prebaked popular-
-  title index or a backend search proxy; a live TMDB call from the browser would expose the API
-  key. This is the feature that triggers the server move.
+- ~~Movie Buff mode~~ — **SHIPPED 2026-07-11 via the prebaked title index** (no server needed
+  after all): `curation/title_index.py` builds a TMDB-wide top-5k index (124 KB raw / 46 KB gz,
+  ledger-coverage asserted), `docs/buff.js` filters it with the shipped matcher `normalize()`,
+  and `?play&mode=buff` is live on the mode-select. The backend-search-proxy alternative was
+  never needed.
 - **Accounts + database** → cross-device stats, global leaderboards.
 - **Leaderboard** — a global board of players' results, **sortable by mode played, by user, and by
   total**. Flag a total with an **asterisk** when the majority of it came from the easier modes

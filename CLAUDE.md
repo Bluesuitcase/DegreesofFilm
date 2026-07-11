@@ -35,7 +35,7 @@ LIVE — deployed, GATE 1 passed, and the client default is ON** (`MATCH_API` in
 Cinephile guesses are verified by POST /match with a 2 s local-match fallback (`?servermatch=0`
 forces local); puzzle JSON still ships obfuscated answers as the fallback until §6 step 5 (gated on
 ≥14 days' stability). The rest of
-the v3 parking lot — **Movie Buff** (static-possible via a prebaked title index), accounts/DB,
+the v3 parking lot — accounts/DB,
 **Leaderboard**, Score History, degrees-of-separation — stays parked;
 `degreesoffilm-server-move-campaign` is the decision-gated plan.
 **Read `project_state.md` for exactly where we are and what's next.**
@@ -51,7 +51,7 @@ the v3 parking lot — **Movie Buff** (static-possible via a prebaked title inde
   `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
   `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, `node frame.test.js`,
-  `node cipher.test.js`, and `node worker.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node cipher.test.js`, `node worker.test.js`, and `node buff.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`. The matcher's case table lives in
   `match.cases.js` (shared by match.test.js and worker.test.js) — add cases there.
@@ -131,6 +131,7 @@ stats.test.js          Stats/streak tests (node stats.test.js): recordResult str
 frame.test.js          Credit-image tests (node frame.test.js): pickCreditFrame still selection.
 cipher.test.js         Answer-obfuscation tests (node cipher.test.js): decode/round-trip/passthrough
                        + a fixed vector shared with curation/cipher.test.py (cross-language parity).
+buff.test.js           Movie Buff autocomplete tests (node buff.test.js): indexKeys/suggest ranking.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -145,6 +146,10 @@ docs/                  The entire static site = what gets hosted.
                        fallback. Pure logic, no DOM.
   cipher.js            Light answer de-obfuscation (decode/decodeRungs). Mirrors curation/cipher.py;
                        app.js decodes each puzzle's rungs at load. Pure logic, no DOM.
+  buff.js              Movie Buff autocomplete core (indexKeys/suggest over title-index.json,
+                       keyed via match.js normalize). Pure logic, no DOM.
+  title-index.json     Prebaked top-5k TMDB title index [[title,year],...] for Movie Buff
+                       (built by curation/title_index.py; fetched only in buff mode).
   puzzles/
     001.json           The hand-authored Phase 0 puzzle (No Country for Old Men); 002+ are
                        tool-published. manifest.json is the daily index.
@@ -240,11 +245,19 @@ daily streak/stats.
   text input. Poser runs **don't** touch the daily streak/stats and skip the savage end roast; the
   share is tagged `(Poser)`. `game.js`'s `Game(puzzle, { mode })` only changes the scoring; the
   trim + all-MC rendering live in `app.js` (`poserPuzzle` / `renderChoices`).
+- **Movie Buff** (shipped 2026-07-11) — `?play&mode=buff`. Cinephile rules and scoring on the
+  full ladder, plus **title autocomplete on the film rung** from the prebaked static index
+  (`docs/buff.js` suggest over `title-index.json`, fetched only in this mode). Server matching
+  active (untrimmed ladder). Buff runs **don't** touch the daily streak/stats, skip the roast,
+  and share as `(Movie Buff)`.
 
 **Still deferred (DESIGN §6 parking lot), don't assume these exist:**
-- **Movie Buff** mode — title autocomplete on the film rung; stays "coming soon" on the
-  mode-select. A live browser TMDB call would leak the key; the research-frontier skill found a
-  **prebaked popular-title index** makes it static-possible (no server required).
+- ~~Movie Buff mode~~ — **SHIPPED 2026-07-11** (`?play&mode=buff`, mode-select tile lit):
+  Cinephile rules + film-rung title autocomplete from a **prebaked static top-5k title index**
+  (`docs/title-index.json`, built TMDB-wide by `curation/title_index.py` so membership leaks
+  nothing; build asserts every ledger film present). `docs/buff.js` is the pure suggest core
+  (keys via the shipped `normalize()`); other modes never fetch the index. Buff runs don't touch
+  daily streak/stats and share as "(Movie Buff)". No live TMDB call — the key-leak ban holds.
 - ~~Server-side matching~~ — **SHIPPED AND ON (2026-07-11)**: the v3 Phase 1 Worker at
   `https://dof-match.bluesuitcase.workers.dev` verifies cinephile guesses (2 s local fallback;
   `?servermatch=0` forces local). Still pending: §6 step 5 (stop embedding answers in NEW puzzle

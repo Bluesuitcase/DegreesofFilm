@@ -11,7 +11,12 @@ DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
 parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is ON since
 2026-07-11 ([PR #21], owner-approved, §6 step 2 executed — live-verified both verdict paths from
 the Pages origin).** Next v3 milestone: §6 step 5 (stop embedding answers in NEW puzzles), gated on
-≥14 days' stability (~07-25) + owner sign-off. **Content: 21 puzzles
+≥14 days' stability (~07-25) + owner sign-off. **⭐ MOVIE BUFF MODE SHIPPED same day** ([PR #22]
+prototype + [PR #23] promotion → `6f199b9`, live-verified): `?play&mode=buff` = Cinephile rules +
+film-rung autocomplete from the prebaked static top-5k title index (`curation/title_index.py` →
+`docs/title-index.json`, 46 KB gz, ledger coverage asserted 21/21; `docs/buff.js` + buff.test.js
+11 cases — 9 JS suites now). The last "coming soon" tile is lit; no server, no key exposure; buff
+runs don't touch daily stats. **Content: 21 puzzles
 (001–021), runway = 8 days** (012–021 pushed `89ccdbb` on 07-11; 012/013 are past-dated 07-09/07-10
 archive backfill — see Key decisions; KV answers synced, 21 keys). LOAD THE RELEVANT SKILL FIRST
 (v3 → `degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
@@ -215,13 +220,14 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    below (bit-part rungs; don't let the editor touch today's/past puzzles).
 3. **v3 parking lot (everything else — out of the owner's chosen scope for now).** Two tracks
    (full list in DESIGN.md §6, research angles in `degreesoffilm-research-frontier`):
-   - **Stay-static (no backend):** Score History (client-only), **Movie Buff** (prebaked popular-title
-     index — the frontier skill found this is static-possible, NOT strictly server-gated), true
-     degrees-of-separation (prebaked film/person graph).
+   - **Stay-static (no backend):** Score History (client-only), true degrees-of-separation
+     (prebaked film/person graph). *(Movie Buff — SHIPPED 2026-07-11 via the prebaked title
+     index, see the header.)*
    - **Server-move track (needs backend, in campaign order):** server-side matching (Phase 1 —
-     spike DONE, gate pending) → **Accounts + DB** (Phase 2) → **Leaderboard** (Phase 3; sortable by
-     mode/user/total, asterisk when a total is mostly easy-mode) + cross-device stats. Also:
-     commercial TMDB agreement (only if it scales/monetizes).
+     **LIVE 2026-07-11**; §6 step 5 pending its 14-day soak) → **Accounts + DB** (Phase 2) →
+     **Leaderboard** (Phase 3; sortable by mode/user/total, asterisk when a total is mostly
+     easy-mode) + cross-device stats. Also: commercial TMDB agreement (only if it
+     scales/monetizes).
 3. **Housekeeping (optional):** two orphaned worktree dirs (`.claude/worktrees/adoring-blackburn-*`,
    `loving-maxwell-*`) are git-deregistered + gitignored but Windows-locked; delete them once the
    sessions holding them close (`rm -rf .claude/worktrees/*`). Also consider copying the skills to the
