@@ -38,6 +38,25 @@ let won = recordResult(s, { date: '2026-06-30', depth: 12, won: true });
 check('win increments wins', won.wins, 1);
 check('win extends streak to 3', won.currentStreak, 3);
 
+// --- per-day score history (Score History feature, 2026-07-11) ---
+let h = recordResult(defaultStats(), { date: '2026-07-11', depth: 6, score: 22, won: false });
+check('history records the day', h.history, { '2026-07-11': { depth: 6, score: 22, won: false } });
+h = recordResult(h, { date: '2026-07-12', depth: 12, score: 90, won: true });
+check('history accrues across days', Object.keys(h.history).length, 2);
+check('history keeps win + score', h.history['2026-07-12'], { depth: 12, score: 90, won: true });
+let hAgain = recordResult(h, { date: '2026-07-12', depth: 1, score: 1, won: false });
+check('same-day replay does not overwrite history', hAgain.history['2026-07-12'],
+      { depth: 12, score: 90, won: true });
+check('score defaults to 0 when absent',
+      recordResult(defaultStats(), { date: '2026-07-11', depth: 3, won: false }).history['2026-07-11'].score, 0);
+// migration: a pre-history stats blob (no history field) must not crash and must gain one
+const old = { played: 4, wins: 1, bestDepth: 9, currentStreak: 2, maxStreak: 3,
+              lastDate: '2026-07-10', lastDepth: 9, histogram: { 9: 1 } };
+const migrated = recordResult(old, { date: '2026-07-11', depth: 5, score: 15, won: false });
+check('pre-history blob gains a history on next record',
+      migrated.history, { '2026-07-11': { depth: 5, score: 15, won: false } });
+check('pre-history blob keeps its aggregates', migrated.played, 5);
+
 // --- input is not mutated (pure) ---
 const before = defaultStats();
 const snapshot = JSON.stringify(before);
