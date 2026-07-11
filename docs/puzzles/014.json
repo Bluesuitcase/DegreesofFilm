@@ -1,0 +1,182 @@
+{
+  "id": 14,
+  "date": "2026-07-11",
+  "theme": {
+    "accent": "#3f5473",
+    "bg": "#101924",
+    "bg2": "#293047"
+  },
+  "images": [
+    "images/014-1.jpg",
+    "images/014-2.jpg",
+    "images/014-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001JgkIHQFFIEQCFkED"
+      ],
+      "decoys": [
+        "Deep Water",
+        "Mr. Brooks",
+        "Bound"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Ray?",
+      "answers": [
+        "\u0001LgoPHEUiFlkV"
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001LgoPHEUiFlkVRkwVST4MHQ==",
+      "image": "images/014-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Abby?",
+      "answers": [
+        "\u0001IhcGHAYAAA0iBWkJGwEMCgE="
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001IhcGHAYAAA0iBWkJGwEMCgFHExZFMk8NHw==",
+      "image": "images/014-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001LgoCHkUmHEgB"
+      ],
+      "decoys": [
+        "Orson Welles",
+        "Lana Wachowski",
+        "Lilly Wachowski"
+      ],
+      "caption": "\u0001LgoCHkUmHEgB",
+      "image": "images/014-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Julian Marty?",
+      "answers": [
+        "\u0001IAQJUi0AF0wWBw=="
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001IAQJUi0AF0wWBw0HGkwnEQkOEwtFPkwdElQ=",
+      "image": "images/014-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Meurice?",
+      "answers": [
+        "\u0001NwQKH0gkAVlPMUQKBQUMCRY="
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001NwQKH0gkAVlPMUQKBQUMCRZHExZFPkgaFEQFDA==",
+      "image": "images/014-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Private Detective?",
+      "answers": [
+        "\u0001KUtHNwgIFllPMUwKGgQ="
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001KUtHNwgIFllPMUwKGgRNBRZHIhcMBUwbAw0iDBgIBxEOBAA=",
+      "image": "images/014-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Debra?",
+      "answers": [
+        "\u0001IAAFHRcEGw0hA1gLCAID"
+      ],
+      "decoys": [
+        "Ana de Armas",
+        "Dermot Mulroney",
+        "Liam Neeson"
+      ],
+      "caption": "\u0001IAAFHRcEGw0hA1gLCAIDRAQUUiEAEV8O",
+      "image": "images/014-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001JgQVABxFIEIBCEgIDwkBAA=="
+      ],
+      "decoys": [
+        "Dariusz Wolski",
+        "Bill Pope",
+        "Mihai Malaimare Jr."
+      ],
+      "caption": "\u0001JgQVABxFIEIBCEgIDwkBAA==",
+      "image": "images/014-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001JwQVBgAXU28aFFoDBQA="
+      ],
+      "decoys": [
+        "James Newton Howard",
+        "Ramin Djawadi",
+        "Quincy Jones"
+      ],
+      "caption": "\u0001JwQVBgAXU28aFFoDBQA=",
+      "image": "images/014-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001IREPEwtFMEIKCA==",
+        "\u0001IAoJUjIMFkoCB0MI",
+        "\u0001LgoCHkUmHEgB"
+      ],
+      "decoys": [
+        "Andrew Mondshein",
+        "Miklos Wright",
+        "Virgil W. Vogel"
+      ],
+      "caption": "\u0001IREPEwtFMEIKCA==",
+      "image": "images/014-r11.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001LgQJF0UoBl4EHw=="
+      ],
+      "decoys": [
+        "Roshelle Berliner",
+        "Jeannine Oppewall",
+        "David Brisbin"
+      ]
+    }
+  ]
+}

@@ -64,5 +64,65 @@
     "title": "Kill Bill: Vol. 1",
     "year": "2003",
     "puzzle": 11
+  },
+  {
+    "id": 1895,
+    "title": "Star Wars: Episode III - Revenge of the Sith",
+    "year": "2005",
+    "puzzle": 12
+  },
+  {
+    "id": 10934,
+    "title": "Under the Tuscan Sun",
+    "year": "2003",
+    "puzzle": 13
+  },
+  {
+    "id": 11368,
+    "title": "Blood Simple",
+    "year": "1985",
+    "puzzle": 14
+  },
+  {
+    "id": 2924,
+    "title": "Backdraft",
+    "year": "1991",
+    "puzzle": 15
+  },
+  {
+    "id": 515042,
+    "title": "Free Solo",
+    "year": "2018",
+    "puzzle": 16
+  },
+  {
+    "id": 9291,
+    "title": "The Longest Yard",
+    "year": "2005",
+    "puzzle": 17
+  },
+  {
+    "id": 696,
+    "title": "Manhattan",
+    "year": "1979",
+    "puzzle": 18
+  },
+  {
+    "id": 533,
+    "title": "Wallace & Gromit: The Curse of the Were-Rabbit",
+    "year": "2005",
+    "puzzle": 19
+  },
+  {
+    "id": 9470,
+    "title": "Kung Fu Hustle",
+    "year": "2004",
+    "puzzle": 20
+  },
+  {
+    "id": 80,
+    "title": "Before Sunset",
+    "year": "2004",
+    "puzzle": 21
   }
 ]

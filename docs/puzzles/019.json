@@ -1,0 +1,179 @@
+{
+  "id": 19,
+  "date": "2026-07-16",
+  "theme": {
+    "accent": "#427867",
+    "bg": "#242015",
+    "bg2": "#202047"
+  },
+  "images": [
+    "images/019-1.jpg",
+    "images/019-2.jpg",
+    "images/019-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001MwQLHgQGFg1JRmoUBgEEEF9HJg0AU24aFF4DSQMLRBEPF0UyFl8KS38HCw4EEA=="
+      ],
+      "decoys": [
+        "The Angry Birds Movie",
+        "A Bug's Life",
+        "Strange World"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Wallace / Hutch (voice)?",
+      "answers": [
+        "\u0001NAATFxdFIEwDCkQV"
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001NAATFxdFIEwDCkQVSQ0eRDIGHgkEEEhPSQ0uHBgODEVPBAoMEEhG",
+      "image": "images/019-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Victor Quartermaine (voice)?",
+      "answers": [
+        "\u0001NgQLAg1FNUQKCEMDGg=="
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001NgQLAg1FNUQKCEMDGkwMF0UxGwYRHF9PN1gHGxgIFggGGwsAUwUZCUQFDEU=",
+      "image": "images/019-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NxECBABFMUIX",
+        "\u0001KgwEGUU1El8E"
+      ],
+      "decoys": [
+        "Wes Anderson",
+        "John Lasseter",
+        "Roger Allers"
+      ],
+      "caption": "\u0001NxECBABFMUIX",
+      "image": "images/019-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Lady Campanula Tottington (voice)?",
+      "answers": [
+        "\u0001LAALFwsEU28ACEUHBEwuBRcTFxc="
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001LAALFwsEU28ACEUHBEwuBRcTFxdFEl5PKkwCEEwuBQgXEwsQH0xPMkISHQUDAxEIHEVNBUIGBUhP",
+      "image": "images/019-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played PC Mackintosh (voice)?",
+      "answers": [
+        "\u0001NAATFxdFOEwW"
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001NAATFxdFOEwWRkwVSTwuRCgGEQ4MHVkAFUVGQRoCDQYCWw==",
+      "image": "images/019-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Reverend Clement Hedges (voice)?",
+      "answers": [
+        "\u0001KgwEGgoJEl5PNUAPHQQ="
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001KgwEGgoJEl5PNUAPHQRNBRZHIAATFl8KCElGKgAICQAJBkUtFkkIA15GQRoCDQYCWw==",
+      "image": "images/019-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Mrs. Mulch (voice)?",
+      "answers": [
+        "\u0001KAwdUjYIGlkH"
+      ],
+      "decoys": [
+        "Jason Schwartzman",
+        "Bruce Willis",
+        "Jake Gyllenhaal"
+      ],
+      "caption": "\u0001KAwdUjYIGlkHRkwVSSEfF0tHPxAJEEVPTlsJAA8ITQ==",
+      "image": "images/019-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001MBcOAREEHQ0gCkQQDB4=",
+        "\u0001IAQRF0UkH0gXRn8PDQgIEBE="
+      ],
+      "decoys": [
+        "Xavier Grobet",
+        "Sharon Calahan"
+      ],
+      "caption": "\u0001MBcOAREEHQ0gCkQQDB4=",
+      "image": "images/019-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001LhALGwQLU2MAElk="
+      ],
+      "decoys": [
+        "Ramin Djawadi",
+        "Alexandre Desplat",
+        "Randy Newman"
+      ]
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001IAQRGwFFPk4sCV8LAA8G",
+        "\u0001JQsAGgQXEklPKVoDBw==",
+        "\u0001IxcCFQoXCg0/A18KDB4="
+      ],
+      "decoys": [
+        "Lee Unkrich",
+        "Kent Beyda",
+        "Tiffany Hillkurtz"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001NA0OHkUpFloGFQ=="
+      ],
+      "decoys": [
+        "Ed Verreaux",
+        "Pete Oswald",
+        "Kathy Altieri"
+      ]
+    }
+  ]
+}

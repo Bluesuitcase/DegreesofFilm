@@ -1,0 +1,179 @@
+{
+  "id": 20,
+  "date": "2026-07-17",
+  "theme": {
+    "accent": "#bd9b58",
+    "bg": "#242215",
+    "bg2": "#473820"
+  },
+  "images": [
+    "images/020-1.jpg",
+    "images/020-2.jpg",
+    "images/020-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001LxAJFUUjBg0nE14SBQk=",
+        "\u0001ge/4l8HO"
+      ],
+      "decoys": [
+        "Kick-Ass",
+        "22 Jump Street",
+        "Hot Fuzz"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Sing?",
+      "answers": [
+        "\u0001NxECAg0AHQ0sDkIR"
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001NxECAg0AHQ0sDkIRSQ0eRDYOHAI=",
+      "image": "images/020-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Landlady?",
+      "answers": [
+        "\u0001PRACHEU0Glg="
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001PRACHEU0GlhPB15GJQ0DAAkGFhw=",
+      "image": "images/020-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NxECAg0AHQ0sDkIR"
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "John Carpenter",
+        "Phil Lord"
+      ],
+      "caption": "\u0001NxECAg0AHQ0sDkIR",
+      "image": "images/020-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Landlord?",
+      "answers": [
+        "\u0001PRACHEUyEkU="
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001PRACHEUyEkVPB15GJQ0DAAkIAAE=",
+      "image": "images/020-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Sing's Sidekick?",
+      "answers": [
+        "\u0001KAQKUjEfFgAsDlgIDg=="
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001KAQKUjEfFgAsDlgIDkwMF0U0GwsCVF5PNUQCDAcEBw4=",
+      "image": "images/020-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played The Beast?",
+      "answers": [
+        "\u0001JhcSEQBFP0gaCEpGOgUYSSkSHAI="
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001JhcSEQBFP0gaCEpGOgUYSSkSHAJFEl5PMkUDSS4IBRYT",
+      "image": "images/020-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Fong?",
+      "answers": [
+        "\u0001IRMGUi0QEkMIRn4ODAIKHQw="
+      ],
+      "decoys": [
+        "Jackie Chan",
+        "Nicolas Cage",
+        "John Travolta"
+      ],
+      "caption": "\u0001IRMGUi0QEkMIRn4ODAIKHQxHExZFNUIBAQ==",
+      "image": "images/020-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001NAoIHEUtEkMIS34HBws="
+      ],
+      "decoys": [
+        "Dean Cundey",
+        "Ben Davis",
+        "Cheng Siu-Keung"
+      ],
+      "caption": "\u0001NAoIHEUtEkMIS34HBws=",
+      "image": "images/020-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001NgQeHwoLFw04CUMBSTUECgJKJQQN"
+      ],
+      "decoys": [
+        "John Carpenter",
+        "Kenji Kawai",
+        "Mark Mothersbaugh"
+      ],
+      "caption": "\u0001NgQeHwoLFw04CUMBSTUECgJKJQQN",
+      "image": "images/020-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001JQsAGwBFP0wCRmIIRDUIAQ=="
+      ],
+      "decoys": [
+        "David Rennie",
+        "Peter Cheung Yiu-Chung",
+        "Eddie Hamilton"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001KwkOBAAXU3oACEpGMBkESSgGHA=="
+      ],
+      "decoys": [
+        "Kenneth Mak",
+        "John J. Lloyd",
+        "Steve Saklad"
+      ]
+    }
+  ]
+}

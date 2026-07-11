@@ -1,0 +1,164 @@
+{
+  "id": 18,
+  "date": "2026-07-15",
+  "theme": {
+    "accent": "#733f3f",
+    "bg": "#241515",
+    "bg2": "#472929"
+  },
+  "images": [
+    "images/018-1.jpg",
+    "images/018-2.jpg",
+    "images/018-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001KQQJGgQRB0wB"
+      ],
+      "decoys": [
+        "Shrek",
+        "Fifty Shades Freed",
+        "Unfaithful"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Isaac Davis?",
+      "answers": [
+        "\u0001MwoIFhxFMkEDA0M="
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001MwoIFhxFMkEDA0NGCB9NLRYGEwZFN0wZD14=",
+      "image": "images/018-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Mary Wilkie?",
+      "answers": [
+        "\u0001IAwGHABFOEgOEkII"
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001IAwGHABFOEgOEkIISQ0eRCgGABxFJEQDDUQD",
+      "image": "images/018-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001MwoIFhxFMkEDA0M="
+      ],
+      "decoys": [
+        "Wong Kar-Wai",
+        "William Wyler",
+        "Barry Levinson"
+      ],
+      "caption": "\u0001MwoIFhxFMkEDA0M=",
+      "image": "images/018-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Yale?",
+      "answers": [
+        "\u0001KQwEGgQAHw0iE18WARU="
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001KQwEGgQAHw0iE18WARVNBRZHKwQJFg==",
+      "image": "images/018-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Tracy?",
+      "answers": [
+        "\u0001KQQVGwAJU2UKC0QIDhsMHQ=="
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001KQQVGwAJU2UKC0QIDhsMHUUGAUUxAUwMHw==",
+      "image": "images/018-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Jill?",
+      "answers": [
+        "\u0001KQAVCwlFIFkdA0gW"
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001KQAVCwlFIFkdA0gWSQ0eRC8OHgk=",
+      "image": "images/018-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Emily?",
+      "answers": [
+        "\u0001JQsJF0UnCl8BAw0uBgoLCQQJ"
+      ],
+      "decoys": [
+        "Kevin Bacon",
+        "Robert De Niro",
+        "Eddie Murphy"
+      ],
+      "caption": "\u0001JQsJF0UnCl8BAw0uBgoLCQQJUgQWU2gCD0Ef",
+      "image": "images/018-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001IwoVFgoLU3oGCkEPGg=="
+      ],
+      "decoys": [
+        "Christopher Doyle",
+        "Mark Lee Ping-Bing",
+        "Henri Alekan"
+      ],
+      "caption": "\u0001IwoVFgoLU3oGCkEPGg==",
+      "image": "images/018-r9.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001NxAUEwtFNgNPK0IUGgk="
+      ],
+      "decoys": [
+        "Richard Francis-Bruce",
+        "Debra Neil-Fisher",
+        "William Chang Suk-Ping"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001KQALUicKBl8BAw=="
+      ],
+      "decoys": [
+        "Kristi Zea",
+        "William Chang Suk-Ping",
+        "Brian Morris"
+      ]
+    }
+  ]
+}

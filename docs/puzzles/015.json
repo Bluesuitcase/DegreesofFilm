@@ -1,0 +1,179 @@
+{
+  "id": 15,
+  "date": "2026-07-12",
+  "theme": {
+    "accent": "#a26626",
+    "bg": "#241610",
+    "bg2": "#472929"
+  },
+  "images": [
+    "images/015-1.jpg",
+    "images/015-2.jpg",
+    "images/015-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001JgQEGQEXEksb"
+      ],
+      "decoys": [
+        "Scarface",
+        "Cleaner",
+        "The Negotiator"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Stephen McCaffrey?",
+      "answers": [
+        "\u0001LxAVBkU3Bl4cA0EK"
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001LxAVBkU3Bl4cA0EKSQ0eRDYTFxUNFkNPK04lCAoLFgAe",
+      "image": "images/015-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Brian McCaffrey?",
+      "answers": [
+        "\u0001MwwLHgwEHg0tB0ECHgUD"
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001MwwLHgwEHg0tB0ECHgUDRAQUUicXGkwBRmAFKg0LAhcCCw==",
+      "image": "images/015-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NgoJUi0KBEwdAg=="
+      ],
+      "decoys": [
+        "Martin Campbell",
+        "Brian De Palma",
+        "Joel Schumacher"
+      ],
+      "caption": "\u0001NgoJUi0KBEwdAg==",
+      "image": "images/015-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Donald Rimgale?",
+      "answers": [
+        "\u0001NgoFFxcRU2kKRmMPGwM="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001NgoFFxcRU2kKRmMPGwNNBRZHNgoLEkELRn8PBAsMCAA=",
+      "image": "images/015-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Ronald Bartel?",
+      "answers": [
+        "\u0001IAoJEwkBU34aEkUDGwAMCgE="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001IAoJEwkBU34aEkUDGwAMCgFHExZFIUIBB0ECSS4MFhECHg==",
+      "image": "images/015-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Jennifer Vaitkus?",
+      "answers": [
+        "\u0001LgAJHAwDFl9PLEwVBgJNKAAOFQ0="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001LgAJHAwDFl9PLEwVBgJNKAAOFQ1FEl5PLEgIBwULARdHJAQMB0YaFQ==",
+      "image": "images/015-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played John 'Axe' Adcox?",
+      "answers": [
+        "\u0001NwYIBhFFNEEKCEM="
+      ],
+      "decoys": [
+        "Nicolas Cage",
+        "Angelina Jolie",
+        "Samuel L. Jackson"
+      ],
+      "caption": "\u0001NwYIBhFFNEEKCENGCB9NLgoPHEVCMlUKQQ0nDQ8CHA==",
+      "image": "images/015-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001KQwMEwAJU34OCkILBgI="
+      ],
+      "decoys": [
+        "Matt Flannery",
+        "John A. Alonzo",
+        "Tony Pierce-Roberts"
+      ],
+      "caption": "\u0001KQwMEwAJU34OCkILBgI=",
+      "image": "images/015-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001LAQJAUU/GkACA18="
+      ],
+      "decoys": [
+        "Alexandre Desplat",
+        "Graeme Revell",
+        "Howard Shore"
+      ],
+      "caption": "\u0001LAQJAUU/GkACA18=",
+      "image": "images/015-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001IAQJGwAJU31BRmUHBwAIHQ==",
+        "\u0001KQwMF0UtGkED"
+      ],
+      "decoys": [
+        "Matt Platts-Mills",
+        "Jim Page",
+        "David Ray"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001JQkFFxcRU28dA0MIDB4="
+      ],
+      "decoys": [
+        "Gemma Jackson",
+        "Russell De Rozario",
+        "Ferdinando Scarfiotti"
+      ]
+    }
+  ]
+}

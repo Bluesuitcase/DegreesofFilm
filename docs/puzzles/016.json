@@ -1,0 +1,171 @@
+{
+  "id": 16,
+  "date": "2026-07-13",
+  "theme": {
+    "accent": "#73683f",
+    "bg": "#1e2415",
+    "bg2": "#473829"
+  },
+  "images": [
+    "images/016-1.jpg",
+    "images/016-2.jpg",
+    "images/016-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001IhcCF0U2HEEA"
+      ],
+      "decoys": [
+        "The Darkest Minds",
+        "Obi-Wan Kenobi: A Jedi's Return",
+        "Nim's Island"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001JQkCCkUtHEMBCUEC"
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001JQkCCkUtHEMBCUECSQ0eRDYCHgM=",
+      "image": "images/016-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001MAoKHxxFMEwDAloDBQA="
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001MAoKHxxFMEwDAloDBQBNBRZHIQAJFQ==",
+      "image": "images/016-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001LgwKHxxFMEUGCA==",
+        "\u0001IQkOCAQHFlkHRm4OCAVNMgQUExcNFkEWDw=="
+      ],
+      "decoys": [
+        "Jennifer Yuh Nelson",
+        "Mark Levin",
+        "Jennifer Flackett"
+      ],
+      "caption": "\u0001LgwKHxxFMEUGCA==",
+      "image": "images/016-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001LgwKHxxFMEUGCA=="
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001LgwKHxxFMEUGCA0HGkw+AQkB",
+      "image": "images/016-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001NwQJHAxFPk4sB0MCBQkeFw=="
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001NwQJHAxFPk4sB0MCBQkeF0UGAUU2FkEJ",
+      "image": "images/016-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001KQwMFxxFIE4HB0gADB4="
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001KQwMFxxFIE4HB0gADB5NBRZHIQAJFQ==",
+      "image": "images/016-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Self?",
+      "answers": [
+        "\u0001Jw0CCwsAU2EKC10D"
+      ],
+      "decoys": [
+        "Hayden Christensen",
+        "Gerard Butler",
+        "Jodie Foster"
+      ],
+      "caption": "\u0001Jw0CCwsAU2EKC10DSQ0eRDYCHgM=",
+      "image": "images/016-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001LgwKHxxFMEUGCA==",
+        "\u0001JwkGGxdFI0IfDUQI",
+        "\u0001KQwMFxxFIE4HB0gADB4="
+      ],
+      "decoys": [
+        "Stuart Dryburgh",
+        "Kramer Morgenthau",
+        "Chloe Weaver"
+      ],
+      "caption": "\u0001LgwKHxxFMEUGCA==",
+      "image": "images/016-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001KQQVEQpFMUgDEl8HBAU="
+      ],
+      "decoys": [
+        "Patrick Doyle",
+        "Benjamin Wallfisch",
+        "Michael Dean Parsons"
+      ],
+      "caption": "\u0001KQQVEQpFMUgDEl8HBAU=",
+      "image": "images/016-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001JgoFUiAMAEgBDkwUDRg="
+      ],
+      "decoys": [
+        "Dean Zimmerman",
+        "Stuart Levy",
+        "Maryann Brandon"
+      ],
+      "caption": "\u0001JgoFUiAMAEgBDkwUDRg=",
+      "image": "images/016-r11.jpg"
+    }
+  ]
+}

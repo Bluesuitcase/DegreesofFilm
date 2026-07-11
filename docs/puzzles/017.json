@@ -1,0 +1,180 @@
+{
+  "id": 17,
+  "date": "2026-07-14",
+  "theme": {
+    "accent": "#824854",
+    "bg": "#1c2415",
+    "bg2": "#473229"
+  },
+  "images": [
+    "images/017-1.jpg",
+    "images/017-2.jpg",
+    "images/017-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001MA0CUikKHUoKFVlGMA0fAA=="
+      ],
+      "decoys": [
+        "The Naked Gun: From the Files of Police Squad!",
+        "The Naked Gun 2½: The Smell of Fear",
+        "Naked Gun 33⅓: The Final Insult"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Paul Crewe?",
+      "answers": [
+        "\u0001JQEGH0U2EkMLCkgU"
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001JQEGH0U2EkMLCkgUSQ0eRDUGBwlFMF8KEUg=",
+      "image": "images/017-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Caretaker?",
+      "answers": [
+        "\u0001Jw0VGxZFIUIMDQ=="
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001Jw0VGxZFIUIMDQ0HGkwuBRcCBgQOFl8=",
+      "image": "images/017-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NAATFxdFIEgIB0E="
+      ],
+      "decoys": [
+        "Ben Stiller",
+        "Destin Daniel Cretton",
+        "Oliver Stone"
+      ],
+      "caption": "\u0001NAATFxdFIEgIB0E=",
+      "image": "images/017-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Warden Hazen?",
+      "answers": [
+        "\u0001LgQKFxZFMF8AC1oDBQA="
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001LgQKFxZFMF8AC1oDBQBNBRZHJQQXF0gBRmUHEwkD",
+      "image": "images/017-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Megget?",
+      "answers": [
+        "\u0001KgALHhw="
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001KgALHhxFEl5PK0gBDgkZ",
+      "image": "images/017-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Deacon Moss?",
+      "answers": [
+        "\u0001KQwEGgQAHw0mFFsPBw=="
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001KQwEGgQAHw0mFFsPB0wMF0UjFwQGHENPK0IVGg==",
+      "image": "images/017-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Switowski?",
+      "answers": [
+        "\u0001JgoFUjYEA10="
+      ],
+      "decoys": [
+        "Tom Hanks",
+        "J.K. Simmons",
+        "Jim Carrey"
+      ],
+      "caption": "\u0001JgoFUjYEA11PB15GOhsEEAoQAQ4M",
+      "image": "images/017-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001IAAGHEU2FkADA18="
+      ],
+      "decoys": [
+        "Roger Deakins",
+        "Brett Pawlak",
+        "Stanley Cortez"
+      ],
+      "caption": "\u0001IAAGHEU2FkADA18=",
+      "image": "images/017-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001MAADFhxFMEwcEkgKBRkOBww="
+      ],
+      "decoys": [
+        "Carter Burwell",
+        "John Ottman",
+        "Ira Newborn"
+      ],
+      "caption": "\u0001MAADFhxFMEwcEkgKBRkOBww=",
+      "image": "images/017-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001LgABFEUiHFgdFUII"
+      ],
+      "decoys": [
+        "Ethan Coen",
+        "Joel Coen",
+        "Nat Sanders"
+      ]
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001NAAVABxFMkMLA0EPB0wvCAQMFw=="
+      ],
+      "decoys": [
+        "Lawrence G. Paull",
+        "Dennis Gassner",
+        "John J. Lloyd"
+      ],
+      "caption": "\u0001NAAVABxFMkMLA0EPB0wvCAQMFw==",
+      "image": "images/017-r12.jpg"
+    }
+  ]
+}

@@ -1,0 +1,181 @@
+{
+  "id": 13,
+  "date": "2026-07-10",
+  "theme": {
+    "accent": "#907a4f",
+    "bg": "#15241d",
+    "bg2": "#473722"
+  },
+  "images": [
+    "images/013-1.jpg",
+    "images/013-2.jpg",
+    "images/013-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001MQsDFxdFB0UKRnkTGg8MCkU0Bws="
+      ],
+      "decoys": [
+        "St. Vincent",
+        "Just Like Heaven",
+        "The Other Woman"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Frances?",
+      "answers": [
+        "\u0001IAwGHABFP0wBAw=="
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001IAwGHABFP0wBAw0HGkwrFgQJEQAW",
+      "image": "images/013-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Katherine?",
+      "answers": [
+        "\u0001KAwJFhYECg0rE0MFCAI="
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001KAwJFhYECg0rE0MFCAJNBRZHOQQRG0gdD0MD",
+      "image": "images/013-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001JRADAAAcU3oKCkEV"
+      ],
+      "decoys": [
+        "Danny DeVito",
+        "Mark Waters",
+        "Nick Cassavetes"
+      ],
+      "caption": "\u0001JRADAAAcU3oKCkEV",
+      "image": "images/013-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Martini?",
+      "answers": [
+        "\u0001MgwJEQALBw09D0ISHQ0="
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001MgwJEQALBw09D0ISHQ1NBRZHPwQXB0QBDw==",
+      "image": "images/013-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Chiara?",
+      "answers": [
+        "\u0001IwwSHgwEU2EAE0QVDEw+EAAOFQAXBEwDEg=="
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001IwwSHgwEU2EAE0QVDEw+EAAOFQAXBEwDEg0HGkwuDAwGAAQ=",
+      "image": "images/013-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Marcello?",
+      "answers": [
+        "\u0001NgQIBwlFMUIZBw=="
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001NgQIBwlFMUIZBw0HGkwgBRcEFwkJHA==",
+      "image": "images/013-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Patti?",
+      "answers": [
+        "\u0001NwQJFhcEU2IH"
+      ],
+      "decoys": [
+        "Dermot Mulroney",
+        "Amy Adams",
+        "Drew Barrymore"
+      ],
+      "caption": "\u0001NwQJFhcEU2IHRkwVSTwMEBEO",
+      "image": "images/013-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001IwAIFAMXFlRPNUQLGR8CCg=="
+      ],
+      "decoys": [
+        "Tim Suhrstedt",
+        "Robert Fraisse",
+        "Daryn Okada"
+      ],
+      "caption": "\u0001IwAIFAMXFlRPNUQLGR8CCg==",
+      "image": "images/013-r9.jpg"
+    },
+    {
+      "role": "Composer",
+      "prompt": "Who composed the score?",
+      "answers": [
+        "\u0001Jw0VGxYRHF0HAw0kDA8G"
+      ],
+      "decoys": [
+        "David Newman",
+        "Michael Andrews",
+        "Theodore Shapiro"
+      ],
+      "caption": "\u0001Jw0VGxYRHF0HAw0kDA8G",
+      "image": "images/013-r10.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001JRcTGhAXU24ABFgUBw==",
+        "\u0001JQsDAAASU2AOFE4TGg=="
+      ],
+      "decoys": [
+        "Bruce Green",
+        "Christopher Greenbury",
+        "Peter Teschner"
+      ],
+      "caption": "\u0001JRcTGhAXU24ABFgUBw==",
+      "image": "images/013-r11.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001NxECAg0AHQ0iBW4HCwk="
+      ],
+      "decoys": [
+        "William Arnold",
+        "Cary White",
+        "Richard Toyon"
+      ]
+    }
+  ]
+}

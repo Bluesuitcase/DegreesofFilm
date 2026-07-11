@@ -1,0 +1,166 @@
+{
+  "id": 21,
+  "date": "2026-07-18",
+  "theme": {
+    "accent": "#91683c",
+    "bg": "#242415",
+    "bg2": "#473520"
+  },
+  "images": [
+    "images/021-1.jpg",
+    "images/021-2.jpg",
+    "images/021-3.jpg"
+  ],
+  "rungs": [
+    {
+      "role": "Film",
+      "prompt": "Name the film.",
+      "answers": [
+        "\u0001JgABHRcAU34aCF4DHQ=="
+      ],
+      "decoys": [
+        "The Notebook",
+        "Me Before You",
+        "Purple Hearts"
+      ]
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Jesse?",
+      "answers": [
+        "\u0001IREPEwtFO0wYDUg="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001IREPEwtFO0wYDUhGCB9NLgAUAQA=",
+      "image": "images/021-r2.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Céline?",
+      "answers": [
+        "\u0001LhALGwBFN0gDFlQ="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001LhALGwBFN0gDFlRGCB9NJ6bOHgwLFg==",
+      "image": "images/021-r3.jpg"
+    },
+    {
+      "role": "Director",
+      "prompt": "Who directed it?",
+      "answers": [
+        "\u0001NgwEGgQXFw0jD0MNBQ0ZARc="
+      ],
+      "decoys": [
+        "Clint Eastwood",
+        "Paul Thomas Anderson",
+        "Woody Allen"
+      ],
+      "caption": "\u0001NgwEGgQXFw0jD0MNBQ0ZARc=",
+      "image": "images/021-r4.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Bookstore Manager?",
+      "answers": [
+        "\u0001MgAVHAoLU2kABFkFAQkLAg=="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001MgAVHAoLU2kABFkFAQkLAkUGAUUnHEIEFVkJGwlNKQQJEwIAAQ==",
+      "image": "images/021-r5.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Journalist #1?",
+      "answers": [
+        "\u0001KAoSGxYAU2EKC0IPBwlNMAoVAKbNAA=="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001KAoSGxYAU2EKC0IPBwlNMAoVAKbNAA0OFQ0sBhkfCgQLGxYRUw5e",
+      "image": "images/021-r6.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Journalist #2?",
+      "answers": [
+        "\u0001NgoDHQkVG0hPNkwTBRU="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001NgoDHQkVG0hPNkwTBRVNBRZHOAoQAUMOCkQVHUxOVg==",
+      "image": "images/021-r7.jpg"
+    },
+    {
+      "role": "Cast",
+      "prompt": "Who played Waitress?",
+      "answers": [
+        "\u0001KQQVGwQLFg0/CkwVHQkEAw=="
+      ],
+      "decoys": [
+        "Scarlett Johansson",
+        "Anne Hathaway",
+        "Ryan Gosling"
+      ],
+      "caption": "\u0001KQQVGwQLFg0/CkwVHQkEA0UGAUUyEkQbFEgVGg==",
+      "image": "images/021-r8.jpg"
+    },
+    {
+      "role": "Cinematographer",
+      "prompt": "Who was the cinematographer?",
+      "answers": [
+        "\u0001KAACUiEEHUQKCg=="
+      ],
+      "decoys": [
+        "Paul Thomas Anderson",
+        "Javier Aguirresarobe",
+        "Robert Fraisse"
+      ],
+      "caption": "\u0001KAACUiEEHUQKCg==",
+      "image": "images/021-r9.jpg"
+    },
+    {
+      "role": "Editor",
+      "prompt": "Who edited the film?",
+      "answers": [
+        "\u0001NwQJFhcEU2wLB0QU"
+      ],
+      "decoys": [
+        "Jill Bilcock",
+        "Alan Heim",
+        "Dylan Tichenor"
+      ],
+      "caption": "\u0001NwQJFhcEU2wLB0QU",
+      "image": "images/021-r10.jpg"
+    },
+    {
+      "role": "Production Designer",
+      "prompt": "Who was the production designer?",
+      "answers": [
+        "\u0001JgQXBgwWB0hPIUEHEAEMCgs="
+      ],
+      "decoys": [
+        "Catherine Martin",
+        "Jeannine Oppewall",
+        "Andrew McAlpine"
+      ]
+    }
+  ]
+}
