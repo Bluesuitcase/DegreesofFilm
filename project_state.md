@@ -5,15 +5,15 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-04. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 GATE 0
-passed + hosting decided (Cloudflare Workers + KV) + the ENTIRE Phase 1 spike is MERGED to `main`**
-([PR #20], flag OFF — zero player-facing change; Worker + client flag + publish artifact +
-backfill; all 18 suites green; see the v3 section below). **GATE 1 checks 2–4 are blocked on the
-owner creating a Cloudflare account** (+ `wrangler login`) — that is the ONLY thing standing
-between the spike and the gate. **Content runway = 5 days** (008–011 published 2026-07-04, stocked
-through 07-08 — keep curating to extend it). LOAD THE RELEVANT SKILL FIRST (v3 →
-`degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
-backlog is in `DESIGN.md` §6._
+_Last updated: 2026-07-11. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 Phase 1 is
+DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
+`https://dof-match.bluesuitcase.workers.dev` with all 11 puzzles' answers in KV; contract 9/9,
+parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is still OFF in
+the client** — flipping the default on (§6 step 2) is the next owner decision. **⚠ Content runway is
+EXHAUSTED:** last stocked day was 2026-07-08; since 07-09 the daily has been serving puzzle 011 as a
+fallback repeat — curating a batch (starting with a puzzle dated today) is the most urgent
+operational task. LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`;
+curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
 
 ## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
 - **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
@@ -40,14 +40,16 @@ backlog is in `DESIGN.md` §6._
 - **v1 — COMPLETE + DEPLOYED LIVE:** https://bluesuitcase.github.io/DegreesofFilm/ (GitHub Pages,
   `main` `/docs`; pushes touching `docs/` auto-deploy).
 - **v2 — COMPLETE:** every static-v2 feature is built, tested, and on `main` (list below).
-- **v3 — Phase 1 spike MERGED, shipped OFF (2026-07-04):** owner chose **Phase 1 only**
-  (server-side matching, $0 ceiling); GATE 0 passed; hosting = Cloudflare Workers + KV; the spike
-  landed via [PR #20] (`41fe9e8`) with `MATCH_API=''`. **GATE 1 blocked on the owner's Cloudflare
-  account.** See the v3 sections below. The rest of the parking lot stays parked.
-- **Content:** 11 puzzles (001–011), dated **2026-06-28 .. 07-08**. **Runway = 5 days** (stocked
-  through 2026-07-08) after the 2026-07-04 curation batch (008–011 — pushed `bd20e79`; titles omitted
-  here, they're future-dated = spoilers). 009 was trimmed to 9 rungs (dropped three unquizzable
-  bit-part cast rungs). Keep curating to extend the runway.
+- **v3 — Phase 1 DEPLOYED + GATE 1 PASSED (2026-07-11):** owner chose **Phase 1 only**
+  (server-side matching, $0 ceiling); GATE 0 passed 07-04; spike merged via [PR #20] (`41fe9e8`);
+  Worker deployed 07-11 and all GATE 1 checks green (evidence below). **`MATCH_API=''` — the client
+  default stays OFF**; flipping it on is §6 step 2 (owner-gated, player-facing PR). The rest of the
+  parking lot stays parked.
+- **Content:** 11 puzzles (001–011), dated **2026-06-28 .. 07-08**. **⚠ Runway = 0 — EXHAUSTED
+  since 07-09** (the daily falls back to puzzle 011, a visible repeat for players). Most urgent
+  operational task: curate a batch, first puzzle dated **today**. NOTE: every publish/update now
+  also refreshes `server/answers-bulk.json` (the KV artifact) — push it to KV after each batch
+  (see "Keeping KV in sync" in the v3 section).
 - **Tests:** 8 JS suites + 9 Python (pure) + `images` (Pillow) — **all green as of 2026-07-04**
   (JS: match 25, game 51, daily 11, theme 15, stats 17, frame 16, cipher 19, worker 17). Details at
   the bottom.
@@ -151,22 +153,51 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
   validator 8 groups clean; in-browser flag-off playthrough = exact static request set, wrong-guess
   reveal + correct-guess advance both work, `?id=1` archive route fine (GATE 1 check 1 local half).
 
-**Next v3 actions (in order — spike PR already landed):**
-1. **OWNER: create a Cloudflare account + `wrangler login`** — the only blocker for GATE 1.
-2. Deploy per `server/wrangler.toml` header (KV namespace create → paste id →
-   `python curation/backfill_answers.py` → `wrangler kv bulk put` → `wrangler deploy`), set
-   `MATCH_API` to the Worker URL locally, run GATE 1 checks 2–4 (no answer material, 25/25 live
-   parity via match.cases.js, p95 < 300 ms + fallback drill). Only after GATE 1 is green ≥14 days
-   consider §6 step 2 (flip the default on).
+**⭐ v3 GATE 1 — PASSED 2026-07-11 (Worker deployed):**
+- **Auth:** owner created the Cloudflare account and a scoped API token (Workers Scripts Edit +
+  Workers KV Storage Edit + read scopes) — lives in gitignored `curation/.env` as
+  `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`. No interactive `wrangler login`; every wrangler
+  command reads the env vars, so future sessions can deploy non-interactively.
+- **Deployed:** `https://dof-match.bluesuitcase.workers.dev` (worker `dof-match`, version
+  `a461aba5…`); KV namespace `ANSWERS` = `c6672c863072425f9b94d6b0501e2b03` (id committed in
+  `server/wrangler.toml`); all 11 puzzles' answers bulk-loaded. The rate-limit binding WAS accepted
+  on the free plan (a 429 was observed under load — it works).
+- **TRAP found:** wrangler 4 defaults `kv bulk put` / `kv key list` to the LOCAL simulator — pass
+  `--remote` or the write silently goes nowhere (`server/.wrangler/` is that simulator's state, now
+  gitignored).
+- **GATE 1 evidence (all checks green):** check 1 = flag-off local half verified 07-04, live app.js
+  still ships `MATCH_API=''` + all 8 JS suites re-run green 07-11. Check 2 = contract 9/9: wrong
+  guess body is EXACTLY `{"correct":false}`, correct → `correct:true`+`canonical`, 400/404/405,
+  CORS pinned to the Pages origin and verified by real fetches from a browser AT
+  `https://bluesuitcase.github.io` (both verdicts round-tripped). Check 3 = **25/25 parity** vs
+  `match.cases.js`, replayed against the live endpoint via a synthetic KV entry `answers:9999`
+  (deleted after the run). Check 4 = latency n=99 warm **p50=34 ms / p95=41 ms / max=88 ms**
+  (target <300 ms), paced under the 60/min rate limit; fallback drill = local copy of `docs/` with
+  `MATCH_API` set, served from a localhost origin the Worker's pinned CORS rejects → the client
+  attempted the POST, got the rejection, and local matching accepted the guess in **55 ms** (play
+  never blocked).
+
+**Next v3 actions (in order):**
+1. **Keeping KV in sync (new operational duty):** after every puzzle publish/update batch, the
+   tool refreshes `server/answers-bulk.json` (gitignored); push it with
+   `npx wrangler kv bulk put server/answers-bulk.json --namespace-id c6672c863072425f9b94d6b0501e2b03 --remote`
+   (from `server/`, env vars from `curation/.env`). Until the flag is ON this is non-urgent (the
+   endpoint 404s on unknown puzzles and clients don't call it anyway), but keep the habit.
+2. **§6 step 2 — flip `MATCH_API` to the Worker URL (owner decision, player-facing PR).** The
+   07-04 handoff recorded "only after GATE 1 is green ≥14 days" — owner may confirm or shorten
+   that soak window. The flip itself is a one-line change in `docs/app.js` via branch → PR →
+   rebase-merge; rollback is flipping it back.
+3. Phases 2–3 stay parked per GATE 0 scope.
 
 ## Next steps (pick up here)
 0. **Load the relevant skill first** (new this session). For curating puzzles →
    `degreesoffilm-run-and-operate` + `degreesoffilm-validation-and-qa`'s content-QA checklist; for v3
    → `degreesoffilm-server-move-campaign`; before committing anything → `degreesoffilm-change-control`.
-1. **v3 GATE 1 — OWNER ACTION: create a Cloudflare account + `wrangler login`**, then deploy per
-   `server/wrangler.toml`'s header and run GATE 1 checks 2–4 (see "Next v3 actions" above). This is
-   the single thing standing between the merged spike and retiring the plaintext wart.
-2. **Operational — keep curating** (**runway = 5 days as of 2026-07-04**, stocked through 07-08).
+1. **v3 §6 step 2 — flip `MATCH_API` on (owner decision):** GATE 1 passed 2026-07-11; the recorded
+   plan says soak ≥14 days first (i.e. ~2026-07-25) — owner may confirm or shorten. One-line
+   player-facing PR when green-lit. Until then the Worker just sits there free of charge.
+2. **Operational — CURATE NOW (runway EXHAUSTED since 07-09** — the daily is repeating puzzle 011;
+   first new puzzle should be dated today).
    Run the crop tool (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
    needs `curation/.env`): Randomize → face-aware Auto-crop → review the drafted rungs → Approve
    (auto-fills the next free day). **Then run `scripts/validate_content.py` (diagnostics skill)

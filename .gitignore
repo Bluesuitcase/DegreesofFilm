@@ -224,3 +224,6 @@ __marimo__/
 # Never commit: it's the un-obfuscated answer set. Rebuild any time with
 # `python curation/backfill_answers.py`.
 server/answers-bulk.json
+
+# wrangler local state (dev KV simulator etc.)
+server/.wrangler/

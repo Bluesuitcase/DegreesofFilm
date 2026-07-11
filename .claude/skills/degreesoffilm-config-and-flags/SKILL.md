@@ -30,7 +30,7 @@ player client. "Configuration" in this repo is exactly six mechanisms:
 | 2 | Function keyword defaults | pure functions take knobs as params (testability) | `order_rungs(..., max_cast=8, director_after=2)` |
 | 3 | Query-string params | `docs/app.js` `init()` routing | `?play&mode=poser` |
 | 4 | CSS variables | `:root` in `docs/style.css`, overridden per-puzzle by `applyTheme` | `--amber:#eba53c` |
-| 5 | Environment variables | exactly one: `TMDB_API_KEY` (from gitignored `curation/.env`) | `curation/tmdb.py` `load_key()` |
+| 5 | Environment variables | `TMDB_API_KEY` + (since 2026-07-11) `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` (all in gitignored `curation/.env`) | `curation/tmdb.py` `load_key()`; the Cloudflare pair is read by wrangler, not project code |
 | 6 | pip version pins | `curation/requirements.txt` | `opencv-python-headless>=4.9,<5` |
 
 **Picking a mechanism for a new option:** pure-logic knob → keyword default with a
@@ -206,7 +206,10 @@ JS=$(node -e "import('./docs/cipher.js').then(c=>console.log(c.encode('parity-ch
 
 | Name | Value | Defined in | What it does | Gate |
 |---|---|---|---|---|
-| `TMDB_API_KEY` | (secret — never print; lives in gitignored `curation/.env` or the environment) | read by curation/tmdb.py `load_key()` | the ONLY env var; searched in `curation/.env`, `curation/.env` via cwd, `./.env`; missing → `SystemExit` | **owner** (key hygiene invariant) |
+| `TMDB_API_KEY` | (secret — never print; lives in gitignored `curation/.env` or the environment) | read by curation/tmdb.py `load_key()` | searched in `curation/.env`, `curation/.env` via cwd, `./.env`; missing → `SystemExit` | **owner** (key hygiene invariant) |
+| `CLOUDFLARE_API_TOKEN` / `CLOUDFLARE_ACCOUNT_ID` (added 2026-07-11) | (secret — never print; lives in gitignored `curation/.env`) | read by **wrangler** (export as env vars before wrangler commands), not by project code | scoped token (Workers Scripts Edit + Workers KV Storage Edit + reads) that deploys the /match Worker and pushes KV answers — NOT the TMDB key | **owner** (deploy credential) |
+| KV namespace `ANSWERS` id | `c6672c863072425f9b94d6b0501e2b03` | server/wrangler.toml | where /match reads `answers:<puzzleId>`; bulk-push needs `--remote` (wrangler 4 defaults to a local simulator) | server-move-campaign |
+| Worker URL | `https://dof-match.bluesuitcase.workers.dev` (deployed 2026-07-11, GATE 1 passed) | Cloudflare (worker `dof-match`) | the value `MATCH_API` gets when the default is flipped on (§6 step 2, owner-gated) | change-control (player-facing) |
 | `API` base | `https://api.themoviedb.org/3` | curation/tmdb.py | all TMDB API calls | change-control |
 | API timeout | 20 s | curation/tmdb.py `get()` | urlopen timeout; 401 → "check your TMDB_API_KEY" RuntimeError | free |
 | `IMG_BASE` | `https://image.tmdb.org/t/p/original` | **defined TWICE**: curation/credits_images.py AND curation/app.py — keep in sync | image URL prefix (headshots, stills) | change-control |

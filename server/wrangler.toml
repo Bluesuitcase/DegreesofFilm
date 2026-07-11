@@ -12,7 +12,7 @@ compatibility_date = "2026-07-04"
 
 [[kv_namespaces]]
 binding = "ANSWERS"
-id = "TODO_SET_AFTER_ACCOUNT_SETUP"   # from `wrangler kv namespace create ANSWERS`
+id = "c6672c863072425f9b94d6b0501e2b03"   # from `wrangler kv namespace create ANSWERS`
 
 # Rate limit: 60 req/min/IP (the campaign's §3.1 number — period must be 10 or 60).
 # If the binding turns out to be unavailable on the free plan at deploy time, the

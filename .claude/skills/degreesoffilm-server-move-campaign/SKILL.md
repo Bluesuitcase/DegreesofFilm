@@ -9,9 +9,9 @@ description: >
   mode's backend dependency; anyone says "move off static", "add a backend", or
   "validate scores server-side"; or someone proposes hashing/encrypting answers
   client-side (a fenced wrong path — see inside before agreeing). Status as of
-  2026-07-04: GATE 0 PASSED (scope = Phase 1 only, $0 ceiling, Cloudflare Workers +
-  KV); the Phase 1 spike is BUILT (GATE 1 pending deploy — needs the owner's
-  Cloudflare account); Phases 2–3 remain CANDIDATE and out of scope.
+  2026-07-11: Phase 1 DONE — the /match Worker is DEPLOYED (Cloudflare Workers + KV)
+  and GATE 1 PASSED; the client default (MATCH_API) is still OFF, and flipping it on
+  (§6 step 2) is the next owner-gated step; Phases 2–3 remain CANDIDATE and out of scope.
 ---
 
 # Degrees of Film — the v3 server-move campaign
@@ -129,7 +129,7 @@ re-verified live that day, rejected alternatives recorded).
 written in project_state.md; kill criteria written. All 7 suites green
 (25/34/11/15/17/16/19 or higher). No code written yet.
 
-## 3. Phase 1 — server-side matching spike  [SPIKE BUILT 2026-07-04 — GATE 1 PENDING DEPLOY]
+## 3. Phase 1 — server-side matching spike  [DONE 2026-07-11 — DEPLOYED, GATE 1 PASSED]
 
 Built on branch `v3-phase1-server-match`: `server/worker.js` (+ `wrangler.toml`),
 `worker.test.js` (17 cases incl. the full 25-case parity run in-process),
@@ -137,9 +137,20 @@ Built on branch `v3-phase1-server-match`: `server/worker.js` (+ `wrangler.toml`)
 app.js, `publish.py answers_sink` (publish.test.py 36→39), `curation/push_answers.py`
 + `backfill_answers.py` (+17-case suite), the matcher case table extracted to
 `match.cases.js` (shared client/server). `MATCH_API = ''` — ships OFF (§6 step 1).
-GATE 1 check 1's local half verified in-browser 2026-07-04; **checks 2–4 need the
-deployed endpoint — blocked on the owner's Cloudflare account + wrangler login.**
-Deploy steps: `server/wrangler.toml` header comment.
+GATE 1 check 1's local half verified in-browser 2026-07-04. **DEPLOYED 2026-07-11**
+(auth = a scoped API token in gitignored `curation/.env`: `CLOUDFLARE_API_TOKEN` +
+`CLOUDFLARE_ACCOUNT_ID` — no interactive `wrangler login` needed): Worker at
+`https://dof-match.bluesuitcase.workers.dev`, KV namespace ANSWERS
+`c6672c863072425f9b94d6b0501e2b03`, all 11 puzzles' answers bulk-loaded. TRAP:
+wrangler 4 defaults `kv bulk put` to the LOCAL simulator — pass `--remote`.
+**GATE 1 checks 2–4 PASSED 2026-07-11:** contract 9/9 (wrong guess is EXACTLY
+`{"correct":false}`; 400/404/405; CORS pinned, also verified in-browser from the
+live Pages origin); parity **25/25** vs `match.cases.js` (replayed via a synthetic
+KV puzzle `answers:9999`, deleted afterwards); latency n=99 warm **p50=34 ms,
+p95=41 ms, max=88 ms** (target <300 ms); one 429 during the run = the rate-limit
+binding works on the free plan; fallback drill: CORS-blocked origin → guess
+accepted by local matching in **55 ms**. `MATCH_API` remains `''` (OFF) — flipping
+the default on is §6 step 2, a separate owner-gated, player-facing PR.
 
 The smallest slice that retires the plaintext wart. No accounts, no DB, no writes —
 one stateless endpoint.
@@ -520,6 +531,9 @@ enumerability, and every vendor fact.
   (output: `true / 'won' / true`); all 7 JS suites run: match 25, game 34, daily 11,
   theme 15, stats 17, frame 16, cipher 19 — all pass; baselines: 7 manifest entries
   (2026-06-28..07-04), 92 images.
+- **Status 2026-07-11:** Phase 1 DONE — Worker deployed + GATE 1 PASSED (evidence in
+  the §3 status note); the client default is still OFF pending §6 step 2 (owner-gated).
+  Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
 - **Status 2026-07-04:** Phase 0 DONE (GATE 0 passed — owner scope: Phase 1 only,
   $0 ceiling, R5 intact); hosting = Cloudflare Workers + KV; Phase 1 spike BUILT
   (GATE 1 pending deploy). Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
