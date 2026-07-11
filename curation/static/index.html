@@ -20,6 +20,11 @@
   .tag{color:var(--muted);font-size:12px;letter-spacing:.14em;text-transform:uppercase}
   main{max-width:1060px;margin:0 auto;padding:22px 24px 60px;display:grid;
        grid-template-columns:1fr;gap:22px}
+  /* grid/flex items refuse to shrink below content (min-width:auto), which lets the
+     14-day schedule strip blow the 1fr track out past the 1060px main and defeat its
+     own overflow-x:auto. min-width:0 restores the intended inner scrolling. */
+  main>section{min-width:0}
+  .grid2>*{min-width:0}
   h2{font-size:13px;text-transform:uppercase;letter-spacing:.18em;color:var(--amber);
      margin:0 0 10px}
   button{font-family:inherit;cursor:pointer}
