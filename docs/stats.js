@@ -9,6 +9,7 @@ export function defaultStats() {
     currentStreak: 0, maxStreak: 0,
     lastDate: null, lastDepth: 0,
     histogram: {},                 // depth -> times reached
+    history: {},                   // date -> { depth, score, won } (one per daily)
   };
 }
 
@@ -19,8 +20,8 @@ function dayDiff(a, b) {
 
 // Fold one finished run into stats. Idempotent per date: replaying the same day
 // (e.g. "Play again") doesn't double-count or move the streak.
-export function recordResult(stats, { date, depth, won }) {
-  const s = { ...stats, histogram: { ...stats.histogram } };
+export function recordResult(stats, { date, depth, won, score = 0 }) {
+  const s = { ...stats, histogram: { ...stats.histogram }, history: { ...stats.history } };
   if (s.lastDate === date) return s;
   const gap = s.lastDate ? dayDiff(s.lastDate, date) : null;
   s.currentStreak = gap === 1 ? s.currentStreak + 1 : 1;   // consecutive day extends; else reset
@@ -31,6 +32,7 @@ export function recordResult(stats, { date, depth, won }) {
   s.lastDepth = depth;
   s.lastDate = date;
   s.histogram[depth] = (s.histogram[depth] || 0) + 1;
+  s.history[date] = { depth, score, won };
   return s;
 }
 

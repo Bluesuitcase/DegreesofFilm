@@ -32,7 +32,8 @@ async function init() {
   if (params.has('modes')) return renderModes();
   // Practice with no ruleset yet -> the practice chooser (Cinephile/Poser).
   if (params.has('practice') && !params.has('mode')) return renderPractice();
-  if (!params.has('play') && !params.has('id') && !params.has('archive') && !params.has('practice'))
+  if (!params.has('play') && !params.has('id') && !params.has('archive') && !params.has('practice')
+      && !params.has('history'))
     return renderHome();
 
   try {
@@ -44,6 +45,7 @@ async function init() {
   }
 
   if (params.has('archive')) return renderArchiveView();
+  if (params.has('history')) return renderHistoryView();
 
   isPractice = params.has('practice');
   const m = params.get('mode');
@@ -164,7 +166,7 @@ function enterLobby() {
   $('play').classList.add('hidden');
   $('end').classList.add('hidden');
   $('rail').style.display = 'none';
-  ['home', 'modes', 'archive', 'practice'].forEach((s) => $(s).classList.add('hidden'));
+  ['home', 'modes', 'archive', 'practice', 'history'].forEach((s) => $(s).classList.add('hidden'));
 }
 
 function renderHome() {
@@ -190,6 +192,32 @@ function renderArchiveView() {
   enterLobby();
   $('archive').classList.remove('hidden');
   buildArchive();
+}
+
+// Score history: this device's Cinephile daily results (stats.history), newest
+// first. Each row links to that day's puzzle in the archive for a replay.
+function renderHistoryView() {
+  enterLobby();
+  $('history').classList.remove('hidden');
+  const list = $('history-list');
+  list.innerHTML = '';
+  const history = loadStats().history || {};
+  const dates = Object.keys(history).sort().reverse();
+  if (!dates.length) {
+    list.innerHTML = '<p class="arc-sub">Nothing here yet — your next Cinephile daily starts the record.</p>';
+    return;
+  }
+  const idByDate = Object.fromEntries(manifest.map((e) => [e.date, e.id]));
+  dates.forEach((date) => {
+    const r = history[date];
+    const id = idByDate[date];
+    const row = document.createElement(id ? 'a' : 'div');
+    row.className = 'arc';
+    if (id) row.href = '?id=' + id;
+    row.innerHTML = `<span class="arc-d">${date}</span>` +
+      `<span class="arc-n">${r.won ? '🏆 bottom' : r.depth + ' deep'} · ${r.score} pts${id ? ' →' : ''}</span>`;
+    list.appendChild(row);
+  });
 }
 
 function buildArchive() {
@@ -467,7 +495,7 @@ function showEnd() {
   // Only the real Cinephile daily touches the streak/stats — archive/practice runs
   // and the easier modes (Poser, Movie Buff) are excluded (change-control §2.10).
   if (!isArchive && !isPractice && mode === 'cinephile') {
-    stats = recordResult(stats, { date: todayISO(), depth: reached, won });
+    stats = recordResult(stats, { date: todayISO(), depth: reached, won, score: game.score });
     saveStats(stats);
   }
   if (isPractice) {                            // roll this film into the running practice tally
@@ -591,7 +619,8 @@ function statsHtml(s, reached) {
     const w = Math.max(8, Math.round((100 * c) / max));
     return `<div class="hrow"><span class="hd">${d}</span><span class="hb${d === reached ? ' cur' : ''}" style="width:${w}%">${c}</span></div>`;
   }).join('');
-  return tiles + (bars ? `<div class="hist"><p class="histlabel">depth distribution</p>${bars}</div>` : '');
+  return tiles + (bars ? `<div class="hist"><p class="histlabel">depth distribution</p>${bars}</div>` : '')
+    + '<p class="histlabel"><a class="roast-cta" href="?history">Score history →</a></p>';
 }
 
 function wire() {
