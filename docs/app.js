@@ -25,7 +25,7 @@ const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff'
 const MATCH_API = 'https://dof-match.bluesuitcase.workers.dev';
 const MATCH_TIMEOUT_MS = 2000;
 let serverMatch = false, guessInFlight = false;
-let buffProto = false, titleIndex = null, titleKeys = null;
+let buffMode = false, titleIndex = null, titleKeys = null;
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -46,14 +46,16 @@ async function init() {
   if (params.has('archive')) return renderArchiveView();
 
   isPractice = params.has('practice');
-  mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
-  serverMatch = !!MATCH_API && mode === 'cinephile' && params.get('servermatch') !== '0';
+  const m = params.get('mode');
+  mode = (m === 'poser' || m === 'buff') ? m : 'cinephile';
+  // Buff keeps the full untrimmed ladder, so rungIndex lines up server-side too.
+  serverMatch = !!MATCH_API && mode !== 'poser' && params.get('servermatch') !== '0';
 
-  // Movie Buff prototype (?buff=1): title autocomplete on the film rung from the
-  // prebaked static index. Lazy — default players never fetch the index, and a
-  // failed fetch just means no suggestions (play is unaffected).
-  buffProto = params.get('buff') === '1' && mode === 'cinephile';
-  if (buffProto) {
+  // Movie Buff (?play&mode=buff): Cinephile rules + title autocomplete on the film
+  // rung from the prebaked static index. Lazy — other modes never fetch the index,
+  // and a failed fetch just means no suggestions (play is unaffected).
+  buffMode = mode === 'buff';
+  if (buffMode) {
     fetch('title-index.json').then((r) => r.json()).then((d) => {
       titleIndex = d;
       titleKeys = indexKeys(d);
@@ -380,7 +382,7 @@ async function resolveGuess(text) {
   }
 }
 
-// Movie Buff prototype: suggestion dropdown under the guess input, film rung only.
+// Movie Buff: suggestion dropdown under the guess input, film rung only.
 function hideSuggest() {
   const box = $('suggest');
   box.hidden = true;
@@ -388,7 +390,7 @@ function hideSuggest() {
 }
 
 function renderSuggest() {
-  if (!buffProto || !titleIndex || !game || game.status !== 'playing' || game.index !== 0) {
+  if (!buffMode || !titleIndex || !game || game.status !== 'playing' || game.index !== 0) {
     hideSuggest();
     return;
   }
@@ -456,10 +458,15 @@ function showEnd() {
   const reached = game.depth;
   const missed = won ? null : game.currentRung;
   const poser = mode === 'poser';
-  const r = poser ? null : roast(reached, game.total, won);   // the roast is a Cinephile thing
+  const buff = mode === 'buff';
+  // The roast is a Cinephile thing — it nudges you toward the easier modes, so it
+  // makes no sense on a run already played in one of them.
+  const r = (poser || buff) ? null : roast(reached, game.total, won);
 
   let stats = loadStats();
-  if (!isArchive && !poser && !isPractice) {   // archive/poser/practice runs don't touch the daily streak/stats
+  // Only the real Cinephile daily touches the streak/stats — archive/practice runs
+  // and the easier modes (Poser, Movie Buff) are excluded (change-control §2.10).
+  if (!isArchive && !isPractice && mode === 'cinephile') {
     stats = recordResult(stats, { date: todayISO(), depth: reached, won });
     saveStats(stats);
   }
@@ -474,7 +481,7 @@ function showEnd() {
     <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>
     <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
     ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
-    <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs${poser ? ' · Poser' : ''}</p>
+    <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs${poser ? ' · Poser' : buff ? ' · Movie Buff' : ''}</p>
     ${r ? `<p class="roast">${r.text}</p>${showCta ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}` : ''}
     ${isPractice ? practiceHtml() : statsHtml(stats, reached)}
     ${isPractice ? '' : `<pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>`}
@@ -520,7 +527,8 @@ function shareText(reached, total, score, won) {
   const bar = '🟫'.repeat(reached) + '⬛'.repeat(Math.max(0, total - reached));
   const line = won ? `Reached the bottom — ${total}/${total} · ${score} pts`
                    : `${reached}/${total} deep · ${score} pts`;
-  return `🎬 Degrees of Film #${puzzleId}${mode === 'poser' ? ' (Poser)' : ''}\n${line}\n${bar}`;
+  const tag = mode === 'poser' ? ' (Poser)' : mode === 'buff' ? ' (Movie Buff)' : '';
+  return `🎬 Degrees of Film #${puzzleId}${tag}\n${line}\n${bar}`;
 }
 
 // End-of-round roast: savage but tasteful, and it nudges you toward the mode you
