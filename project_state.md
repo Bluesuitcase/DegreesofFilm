@@ -8,8 +8,10 @@
 _Last updated: 2026-07-11. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 Phase 1 is
 DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
 `https://dof-match.bluesuitcase.workers.dev` with all 11 puzzles' answers in KV; contract 9/9,
-parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is still OFF in
-the client** — flipping the default on (§6 step 2) is the next owner decision. **Content: 21 puzzles
+parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is ON since
+2026-07-11 ([PR #21], owner-approved, §6 step 2 executed — live-verified both verdict paths from
+the Pages origin).** Next v3 milestone: §6 step 5 (stop embedding answers in NEW puzzles), gated on
+≥14 days' stability (~07-25) + owner sign-off. **Content: 21 puzzles
 (001–021), runway = 8 days** (012–021 pushed `89ccdbb` on 07-11; 012/013 are past-dated 07-09/07-10
 archive backfill — see Key decisions; KV answers synced, 21 keys). LOAD THE RELEVANT SKILL FIRST
 (v3 → `degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
@@ -42,9 +44,12 @@ backlog is in `DESIGN.md` §6._
 - **v2 — COMPLETE:** every static-v2 feature is built, tested, and on `main` (list below).
 - **v3 — Phase 1 DEPLOYED + GATE 1 PASSED (2026-07-11):** owner chose **Phase 1 only**
   (server-side matching, $0 ceiling); GATE 0 passed 07-04; spike merged via [PR #20] (`41fe9e8`);
-  Worker deployed 07-11 and all GATE 1 checks green (evidence below). **`MATCH_API=''` — the client
-  default stays OFF**; flipping it on is §6 step 2 (owner-gated, player-facing PR). The rest of the
-  parking lot stays parked.
+  Worker deployed 07-11 and all GATE 1 checks green (evidence below). **§6 step 2 EXECUTED
+  2026-07-11: `MATCH_API` = the Worker URL ([PR #21] → `98691bc`, rebase-merged)** — cinephile
+  guesses are server-verified in production, with the 2 s local fallback + `?servermatch=0`
+  override; rollback = one-line revert to `''`. Live-verified post-deploy: wrong guess → one POST
+  /match → exactly `{"correct":false}` + reveal advances; correct guess → `correct:true` +
+  canonical + rung advances. The rest of the parking lot stays parked.
 - **Content:** 21 puzzles (001–021), dated **2026-06-28 .. 07-18**; **runway = 8 days as of
   2026-07-11** (batch 012–021 pushed `89ccdbb`, validator 8/8 clean, KV synced to 21 keys).
   012/013 are **past-dated backfill** (07-09/07-10 — published during the runway lapse before
@@ -194,9 +199,11 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
 0. **Load the relevant skill first** (new this session). For curating puzzles →
    `degreesoffilm-run-and-operate` + `degreesoffilm-validation-and-qa`'s content-QA checklist; for v3
    → `degreesoffilm-server-move-campaign`; before committing anything → `degreesoffilm-change-control`.
-1. **v3 §6 step 2 — flip `MATCH_API` on (owner decision):** GATE 1 passed 2026-07-11; the recorded
-   plan says soak ≥14 days first (i.e. ~2026-07-25) — owner may confirm or shorten. One-line
-   player-facing PR when green-lit. Until then the Worker just sits there free of charge.
+1. **v3 §6 step 5 — stop embedding answers in NEW puzzle files (the final step):** gated on the
+   flipped-on flag being stable **≥14 days** (from 2026-07-11 → earliest ~07-25), zero known
+   fallback activations, AND separate owner sign-off + a rehearsed rollback (campaign §6). Until
+   then: nothing to do but keep the KV sync habit after publishes. (§6 step 2 was executed
+   2026-07-11 — see the GATE 1 section.)
 2. **Operational — keep curating** (runway = 8 days as of 2026-07-11, stocked through 07-18).
    Two curation bugs were FIXED this session (`2d39b0c` layout, `10436aa` scheduling — see Key
    decisions); the tool now pre-targets today when the runway has lapsed.

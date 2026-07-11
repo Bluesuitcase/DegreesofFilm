@@ -30,10 +30,11 @@ The client routes views by query string: `?` home, `?modes` mode-select, `?play`
 an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice
 chooser, `?practice&mode=cinephile|poser` an endless practice run. **The only open v2 task is
 operational (curate more puzzles).** v3 status (2026-07-11): **Phase 1 server-side matching is
-DEPLOYED and GATE 1 PASSED** — the `server/` Worker runs live at
-`https://dof-match.bluesuitcase.workers.dev` (Cloudflare Workers + KV, all puzzles' answers in KV),
-but the client flag still ships **OFF** (`MATCH_API=''` in app.js); flipping the default on is the
-next owner-gated step (see project_state.md). The rest of
+LIVE — deployed, GATE 1 passed, and the client default is ON** (`MATCH_API` in app.js points at
+`https://dof-match.bluesuitcase.workers.dev`; Cloudflare Workers + KV, all puzzles' answers in KV).
+Cinephile guesses are verified by POST /match with a 2 s local-match fallback (`?servermatch=0`
+forces local); puzzle JSON still ships obfuscated answers as the fallback until §6 step 5 (gated on
+≥14 days' stability). The rest of
 the v3 parking lot — **Movie Buff** (static-possible via a prebaked title index), accounts/DB,
 **Leaderboard**, Score History, degrees-of-separation — stays parked;
 `degreesoffilm-server-move-campaign` is the decision-gated plan.
@@ -188,10 +189,10 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   backfill_answers.py  Re-runnable CLI: rebuild the whole answers artifact from the published
                        puzzles (decodes via cipher). Needed at Phase 1 cutover + rollback.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
-server/                v3 Phase 1 (DEPLOYED 2026-07-11, flag OFF) — the /match Cloudflare Worker.
+server/                v3 Phase 1 (LIVE since 2026-07-11, client flag ON) — the /match Cloudflare Worker.
   worker.js            POST /match {puzzleId, rungIndex, guess} -> {correct[, canonical]}.
                        Imports docs/match.js UNCHANGED (parity by reuse). Answers in KV,
-                       pinned CORS, 60/min/IP rate limit. Off in the client (app.js MATCH_API='').
+                       pinned CORS, 60/min/IP rate limit. ON in the client since 2026-07-11.
   wrangler.toml        Worker config + the deploy runbook in its header comment.
 ```
 
@@ -244,9 +245,10 @@ daily streak/stats.
 - **Movie Buff** mode — title autocomplete on the film rung; stays "coming soon" on the
   mode-select. A live browser TMDB call would leak the key; the research-frontier skill found a
   **prebaked popular-title index** makes it static-possible (no server required).
-- **Server-side matching** — the v3 Phase 1 Worker is **deployed and GATE 1 passed**
-  (`https://dof-match.bluesuitcase.workers.dev`) but **OFF in the client** (`MATCH_API=''`);
-  players never call it until the default is flipped (owner-gated).
+- ~~Server-side matching~~ — **SHIPPED AND ON (2026-07-11)**: the v3 Phase 1 Worker at
+  `https://dof-match.bluesuitcase.workers.dev` verifies cinephile guesses (2 s local fallback;
+  `?servermatch=0` forces local). Still pending: §6 step 5 (stop embedding answers in NEW puzzle
+  files) — gated on ≥14 days' stability + owner sign-off.
 - The rest of the v3 parking lot: accounts/DB, Leaderboard, Score History, true
   degrees-of-separation. *(Formerly parked but since shipped in v2: practice/endless, light answer
   obfuscation, the week-ahead schedule, film search + edit-existing-puzzle, the reveal mechanic.)*

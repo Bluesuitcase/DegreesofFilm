@@ -9,9 +9,10 @@ description: >
   mode's backend dependency; anyone says "move off static", "add a backend", or
   "validate scores server-side"; or someone proposes hashing/encrypting answers
   client-side (a fenced wrong path — see inside before agreeing). Status as of
-  2026-07-11: Phase 1 DONE — the /match Worker is DEPLOYED (Cloudflare Workers + KV)
-  and GATE 1 PASSED; the client default (MATCH_API) is still OFF, and flipping it on
-  (§6 step 2) is the next owner-gated step; Phases 2–3 remain CANDIDATE and out of scope.
+  2026-07-11: Phase 1 LIVE — the /match Worker is deployed (Cloudflare Workers + KV),
+  GATE 1 passed, and the client default is ON (§6 step 2 executed via PR #21); next is
+  §6 step 5 (stop embedding answers in new puzzles), gated on ≥14 days' stability
+  (~2026-07-25) + owner sign-off; Phases 2–3 remain CANDIDATE and out of scope.
 ---
 
 # Degrees of Film — the v3 server-move campaign
@@ -149,8 +150,11 @@ live Pages origin); parity **25/25** vs `match.cases.js` (replayed via a synthet
 KV puzzle `answers:9999`, deleted afterwards); latency n=99 warm **p50=34 ms,
 p95=41 ms, max=88 ms** (target <300 ms); one 429 during the run = the rate-limit
 binding works on the free plan; fallback drill: CORS-blocked origin → guess
-accepted by local matching in **55 ms**. `MATCH_API` remains `''` (OFF) — flipping
-the default on is §6 step 2, a separate owner-gated, player-facing PR.
+accepted by local matching in **55 ms**. **§6 step 2 EXECUTED 2026-07-11** (owner
+approved same day): `MATCH_API` = the Worker URL via PR #21 (rebase-merged,
+`98691bc`); live-verified both verdict paths from the Pages origin. Next: §6
+step 5 (stop embedding answers in NEW puzzles) — gated on ≥14 days' stability
+(earliest ~2026-07-25) + owner sign-off + a rehearsed rollback.
 
 The smallest slice that retires the plaintext wart. No accounts, no DB, no writes —
 one stateless endpoint.
@@ -531,9 +535,11 @@ enumerability, and every vendor fact.
   (output: `true / 'won' / true`); all 7 JS suites run: match 25, game 34, daily 11,
   theme 15, stats 17, frame 16, cipher 19 — all pass; baselines: 7 manifest entries
   (2026-06-28..07-04), 92 images.
+- **Status 2026-07-11 (later same day):** §6 step 2 EXECUTED — the client default is
+  ON (PR #21, `98691bc`); server-side matching is in production with the local
+  fallback intact. §6 step 5 is time-gated (≥14 days' stability, earliest ~07-25).
 - **Status 2026-07-11:** Phase 1 DONE — Worker deployed + GATE 1 PASSED (evidence in
-  the §3 status note); the client default is still OFF pending §6 step 2 (owner-gated).
-  Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
+  the §3 status note). Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
 - **Status 2026-07-04:** Phase 0 DONE (GATE 0 passed — owner scope: Phase 1 only,
   $0 ceiling, R5 intact); hosting = Cloudflare Workers + KV; Phase 1 spike BUILT
   (GATE 1 pending deploy). Phases 2–3 remain CANDIDATE and OUT of the chosen scope.
