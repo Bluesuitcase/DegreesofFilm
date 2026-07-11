@@ -9,11 +9,11 @@ _Last updated: 2026-07-11. **v1 live, ALL v2 shipped, 16-skill library on `main`
 DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
 `https://dof-match.bluesuitcase.workers.dev` with all 11 puzzles' answers in KV; contract 9/9,
 parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is still OFF in
-the client** — flipping the default on (§6 step 2) is the next owner decision. **⚠ Content runway is
-EXHAUSTED:** last stocked day was 2026-07-08; since 07-09 the daily has been serving puzzle 011 as a
-fallback repeat — curating a batch (starting with a puzzle dated today) is the most urgent
-operational task. LOAD THE RELEVANT SKILL FIRST (v3 → `degreesoffilm-server-move-campaign`;
-curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.md` §6._
+the client** — flipping the default on (§6 step 2) is the next owner decision. **Content: 21 puzzles
+(001–021), runway = 8 days** (012–021 pushed `89ccdbb` on 07-11; 012/013 are past-dated 07-09/07-10
+archive backfill — see Key decisions; KV answers synced, 21 keys). LOAD THE RELEVANT SKILL FIRST
+(v3 → `degreesoffilm-server-move-campaign`; curation → `degreesoffilm-run-and-operate`). Full v2/v3
+backlog is in `DESIGN.md` §6._
 
 ## ⭐ NEW 2026-07-03 — the skill library (read this if nothing else)
 - **`.claude/skills/degreesoffilm-*` — 16 skills + 2 diagnostic scripts, committed + pushed.** Built by
@@ -45,11 +45,12 @@ curation → `degreesoffilm-run-and-operate`). Full v2/v3 backlog is in `DESIGN.
   Worker deployed 07-11 and all GATE 1 checks green (evidence below). **`MATCH_API=''` — the client
   default stays OFF**; flipping it on is §6 step 2 (owner-gated, player-facing PR). The rest of the
   parking lot stays parked.
-- **Content:** 11 puzzles (001–011), dated **2026-06-28 .. 07-08**. **⚠ Runway = 0 — EXHAUSTED
-  since 07-09** (the daily falls back to puzzle 011, a visible repeat for players). Most urgent
-  operational task: curate a batch, first puzzle dated **today**. NOTE: every publish/update now
-  also refreshes `server/answers-bulk.json` (the KV artifact) — push it to KV after each batch
-  (see "Keeping KV in sync" in the v3 section).
+- **Content:** 21 puzzles (001–021), dated **2026-06-28 .. 07-18**; **runway = 8 days as of
+  2026-07-11** (batch 012–021 pushed `89ccdbb`, validator 8/8 clean, KV synced to 21 keys).
+  012/013 are **past-dated backfill** (07-09/07-10 — published during the runway lapse before
+  `next_date` was clamped; they never surface as a daily, only in the archive). NOTE: every
+  publish/update refreshes `server/answers-bulk.json` (the KV artifact) — push it to KV after each
+  batch (see "Keeping KV in sync" in the v3 section).
 - **Tests:** 8 JS suites + 9 Python (pure) + `images` (Pillow) — **all green as of 2026-07-04**
   (JS: match 25, game 51, daily 11, theme 15, stats 17, frame 16, cipher 19, worker 17). Details at
   the bottom.
@@ -196,8 +197,9 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
 1. **v3 §6 step 2 — flip `MATCH_API` on (owner decision):** GATE 1 passed 2026-07-11; the recorded
    plan says soak ≥14 days first (i.e. ~2026-07-25) — owner may confirm or shorten. One-line
    player-facing PR when green-lit. Until then the Worker just sits there free of charge.
-2. **Operational — CURATE NOW (runway EXHAUSTED since 07-09** — the daily is repeating puzzle 011;
-   first new puzzle should be dated today).
+2. **Operational — keep curating** (runway = 8 days as of 2026-07-11, stocked through 07-18).
+   Two curation bugs were FIXED this session (`2d39b0c` layout, `10436aa` scheduling — see Key
+   decisions); the tool now pre-targets today when the runway has lapsed.
    Run the crop tool (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
    needs `curation/.env`): Randomize → face-aware Auto-crop → review the drafted rungs → Approve
    (auto-fills the next free day). **Then run `scripts/validate_content.py` (diagnostics skill)
@@ -220,6 +222,15 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    in-repo copy as source of truth).
 
 ## Key decisions (why things are the way they are)
+- **Backdated-publish incident + fix (2026-07-11):** with the runway lapsed, `publish.next_date`
+  ("day after the latest puzzle") proposed PAST days, and the schedule strip's "targeted ✓" marker
+  could drift from the date input approve actually sends (a stale async next-date overwrite
+  clobbered click-set targets) — puzzles 012/013 published to 07-09/07-10 while the strip said
+  today was targeted. Fixed in `10436aa`: `next_date` is clamped to today (test-first), and the
+  marker is now DERIVED from the date input (`markTargeted`), which also survives reloads. Owner
+  chose to keep 012/013 as past-dated archive backfill rather than reschedule (they're playable via
+  `?archive`, never a daily). Also fixed same session: the crop tool's grid-blowout layout bug
+  (`2d39b0c` — `min-width:0` on grid items; the 14-day strip was forcing the page ~1600px wide).
 - **v3 scope = Phase 1 only, $0 ceiling, R5 intact (2026-07-04, GATE 0):** full owner answers +
   kill criteria in the GATE 0 section above. **Rejected:** Phases 2–3 now (no demand evidence —
   the project has no analytics), Vercel/Netlify/VPS hosting (reasons recorded above).
