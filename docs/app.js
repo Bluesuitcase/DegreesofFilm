@@ -14,14 +14,14 @@ const practiceTally = { films: 0, cleared: 0, depth: 0 };
 const POSER_RUNGS = 7;
 const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
 
-// Server-side matching (v3 Phase 1). '' = OFF — local matching, today's behavior.
-// Set to the deployed /match Worker origin (e.g. 'https://dof-match.X.workers.dev')
-// to turn it on. ?servermatch=0 forces local matching regardless. When on, guesses
-// are verified by POST /match with a 2 s timeout; ANY failure (timeout, network,
-// non-200, bad body) falls back to local matching — the endpoint being down must
-// never block play. Poser is excluded (its trimmed ladder re-indexes rungs, so
-// rungIndex wouldn't line up server-side).
-const MATCH_API = '';
+// Server-side matching (v3 Phase 1) — ON since 2026-07-11 (GATE 1 passed; §6 step 2).
+// Set to '' to turn it OFF (instant rollback to pure-local matching);
+// ?servermatch=0 forces local matching regardless. When on, guesses are verified
+// by POST /match with a 2 s timeout; ANY failure (timeout, network, non-200, bad
+// body) falls back to local matching — the endpoint being down must never block
+// play. Poser is excluded (its trimmed ladder re-indexes rungs, so rungIndex
+// wouldn't line up server-side).
+const MATCH_API = 'https://dof-match.bluesuitcase.workers.dev';
 const MATCH_TIMEOUT_MS = 2000;
 let serverMatch = false, guessInFlight = false;
 
