@@ -5,6 +5,7 @@ import { onAccentText } from './theme.js';
 import { loadStats, saveStats, recordResult } from './stats.js';
 import { pickCreditFrame } from './frame.js';
 import { decodeRungs } from './cipher.js';
+import { indexKeys, suggest } from './buff.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
@@ -24,6 +25,7 @@ const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff'
 const MATCH_API = 'https://dof-match.bluesuitcase.workers.dev';
 const MATCH_TIMEOUT_MS = 2000;
 let serverMatch = false, guessInFlight = false;
+let buffProto = false, titleIndex = null, titleKeys = null;
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -46,6 +48,17 @@ async function init() {
   isPractice = params.has('practice');
   mode = params.get('mode') === 'poser' ? 'poser' : 'cinephile';
   serverMatch = !!MATCH_API && mode === 'cinephile' && params.get('servermatch') !== '0';
+
+  // Movie Buff prototype (?buff=1): title autocomplete on the film rung from the
+  // prebaked static index. Lazy — default players never fetch the index, and a
+  // failed fetch just means no suggestions (play is unaffected).
+  buffProto = params.get('buff') === '1' && mode === 'cinephile';
+  if (buffProto) {
+    fetch('title-index.json').then((r) => r.json()).then((d) => {
+      titleIndex = d;
+      titleKeys = indexKeys(d);
+    }).catch(() => {});
+  }
 
   let entry;
   if (isPractice) {
@@ -367,10 +380,45 @@ async function resolveGuess(text) {
   }
 }
 
+// Movie Buff prototype: suggestion dropdown under the guess input, film rung only.
+function hideSuggest() {
+  const box = $('suggest');
+  box.hidden = true;
+  box.innerHTML = '';
+}
+
+function renderSuggest() {
+  if (!buffProto || !titleIndex || !game || game.status !== 'playing' || game.index !== 0) {
+    hideSuggest();
+    return;
+  }
+  const hits = suggest(titleIndex, titleKeys, $('guess').value);
+  if (!hits.length) { hideSuggest(); return; }
+  const box = $('suggest');
+  box.innerHTML = '';
+  hits.forEach(([title, year]) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = title;
+    const yr = document.createElement('span');
+    yr.className = 'yr';
+    yr.textContent = year || '';
+    btn.appendChild(yr);
+    btn.onclick = () => {
+      $('guess').value = title;
+      hideSuggest();
+      $('guess').focus();
+    };
+    box.appendChild(btn);
+  });
+  box.hidden = false;
+}
+
 async function onGuess() {
   if (!game || game.status !== 'playing' || guessInFlight) return;
   const v = $('guess').value.trim();
   if (!v) return;
+  hideSuggest();
   guessInFlight = true;
   let r;
   try { r = await resolveGuess(v); } finally { guessInFlight = false; }
@@ -543,6 +591,7 @@ function wire() {
   $('skip-btn').onclick = onSkip;
   $('help-btn').onclick = onHelp;
   $('guess').addEventListener('keydown', (e) => { if (e.key === 'Enter') onGuess(); });
+  $('guess').addEventListener('input', renderSuggest);
 }
 
 init();
