@@ -16,7 +16,13 @@ prototype + [PR #23] promotion → `6f199b9`, live-verified): `?play&mode=buff` 
 film-rung autocomplete from the prebaked static top-5k title index (`curation/title_index.py` →
 `docs/title-index.json`, 46 KB gz, ledger coverage asserted 21/21; `docs/buff.js` + buff.test.js
 11 cases — 9 JS suites now). The last "coming soon" tile is lit; no server, no key exposure; buff
-runs don't touch daily stats. **⭐ SCORE HISTORY also SHIPPED 2026-07-11** ([PR #24] → `00fbb0d`):
+runs don't touch daily stats. **Buff autocomplete extended to EVERY rung later the same day**
+([PR #25] → `f696282`): people suggestions on credit rungs from a **credits-harvested index**
+(all 3,663 pool-floor films' top cast + five rung crew jobs → 29,692 names, 212 KB gz, 221/222
+rung coverage — person-popularity measured 50% and was rejected; the sole miss is 001's pseudonym
+editor). Harvest cached in gitignored `curation/people_harvest_cache.jsonl`; **rebuild the index
+occasionally** as films cross the pool floor (re-runs fetch only new films). **⭐ SCORE HISTORY
+also SHIPPED 2026-07-11** ([PR #24] → `00fbb0d`):
 `?history` lists this device's Cinephile daily results (new `stats.history` per-day map in
 recordResult, test-first 17→24, additive/R4-safe — old localStorage blobs gain it on their next
 daily); rows link to `?id=N` replays; entry points on home + the end screen. Recording starts at

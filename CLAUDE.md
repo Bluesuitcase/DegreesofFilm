@@ -151,6 +151,9 @@ docs/                  The entire static site = what gets hosted.
                        keyed via match.js normalize). Pure logic, no DOM.
   title-index.json     Prebaked top-5k TMDB title index [[title,year],...] for Movie Buff
                        (built by curation/title_index.py; fetched only in buff mode).
+  people-index.json    Prebaked people index ["Name",...] for Movie Buff credit rungs
+                       (credits-harvested by curation/people_index.py --source credits;
+                       fetched only in buff mode).
   puzzles/
     001.json           The hand-authored Phase 0 puzzle (No Country for Old Men); 002+ are
                        tool-published. manifest.json is the daily index.
@@ -247,10 +250,13 @@ daily streak/stats.
   share is tagged `(Poser)`. `game.js`'s `Game(puzzle, { mode })` only changes the scoring; the
   trim + all-MC rendering live in `app.js` (`poserPuzzle` / `renderChoices`).
 - **Movie Buff** (shipped 2026-07-11) — `?play&mode=buff`. Cinephile rules and scoring on the
-  full ladder, plus **title autocomplete on the film rung** from the prebaked static index
-  (`docs/buff.js` suggest over `title-index.json`, fetched only in this mode). Server matching
-  active (untrimmed ladder). Buff runs **don't** touch the daily streak/stats, skip the roast,
-  and share as `(Movie Buff)`.
+  full ladder, plus **autocomplete on every rung**: titles on the film rung
+  (`title-index.json`, top-5k TMDB-wide) and people on credit rungs (`people-index.json`,
+  credits-harvested from all ~3.7k pool-floor films — 221/222 rung coverage; person-popularity
+  was measured at 50% and rejected). Both via `docs/buff.js` suggest, fetched only in this
+  mode. Server matching active (untrimmed ladder). Buff runs **don't** touch the daily
+  streak/stats, skip the roast, and share as `(Movie Buff)`. Rebuild the people index
+  occasionally (`curation/people_index.py --source credits`, cached) as films cross the pool floor.
 
 **Still deferred (DESIGN §6 parking lot), don't assume these exist:**
 - ~~Movie Buff mode~~ — **SHIPPED 2026-07-11** (`?play&mode=buff`, mode-select tile lit):

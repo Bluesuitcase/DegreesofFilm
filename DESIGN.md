@@ -66,12 +66,14 @@ How many degrees deep can you go?
 - **Cinephile** — the rules above, the full dig. **This is v1.**
 - **Poser** *(fast-follow)* — all multiple choice, drops the obscure deep rungs, flat **+1**
   per correct answer. A lighter, easier game. Reuses the `decoys` system. No architecture change.
-- **Movie Buff** *(SHIPPED 2026-07-11, no server needed)* — Cinephile rules plus a title
-  autocomplete on the film rung drawing from a **prebaked top-5k popular-title index** built
-  TMDB-wide (so the dropdown doesn't leak which films are eligible — index membership carries
-  ~no signal, and the build asserts every published film is present). The prebaked-index escape
-  hatch made this static: no backend, no live TMDB call, key-leak ban intact. Buff runs don't
-  touch the daily streak/stats (easier-mode rule, like Poser).
+- **Movie Buff** *(SHIPPED 2026-07-11, no server needed; autocomplete extended to EVERY rung
+  the same day)* — Cinephile rules plus autocomplete on all rungs: film titles from a
+  **prebaked top-5k popular-title index** built TMDB-wide, and people from a **credits-harvested
+  index** (top-billed cast + the five rung crew jobs of every pool-floor film — person-popularity
+  ranking was measured at only 50% rung coverage and rejected; the harvest measures 221/222, the
+  sole miss being a pseudonym credit). Neither index is ever seeded from puzzle data, so dropdown
+  membership leaks ~nothing. Both fetch lazily in buff mode only. No backend, no live TMDB call,
+  key-leak ban intact. Buff runs don't touch the daily streak/stats (easier-mode rule, like Poser).
 - The **mode-select screen** ships in v1 with Cinephile lit and the other two shown as
   "coming soon," each with a short, funny cinema-term rules blurb.
 
