@@ -4,7 +4,7 @@
 > work. It's the running handoff — current task, decisions, next steps. This file (CLAUDE.md)
 > explains how the code works; `project_state.md` tracks where we are right now.
 >
-> **Then LOAD THE RELEVANT SKILL before working.** As of 2026-07-03 a 16-skill maintenance library
+> **Then LOAD THE RELEVANT SKILL before working.** As of 2026-07-11 an 18-skill maintenance library
 > lives in [`.claude/skills/`](.claude/skills/) (`degreesoffilm-*`), surfaced by trigger description.
 > They encode the runbooks, invariants, config catalog, debugging playbook, and settled battles —
 > e.g. `degreesoffilm-change-control` before committing, `degreesoffilm-run-and-operate` to publish a
@@ -41,7 +41,8 @@ the v3 parking lot — accounts/DB,
 **Read `project_state.md` for exactly where we are and what's next.**
 
 > This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
-> between films). True degrees-of-separation is a deferred v3-parking-lot mode.
+> between films). True degrees-of-separation is a deferred parking-lot mode — its executable,
+> decision-gated plan is `degreesoffilm-graph-mode-campaign` (nothing built as of 2026-07-11).
 
 ## Run & test
 
@@ -109,9 +110,10 @@ stopgap until v3's server-side matching.
 ## File layout
 
 ```
-.claude/skills/        16-skill maintenance library (degreesoffilm-*, 2026-07-03) — runbooks,
-                       invariants, config catalog, debugging, failure archaeology, v3 campaign,
-                       research frontier + methodology. Load the relevant one before working.
+.claude/skills/        18-skill maintenance library (degreesoffilm-*) — runbooks, invariants,
+                       config catalog, debugging, failure archaeology, the v3 + graph-mode
+                       campaigns, Worker ops, research frontier + methodology. Load the
+                       relevant one before working.
                        Ships scripts/validate_content.py (content integrity) + puzzle_report.py.
                        _BUILD-STATE.md there is the (deletable) build record, not a skill.
 DESIGN.md              Full v1 spec + build roadmap + v2/v3 parking lot.

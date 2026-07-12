@@ -5,7 +5,9 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-11. **v1 live, ALL v2 shipped, 16-skill library on `main`.** **v3 Phase 1 is
+_Last updated: 2026-07-11 (night). **v1 live, ALL v2 shipped, 18-skill library on `main`** (the
+07-11 analysis added `degreesoffilm-worker-ops` + `degreesoffilm-graph-mode-campaign`; DESIGN §6
+gained a v2.5 product-polish backlog; the roadmap below was rewritten). **v3 Phase 1 is
 DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
 `https://dof-match.bluesuitcase.workers.dev` with all 11 puzzles' answers in KV; contract 9/9,
 parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is ON since
@@ -210,38 +212,40 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    rebase-merge; rollback is flipping it back.
 3. Phases 2–3 stay parked per GATE 0 scope.
 
-## Next steps (pick up here)
-0. **Load the relevant skill first** (new this session). For curating puzzles →
-   `degreesoffilm-run-and-operate` + `degreesoffilm-validation-and-qa`'s content-QA checklist; for v3
-   → `degreesoffilm-server-move-campaign`; before committing anything → `degreesoffilm-change-control`.
-1. **v3 §6 step 5 — stop embedding answers in NEW puzzle files (the final step):** gated on the
-   flipped-on flag being stable **≥14 days** (from 2026-07-11 → earliest ~07-25), zero known
-   fallback activations, AND separate owner sign-off + a rehearsed rollback (campaign §6). Until
-   then: nothing to do but keep the KV sync habit after publishes. (§6 step 2 was executed
-   2026-07-11 — see the GATE 1 section.)
-2. **Operational — keep curating** (runway = 8 days as of 2026-07-11, stocked through 07-18).
-   Two curation bugs were FIXED this session (`2d39b0c` layout, `10436aa` scheduling — see Key
-   decisions); the tool now pre-targets today when the runway has lapsed.
-   Run the crop tool (`.venv/Scripts/python -m uvicorn app:app --app-dir curation --port 8001`,
-   needs `curation/.env`): Randomize → face-aware Auto-crop → review the drafted rungs → Approve
-   (auto-fills the next free day). **Then run `scripts/validate_content.py` (diagnostics skill)
-   before committing**, use a spoiler-safe commit message ("Add puzzle NNN (YYYY-MM-DD)" — no film
-   title until the date passes), and push `docs/`. NOTE from the 07-04 batch: check the QA flags
-   below (bit-part rungs; don't let the editor touch today's/past puzzles).
-3. **v3 parking lot (everything else — out of the owner's chosen scope for now).** Two tracks
-   (full list in DESIGN.md §6, research angles in `degreesoffilm-research-frontier`):
-   - **Stay-static (no backend):** true degrees-of-separation (prebaked film/person graph) is
-     the LAST one. *(Movie Buff and Score History — both SHIPPED 2026-07-11, see the header.)*
-   - **Server-move track (needs backend, in campaign order):** server-side matching (Phase 1 —
-     **LIVE 2026-07-11**; §6 step 5 pending its 14-day soak) → **Accounts + DB** (Phase 2) →
-     **Leaderboard** (Phase 3; sortable by mode/user/total, asterisk when a total is mostly
-     easy-mode) + cross-device stats. Also: commercial TMDB agreement (only if it
-     scales/monetizes).
-3. **Housekeeping (optional):** two orphaned worktree dirs (`.claude/worktrees/adoring-blackburn-*`,
-   `loving-maxwell-*`) are git-deregistered + gitignored but Windows-locked; delete them once the
-   sessions holding them close (`rm -rf .claude/worktrees/*`). Also consider copying the skills to the
-   user-global `~/.claude/skills/` if you want them in every project's Customize→Skills (treat the
-   in-repo copy as source of truth).
+## Next phases — the roadmap (rewritten 2026-07-11 night, after the improvement analysis)
+0. **Load the relevant skill first.** Curating → `degreesoffilm-run-and-operate`; Worker/KV
+   anything → **`degreesoffilm-worker-ops` (NEW)**; degrees-of-separation →
+   **`degreesoffilm-graph-mode-campaign` (NEW)**; committing → `degreesoffilm-change-control`.
+   The library is now **18 skills**.
+1. **Operational (before 07-19): curate the next batch** (runway = 8 days, stocked through
+   07-18). Flow per run-and-operate — note its checklist gained **step 14 (KV sync after
+   publish — MANDATORY now that server matching is live; `--remote` flag!)** and step 15
+   (occasional people-index rebuild). Both curation bugs from 07-11 are fixed; the tool
+   pre-targets today when the runway lapses.
+2. **v3 §6 step 5 (earliest ~07-25): stop embedding answers in NEW puzzles.** Gates: flag-ON
+   stable ≥14 days, zero fallback incidents, owner sign-off, rehearsed rollback. Execution
+   runbook: `degreesoffilm-worker-ops` §4. Until then, nothing to do.
+3. **Demand signal (passive — check before any Phase 2/3 discussion):** the live Worker's
+   Cloudflare metrics ≈ engaged players (~36 calls/game) with zero client telemetry — the
+   evidence GATE 0 said was missing for accounts/leaderboard now accrues by itself. Reading
+   it: `degreesoffilm-worker-ops` §3. If numbers justify it, reopen Phases 2–3 via the
+   server-move campaign (magic-link auth already recorded as the owner preference).
+4. **Next build (owner's pick) — the menu, in rough value order:**
+   - **True degrees-of-separation** — the last big mode, now with an executable campaign
+     (`degreesoffilm-graph-mode-campaign`, phases G0–G4). Start = ask the owner G0's five
+     questions. Key unlock from 07-11: the buff people-harvest cache IS the film↔person
+     edge list — extractor v0 needs zero TMDB calls.
+   - **v2.5 product polish** (DESIGN §6, new section): share card 2.0 (per-rung emoji grid),
+     daily difficulty label/par, buff dropdown keyboard nav, PWA/offline (⚠ stale-cache
+     trap), unified stats view, curation batch-draft flow, KV-sync button in the tool.
+   - **Research-frontier items** (`degreesoffilm-research-frontier`): 1a auto-crop
+     acceptance logging (a few lines, then data self-accrues during normal curation),
+     1b difficulty calibration (feeds the par/label polish item), 1c decoy quality,
+     3a offline replay validator (pre-work for any future leaderboard).
+5. **Housekeeping (optional):** orphaned worktree dirs (`.claude/worktrees/*`) are
+   git-deregistered + gitignored but Windows-locked; delete when their sessions close.
+   Skill global mirrors under `~/.claude/skills/` are being kept in sync manually — the
+   in-repo copies are the source of truth.
 
 ## Key decisions (why things are the way they are)
 - **Backdated-publish incident + fix (2026-07-11):** with the runway lapsed, `publish.next_date`

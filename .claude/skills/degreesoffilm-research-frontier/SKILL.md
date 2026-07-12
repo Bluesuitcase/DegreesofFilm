@@ -199,7 +199,14 @@ time instead of at the player's expense).
 
 ## Track 2 — NOVEL MODES
 
-### 2a. True degrees-of-separation, static-first [OPEN/CANDIDATE]
+### 2a. True degrees-of-separation, static-first [OPEN/CANDIDATE — campaign skill exists]
+
+> **2026-07-11 updates:** (1) the raw graph material now EXISTS ON DISK — the Movie Buff
+> people harvest (`curation/people_harvest_cache.jsonl`) maps all 3,663 pool-floor films
+> to their top cast + key crew; extractor v0 needs ZERO new TMDB calls. (2) The executable,
+> decision-gated plan (phases G0–G4, gates, fenced paths) now lives in
+> **degreesoffilm-graph-mode-campaign** — start there; this entry remains the research
+> framing.
 
 **Why current SOTA fails.** Connect-the-films games (as of training data: Cine2Nerdle and
 kin) run live backends — the graph queries happen server-side per guess. Nobody ships a
@@ -374,6 +381,12 @@ numbers first, name the falsifier, adversarial pass, retire-with-a-written-why i
 degreesoffilm-failure-archaeology if it dies). **How any of these ships:**
 degreesoffilm-change-control, without exception.
 
+**Demand-signal unlock (2026-07-11):** the /match Worker is live and ON, so Cloudflare's
+free request metrics ≈ engaged players (≈36 calls/game) — the project's first
+privacy-preserving usage signal, with **no client telemetry added**. Phases 2–3 of the
+server-move campaign were parked for lack of demand evidence; that evidence now accrues
+by itself. Reading it → **degreesoffilm-worker-ops** §3.
+
 ## Settled battles this file must not re-open
 
 Cross-reference degreesoffilm-failure-archaeology before proposing anything adjacent:
@@ -438,6 +451,10 @@ with a human review step or a DOM-free core has the same free assets waiting.
   - Approve payload / no autoBox field: `grep -n "state = {" curation/static/index.html` and `grep -n "api/approve" curation/static/index.html`
   - Decoy coverage: `python -c "import json;[print(i,[k+1 for k,r in enumerate(json.load(open(f'docs/puzzles/{i:03d}.json',encoding='utf-8'))['rungs']) if not r.get('decoys')]) for i in range(1,8)]"` (run from repo root; extend the range as puzzles land)
   - Parking-lot gates still as quoted: `grep -n "prebaked" DESIGN.md`
+- **2026-07-11 sweep:** 2b PROMOTED AND SHIPPED (marked above); 2a gained the harvest-cache
+  asset + its executable campaign skill (degreesoffilm-graph-mode-campaign); demand-signal
+  note added (Worker metrics via degreesoffilm-worker-ops). Product-polish ideas from the
+  same night's analysis went to DESIGN §6 (they're product backlog, not research).
 - **Maintenance rule:** when any item here is promoted (built) or retired (killed), move its
   story to project_state.md / degreesoffilm-failure-archaeology, relabel or delete the entry
   here, and update this date — this file must only ever contain OPEN/CANDIDATE work.

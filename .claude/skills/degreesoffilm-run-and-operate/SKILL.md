@@ -211,7 +211,23 @@ git-reversible until committed); **step 12 (push) makes it public**.
     ```
     The new entry's `date`/`id` must appear (titles are obfuscated blobs — that's
     correct). Optionally play the live `?id=N`.
-14. **Update `project_state.md`** if anything notable happened (new runway number is
+14. **Sync the /match Worker's KV** (since 2026-07-11 — server matching is LIVE, so new
+    puzzles need their answers in KV; the publish sink already refreshed the gitignored
+    `server/answers-bulk.json`):
+    ```
+    cd server && npx wrangler kv bulk put answers-bulk.json \
+      --namespace-id c6672c863072425f9b94d6b0501e2b03 --remote
+    ```
+    (auth: export `CLOUDFLARE_API_TOKEN`/`CLOUDFLARE_ACCOUNT_ID` from `curation/.env` first;
+    the `--remote` flag is MANDATORY — wrangler 4 silently writes to a local simulator
+    without it. Full Worker ops → `degreesoffilm-worker-ops`.) Not urgent same-minute —
+    the client falls back to local matching for unknown puzzles — but do it before the
+    puzzle's date arrives.
+15. **Occasionally: rebuild the Movie Buff people index** (`curation/people_index.py
+    --source credits --out docs/title..` see its docstring) — films cross the 800-vote pool
+    floor over time and their crews should join autocomplete. Monthly is plenty; re-runs
+    only fetch films the gitignored harvest cache hasn't seen.
+16. **Update `project_state.md`** if anything notable happened (new runway number is
     usually enough to mention when it was critical). Direct-to-main is fine for that file.
 
 ## 4. Edit / reschedule an existing puzzle

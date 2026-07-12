@@ -307,6 +307,35 @@ files only). **v2** keeps that architecture; **v3** begins once a backend exists
   existing puzzles. Bigger than it looks: character-specific stills aren't reliably on TMDB, so the
   practical fallback is the person's profile photo.
 
+### v2.5 — product polish backlog (2026-07-11 analysis; all static, none started)
+
+Ideas from the 2026-07-11 improvement analysis. Product work, not research (the
+research-grade register is `degreesoffilm-research-frontier`); each is client-only or
+curation-only, and each routes through change-control when picked up.
+
+- **Share card 2.0** — a per-rung emoji grid (✅ solved / 🟨 skipped / ⬛ unreached) under
+  the depth bar, Wordle-style; richer brag, still spoiler-free. The share string is
+  load-bearing virality and currently shows only the depth bar.
+- **Daily difficulty label / "par"** — show a calibrated difficulty chip ("today's dig:
+  gnarly") and/or a par depth on the end screen ("you: 8 · par: 6"). The scoring proxy is
+  research item 1b; the label itself is a small client render once the proxy exists.
+  Curator override per puzzle.
+- **Buff dropdown keyboard navigation** — arrow keys + Enter to pick a suggestion
+  (currently mouse/tap only); accessibility + speed. Small, self-contained.
+- **PWA / installable + offline archive** — a service worker makes the game installable
+  and the archive playable offline; genuinely rare among daily games. ⚠ TRAP: the repo's
+  costliest recurring bug class is stale-cache confusion, and the daily rollover depends
+  on a date-keyed manifest fetch — the SW design must never cache `manifest.json` or
+  puzzle JSON without the date key. Treat as a design exercise first.
+- **Unified stats view** — `?history` + the end-screen histogram + streak tiles as one
+  screen; three stat surfaces exist today.
+- **Curation batch-draft flow** — "draft me a week": queue 7 Randomize picks with
+  auto-crops in one sitting, curator reviews/approves each. The single biggest
+  operational cost is the one-at-a-time publish loop.
+- **KV-sync button in the curation tool** — the publish flow ends with a manual wrangler
+  command (run-and-operate step 14); the tool could offer it as a one-click post-publish
+  action (token already in curation/.env).
+
 ### v3 — needs the backend / scale (the server move)
 
 - ~~Movie Buff mode~~ — **SHIPPED 2026-07-11 via the prebaked title index** (no server needed
