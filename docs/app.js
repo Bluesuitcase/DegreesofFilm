@@ -25,7 +25,7 @@ const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff'
 const MATCH_API = 'https://dof-match.bluesuitcase.workers.dev';
 const MATCH_TIMEOUT_MS = 2000;
 let serverMatch = false, guessInFlight = false;
-let buffMode = false, titleIndex = null, titleKeys = null;
+let buffMode = false, titleIndex = null, titleKeys = null, peopleIndex = null, peopleKeys = null;
 
 async function init() {
   const params = new URLSearchParams(location.search);
@@ -53,14 +53,20 @@ async function init() {
   // Buff keeps the full untrimmed ladder, so rungIndex lines up server-side too.
   serverMatch = !!MATCH_API && mode !== 'poser' && params.get('servermatch') !== '0';
 
-  // Movie Buff (?play&mode=buff): Cinephile rules + title autocomplete on the film
-  // rung from the prebaked static index. Lazy — other modes never fetch the index,
-  // and a failed fetch just means no suggestions (play is unaffected).
+  // Movie Buff (?play&mode=buff): Cinephile rules + autocomplete on every rung —
+  // titles on the film rung, people (from the prebaked credits-harvested index) on
+  // the credit rungs. Lazy — other modes never fetch either index, and a failed
+  // fetch just means no suggestions (play is unaffected). The people index is flat
+  // names; wrap each as a one-element entry so buff.js handles both shapes.
   buffMode = mode === 'buff';
   if (buffMode) {
     fetch('title-index.json').then((r) => r.json()).then((d) => {
       titleIndex = d;
       titleKeys = indexKeys(d);
+    }).catch(() => {});
+    fetch('people-index.json').then((r) => r.json()).then((d) => {
+      peopleIndex = d.map((name) => [name]);
+      peopleKeys = indexKeys(peopleIndex);
     }).catch(() => {});
   }
 
@@ -418,11 +424,11 @@ function hideSuggest() {
 }
 
 function renderSuggest() {
-  if (!buffMode || !titleIndex || !game || game.status !== 'playing' || game.index !== 0) {
-    hideSuggest();
-    return;
-  }
-  const hits = suggest(titleIndex, titleKeys, $('guess').value);
+  if (!buffMode || !game || game.status !== 'playing') { hideSuggest(); return; }
+  // Film rung suggests titles; credit rungs suggest people.
+  const [entries, keys] = game.index === 0 ? [titleIndex, titleKeys] : [peopleIndex, peopleKeys];
+  if (!entries) { hideSuggest(); return; }
+  const hits = suggest(entries, keys, $('guess').value);
   if (!hits.length) { hideSuggest(); return; }
   const box = $('suggest');
   box.innerHTML = '';

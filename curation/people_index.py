@@ -8,7 +8,15 @@ CLI's coverage report against the published puzzles is the shipping evidence.
 
 Index format: ["Name", ...] ordered by TMDB popularity.
 
-    python curation/people_index.py --n 10000 --out PATH   # fetch + build + report
+Two sources:
+    python curation/people_index.py --n 10000 --out PATH        # /person/popular top-N
+    python curation/people_index.py --source credits --out PATH # credits harvest (chosen
+        2026-07-11: popularity covered only 50% of credit rungs). Harvests top-billed
+        cast + the five rung crew jobs from EVERY pool-floor film (vote_count>=800 &
+        vote_average>=6.5 — the same public floor puzzles must clear, thousands of
+        films, so membership still leaks ~nothing) and ranks names by person
+        popularity. Fetches are cached in people_harvest_cache.jsonl (gitignored) so
+        re-runs only fetch new films.
 """
 import gzip
 import json
@@ -16,11 +24,16 @@ import os
 import sys
 
 import cipher
+import discover as discover_mod
 import manifest as manifest_mod
 import tmdb
 
 PAGE_SIZE = 20
 MAX_PAGES = 500
+CAST_TOP = 12                        # rung cast comes from top billing; 12 gives margin
+CREW_JOBS = ("Director", "Director of Photography", "Original Music Composer",
+             "Editor", "Production Design")   # build_rungs.ROLES' job strings
+CACHE = os.path.join(os.path.dirname(os.path.abspath(__file__)), "people_harvest_cache.jsonl")
 
 
 def build_names(people, n):
@@ -35,6 +48,39 @@ def build_names(people, n):
         seen_names.add(name.casefold())
         names.append(name)
         if len(names) >= n:
+            break
+    return names
+
+
+def extract_people(movie, cast_top=CAST_TOP, crew_jobs=CREW_JOBS):
+    """(id, name, popularity) for a film's top-billed cast + key crew. Pure."""
+    credits = movie.get("credits") or {}
+    out = []
+    for c in (credits.get("cast") or [])[:cast_top]:
+        if c.get("id") and c.get("name"):
+            out.append((c["id"], c["name"].strip(), c.get("popularity") or 0))
+    for c in (credits.get("crew") or []):
+        if c.get("job") in crew_jobs and c.get("id") and c.get("name"):
+            out.append((c["id"], c["name"].strip(), c.get("popularity") or 0))
+    return out
+
+
+def rank_names(people, n=None):
+    """Dedupe (id, name, popularity) triples across films (max popularity wins),
+    collapse duplicate names, return names by popularity desc. Pure."""
+    best = {}
+    for pid, name, pop in people:
+        if not name:
+            continue
+        if pid not in best or pop > best[pid][1]:
+            best[pid] = (name, pop)
+    seen, names = set(), []
+    for name, _pop in sorted(best.values(), key=lambda v: -v[1]):
+        if name.casefold() in seen:
+            continue
+        seen.add(name.casefold())
+        names.append(name)
+        if n and len(names) >= n:
             break
     return names
 
@@ -75,19 +121,57 @@ def _load_puzzles_rungs():
     return out
 
 
+def _harvest_names(key, n):
+    """Credits harvest: every pool-floor film's key credits -> ranked names.
+    Film credit fetches are cached in CACHE (jsonl: {"film_id":..,"people":[[id,name,pop]..]})."""
+    cached = {}
+    if os.path.exists(CACHE):
+        with open(CACHE, encoding="utf-8") as fh:
+            for line in fh:
+                rec = json.loads(line)
+                cached[rec["film_id"]] = [tuple(p) for p in rec["people"]]
+    # enumerate the whole pool, deterministic order
+    film_ids, page, total_pages = [], 1, 1
+    while page <= min(total_pages, MAX_PAGES):
+        data = tmdb.get("/discover/movie", key, sort_by="vote_count.desc",
+                        include_adult="false", page=page,
+                        **{"vote_count.gte": discover_mod.POOL_MIN_VOTES,
+                           "vote_average.gte": discover_mod.POOL_MIN_AVG})
+        total_pages = data.get("total_pages") or 1
+        film_ids += [m["id"] for m in (data.get("results") or []) if m.get("id")]
+        page += 1
+    print(f"pool: {len(film_ids)} films ({min(total_pages, MAX_PAGES)} pages)")
+    fresh = [fid for fid in film_ids if fid not in cached]
+    print(f"cache: {len(film_ids) - len(fresh)} hits, {len(fresh)} to fetch")
+    with open(CACHE, "a", encoding="utf-8") as fh:
+        for i, fid in enumerate(fresh, 1):
+            movie = tmdb.get(f"/movie/{fid}", key, append_to_response="credits")
+            people = extract_people(movie)
+            cached[fid] = people
+            fh.write(json.dumps({"film_id": fid, "people": people}) + "\n")
+            if i % 250 == 0:
+                print(f"  fetched {i}/{len(fresh)} film credits…")
+    allp = [p for fid in film_ids for p in cached.get(fid, [])]
+    return rank_names(allp, n)
+
+
 def _main(argv):
     n = int(argv[argv.index("--n") + 1]) if "--n" in argv else 10000
     out = argv[argv.index("--out") + 1] if "--out" in argv else None
+    source = argv[argv.index("--source") + 1] if "--source" in argv else "popular"
 
     key = tmdb.load_key()
-    pages = min(-(-n // PAGE_SIZE), MAX_PAGES)
-    people = []
-    for p in range(1, pages + 1):
-        data = tmdb.get("/person/popular", key, page=p)
-        people += data.get("results") or []
-        if p % 100 == 0:
-            print(f"  fetched {p}/{pages} pages…")
-    names = build_names(people, n)
+    if source == "credits":
+        names = _harvest_names(key, n if "--n" in argv else None)
+    else:
+        pages = min(-(-n // PAGE_SIZE), MAX_PAGES)
+        people = []
+        for p in range(1, pages + 1):
+            data = tmdb.get("/person/popular", key, page=p)
+            people += data.get("results") or []
+            if p % 100 == 0:
+                print(f"  fetched {p}/{pages} pages…")
+        names = build_names(people, n)
 
     raw, gz = _sizes(names)
     print(f"{len(names)} names: {raw/1024:.1f} KB raw, {gz/1024:.1f} KB gzip "

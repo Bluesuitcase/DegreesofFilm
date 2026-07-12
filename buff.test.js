@@ -39,5 +39,11 @@ check('empty query suggests nothing', suggest(ENTRIES, KEYS, ''), []);
 check('no match -> empty', suggest(ENTRIES, KEYS, 'zzzz'), []);
 check('limit respected', suggest(ENTRIES, KEYS, 'good', 1).length, 1);
 
-console.log(`\n${11 - fails} passed, ${fails} failed`);
+// people-index shape: one-element entries (names, no year)
+const PEOPLE = [['Javier Bardem'], ['Roger Deakins'], ['Jessica Chastain']];
+const PKEYS = indexKeys(PEOPLE);
+check('people entries: prefix match on a name', suggest(PEOPLE, PKEYS, 'roger d'), [['Roger Deakins']]);
+check('people entries: word-boundary surname match', suggest(PEOPLE, PKEYS, 'bard'), [['Javier Bardem']]);
+
+console.log(`\n${13 - fails} passed, ${fails} failed`);
 process.exit(fails ? 1 : 0);

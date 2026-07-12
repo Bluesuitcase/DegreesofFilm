@@ -227,3 +227,6 @@ server/answers-bulk.json
 
 # wrangler local state (dev KV simulator etc.)
 server/.wrangler/
+
+# people-index harvest cache (derived TMDB data, rebuildable)
+curation/people_harvest_cache.jsonl
