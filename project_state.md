@@ -246,10 +246,17 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
      par 3 = 112 KB gz, par 2 = 19 KB gz, both under the 150 KB budget, par asserted at
      build. Gate: the generated challenge (par 3) replayed its solution to a win at par,
      three forgery shapes rejected, 6/6. Suites now 10 JS + 12 Py.
-   - **NEXT = Phase G3** (campaign skill §5): the playable client behind a new route
-     (`?connect` or `?graph`) — new index.html section, rendering in app.js only,
-     autocomplete from the challenge's own subgraph labels, ships OFF the mode-select
-     until G4. Gate: a non-builder completes a challenge on a served static copy.
+   - **G3 SHIPPED (2026-07-13, PR #28):** `?connect` is LIVE (quiet route, no tile) —
+     chain-pill UI over the G2 engine, subgraph-label autocomplete w/ keyboard nav,
+     back-up button, golf end line; challenge 001 = par 2, 17 KB gz. Machine gate
+     evidence complete (win/burn/back/strike-out, zero non-static requests). **Gate's
+     human half PENDING: the owner should play https://bluesuitcase.github.io/
+     DegreesofFilm/?connect to completion.** Also shipped 2026-07-13: buff dropdown
+     keyboard nav (PR #27), the curation KV-sync button (`bc725b0`), and auto-crop
+     acceptance logging (frontier 1a step 1, `e9aabb4` — data accrues at every publish).
+   - **NEXT = Phase G4** (campaign skill §6): dailyization — challenge publisher in the
+     curation tool, a challenges manifest/archive, mode-select tile, share string.
+     Owner sign-off per change-control; stats isolation default applies.
    - **v2.5 product polish** (DESIGN §6, new section): share card 2.0 (per-rung emoji grid),
      daily difficulty label/par, buff dropdown keyboard nav, PWA/offline (⚠ stale-cache
      trap), unified stats view, curation batch-draft flow, KV-sync button in the tool.

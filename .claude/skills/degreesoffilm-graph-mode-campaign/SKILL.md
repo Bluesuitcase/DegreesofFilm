@@ -14,8 +14,9 @@ description: >
   measure ~4 KB gz median; median pair distance 2 degrees, p95 4) and **G2 PASSED**
   (docs/chain.js pure engine + challenge_gen.py; geodesic-ellipse subgraphs — par 3 =
   112 KB gz, par 2 = 19 KB gz; real challenge replayed to a win at par, forgeries
-  rejected 6/6). Next: Phase G3 — the playable client behind a route. NOT for the
-  vertical-dig game's rules (that is the shipped game) or server phases
+  rejected 6/6) and **G3 SHIPPED** (?connect prototype live, PR #28; gate's human half
+  = owner playthrough pending). Next: G4 — dailyization + mode-select promotion. NOT
+  for the vertical-dig game's rules (that is the shipped game) or server phases
   (degreesoffilm-server-move-campaign).
 ---
 
@@ -129,7 +130,16 @@ recorded: whole-corpus vs per-challenge shipping (G-R4 budget applied).
 **Exit gate G2:** the validator accepts a legit hand-played chain and rejects three forged
 ones (wrong credit, skipped hop, out-of-graph node) — binary, offline, one terminal session.
 
-## 5. Phase G3 — playable client behind a route  [CANDIDATE]
+## 5. Phase G3 — playable client behind a route  [SHIPPED 2026-07-13 — gate: machine half PASSED, human half = owner playthrough]
+
+> **Shipped via PR #28 (`54a42f9`):** `?connect[=N]` loads `docs/challenges/NNN.json`
+> (001 = par 2, 17 KB gz). Chain pills, alternating prompts, subgraph-label autocomplete
+> (click + arrows/Enter/Escape), back-up button, golf-style end line, strike-out keeps
+> the connection secret. DOM glue in app.js only (G-R1 held); no stats writes; verified
+> zero non-static requests. Machine gate evidence: full par-2 win, attempt burn, detour
+> + back(), strike-out — all in-browser on a fresh port + live smoke. **Remaining gate
+> item: a non-builder (the owner) completes a challenge on the live site.** Not on the
+> mode-select until G4.
 
 New route (`?graph` or `?connect`; register in config-and-flags when it lands), new
 section in index.html, rendering in app.js only (G-R1). Autocomplete via the existing
