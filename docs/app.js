@@ -417,10 +417,22 @@ async function resolveGuess(text) {
 }
 
 // Movie Buff: suggestion dropdown under the guess input, film rung only.
+let suggestSel = -1;   // keyboard-highlighted suggestion (-1 = none)
+
 function hideSuggest() {
   const box = $('suggest');
   box.hidden = true;
   box.innerHTML = '';
+  suggestSel = -1;
+}
+
+// Arrow keys move the highlight (wrapping); Enter on a highlighted item picks it.
+function moveSuggest(delta) {
+  const items = $('suggest').children;
+  if (!items.length) return;
+  if (suggestSel >= 0) items[suggestSel].classList.remove('sel');
+  suggestSel = (suggestSel + delta + items.length) % items.length;
+  items[suggestSel].classList.add('sel');
 }
 
 function renderSuggest() {
@@ -432,6 +444,7 @@ function renderSuggest() {
   if (!hits.length) { hideSuggest(); return; }
   const box = $('suggest');
   box.innerHTML = '';
+  suggestSel = -1;   // fresh list, nothing highlighted yet
   hits.forEach(([title, year]) => {
     const btn = document.createElement('button');
     btn.className = 'choice';
@@ -633,7 +646,23 @@ function wire() {
   $('guess-btn').onclick = onGuess;
   $('skip-btn').onclick = onSkip;
   $('help-btn').onclick = onHelp;
-  $('guess').addEventListener('keydown', (e) => { if (e.key === 'Enter') onGuess(); });
+  $('guess').addEventListener('keydown', (e) => {
+    const box = $('suggest');
+    if (!box.hidden && box.children.length) {
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        moveSuggest(e.key === 'ArrowDown' ? 1 : -1);
+        return;
+      }
+      if (e.key === 'Escape') { hideSuggest(); return; }
+      if (e.key === 'Enter' && suggestSel >= 0) {
+        e.preventDefault();
+        box.children[suggestSel].click();   // fills the input + hides the list
+        return;
+      }
+    }
+    if (e.key === 'Enter') onGuess();
+  });
   $('guess').addEventListener('input', renderSuggest);
 }
 
