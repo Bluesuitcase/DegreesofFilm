@@ -6,6 +6,7 @@ import { loadStats, saveStats, recordResult } from './stats.js';
 import { pickCreditFrame } from './frame.js';
 import { decodeRungs } from './cipher.js';
 import { indexKeys, suggest } from './buff.js';
+import { Chain, CHAIN_MAX_ATTEMPTS } from './chain.js';
 
 const $ = (id) => document.getElementById(id);
 let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
@@ -32,6 +33,8 @@ async function init() {
   if (params.has('modes')) return renderModes();
   // Practice with no ruleset yet -> the practice chooser (Cinephile/Poser).
   if (params.has('practice') && !params.has('mode')) return renderPractice();
+  // Graph mode (G3 prototype, not on the mode-select yet): ?connect[=N]
+  if (params.has('connect')) return renderConnectView(params.get('connect') || '1');
   if (!params.has('play') && !params.has('id') && !params.has('archive') && !params.has('practice')
       && !params.has('history'))
     return renderHome();
@@ -172,7 +175,7 @@ function enterLobby() {
   $('play').classList.add('hidden');
   $('end').classList.add('hidden');
   $('rail').style.display = 'none';
-  ['home', 'modes', 'archive', 'practice', 'history'].forEach((s) => $(s).classList.add('hidden'));
+  ['home', 'modes', 'archive', 'practice', 'history', 'connect'].forEach((s) => $(s).classList.add('hidden'));
 }
 
 function renderHome() {
@@ -198,6 +201,161 @@ function renderArchiveView() {
   enterLobby();
   $('archive').classList.remove('hidden');
   buildArchive();
+}
+
+// --- Graph mode (campaign G3): connect film A to film B through shared credits.
+// All rules live in chain.js (pure); this is DOM glue only. Autocomplete draws from
+// the challenge's OWN subgraph labels (solution + decoys ship together, so the
+// dropdown reveals nothing). No daily stats, no streak — prototype route only.
+let chainGame = null;
+let cPeople = null, cPeopleKeys = null, cFilms = null, cFilmKeys = null, cSel = -1;
+
+async function renderConnectView(id) {
+  enterLobby();
+  $('connect').classList.remove('hidden');
+  let ch;
+  try {
+    ch = await (await fetch(`challenges/${String(id).padStart(3, '0')}.json`)).json();
+  } catch (e) {
+    $('c-brief').textContent = 'Could not load that challenge.';
+    return;
+  }
+  chainGame = new Chain(ch);
+  cPeople = Object.values(ch.people).map((n) => [n]);
+  cPeopleKeys = indexKeys(cPeople);
+  cFilms = Object.values(ch.films);
+  cFilmKeys = indexKeys(cFilms);
+  $('c-brief').textContent =
+    `Get from the start film to the goal by naming a person in the current film, ` +
+    `then another film they're in — and so on until someone connects to the goal. ` +
+    `Par ${ch.par}. ${CHAIN_MAX_ATTEMPTS} misses on any one link ends the run.`;
+  $('c-btn').onclick = onChainGuess;
+  $('c-guess').addEventListener('keydown', onChainKeydown);
+  $('c-guess').addEventListener('input', renderChainSuggest);
+  $('c-back').onclick = () => { if (chainGame.back()) renderChain(); };
+  renderChain();
+}
+
+function chainPill(label, cls) {
+  const el = document.createElement('span');
+  el.className = 'cpill ' + cls;
+  el.textContent = label;
+  return el;
+}
+
+function renderChain() {
+  const g = chainGame;
+  const row = $('c-chain');
+  row.innerHTML = '';
+  const arrow = () => { const a = document.createElement('span'); a.className = 'carrow'; a.textContent = '→'; return a; };
+  row.appendChild(chainPill(`${g.startFilm.title} (${g.startFilm.year})`, 'film'));
+  g.chain.forEach((step) => {
+    row.appendChild(arrow());
+    row.appendChild(chainPill(step.label, step.type === 'film' ? 'film' : 'person'));
+  });
+  if (g.status === 'playing') { row.appendChild(arrow()); row.appendChild(chainPill('?', 'current')); }
+  row.appendChild(arrow());
+  row.appendChild(chainPill(`${g.goal.title} (${g.goal.year})`, 'film goal'));
+
+  const playing = g.status === 'playing';
+  $('c-guess').disabled = !playing;
+  $('c-btn').disabled = !playing;
+  $('c-back').disabled = !playing || g.expecting !== 'film';
+  if (playing) {
+    const at = g.expecting === 'person'
+      ? (g.chain.length ? g.chain[g.chain.length - 1].label : g.startFilm.title)
+      : g.chain[g.chain.length - 1].label;
+    $('c-prompt').textContent = g.expecting === 'person'
+      ? `Name someone credited in ${at}.`
+      : `Name another film with ${at}.`;
+    $('c-status').textContent =
+      `${g.degrees} degree${g.degrees === 1 ? '' : 's'} used · par ${g.par}` +
+      (g.attempts ? ` · ${CHAIN_MAX_ATTEMPTS - g.attempts} tries left on this link` : '');
+    $('c-end').innerHTML = '';
+  } else {
+    $('c-prompt').textContent = '';
+    hideChainSuggest();
+    const over = g.degrees - g.par;
+    const line = g.status === 'won'
+      ? (over < 0 ? `Connected in ${g.degrees} — UNDER par. Showoff.`
+        : over === 0 ? `Connected in ${g.degrees} — right on par.`
+        : `Connected in ${g.degrees} — +${over} over par. The scenic route.`)
+      : 'Out of guesses — the connection stays secret.';
+    $('c-status').textContent = '';
+    $('c-end').innerHTML = `<div class="cend"><p class="eyebrow">${g.status === 'won' ? 'Linked!' : 'Run over'}</p>` +
+      `<p class="endline">${line}</p>` +
+      `<button class="again" onclick="location.reload()">Play it again</button></div>`;
+  }
+}
+
+function hideChainSuggest() {
+  const box = $('c-suggest');
+  box.hidden = true;
+  box.innerHTML = '';
+  cSel = -1;
+}
+
+function renderChainSuggest() {
+  if (!chainGame || chainGame.status !== 'playing') { hideChainSuggest(); return; }
+  const person = chainGame.expecting === 'person';
+  const hits = suggest(person ? cPeople : cFilms, person ? cPeopleKeys : cFilmKeys, $('c-guess').value);
+  if (!hits.length) { hideChainSuggest(); return; }
+  const box = $('c-suggest');
+  box.innerHTML = '';
+  cSel = -1;
+  hits.forEach(([label, year]) => {
+    const btn = document.createElement('button');
+    btn.className = 'choice';
+    btn.textContent = label;
+    if (year) {
+      const yr = document.createElement('span');
+      yr.className = 'yr';
+      yr.textContent = year;
+      btn.appendChild(yr);
+    }
+    btn.onclick = () => {
+      $('c-guess').value = label;
+      hideChainSuggest();
+      $('c-guess').focus();
+    };
+    box.appendChild(btn);
+  });
+  box.hidden = false;
+}
+
+function onChainKeydown(e) {
+  const box = $('c-suggest');
+  if (!box.hidden && box.children.length) {
+    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+      e.preventDefault();
+      const items = box.children;
+      if (cSel >= 0) items[cSel].classList.remove('sel');
+      cSel = (cSel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
+      items[cSel].classList.add('sel');
+      return;
+    }
+    if (e.key === 'Escape') { hideChainSuggest(); return; }
+    if (e.key === 'Enter' && cSel >= 0) {
+      e.preventDefault();
+      box.children[cSel].click();
+      return;
+    }
+  }
+  if (e.key === 'Enter') onChainGuess();
+}
+
+function onChainGuess() {
+  if (!chainGame || chainGame.status !== 'playing') return;
+  const v = $('c-guess').value.trim();
+  if (!v) return;
+  hideChainSuggest();
+  const r = chainGame.guess(v);
+  if (r.result === 'wrong') {
+    $('c-guess').select();
+  } else {
+    $('c-guess').value = '';
+  }
+  renderChain();
 }
 
 // Score history: this device's Cinephile daily results (stats.history), newest
