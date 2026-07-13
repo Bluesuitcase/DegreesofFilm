@@ -7,12 +7,13 @@ description: >
   "six degrees", "connect the films", "graph mode", or "Cine2Nerdle-style"; designing
   the film/person graph extractor or challenge format; asking whether the mode needs a
   server; or proposing to bulk-crawl TMDB for graph data (a fenced path — the buff
-  harvest cache already holds the corpus). Status as of 2026-07-11: NOTHING BUILT —
-  all phases CANDIDATE; GATE G0 (owner scope decision) not yet asked. Key asset: the
-  people-harvest cache from the Movie Buff index (3,663 pool-floor films → their top
-  cast + key crew) IS the film↔person edge list, already on disk, zero new API calls
-  for a v0 graph. NOT for the vertical-dig game's rules (that is the shipped game) or
-  server phases (degreesoffilm-server-move-campaign).
+  harvest cache already holds the corpus). Status as of 2026-07-13: **G0 PASSED**
+  (daily challenge · alternate film↔person hops · par-based scoring · autocomplete on ·
+  spoilability accepted) and **G1 PASSED** (extractor built + measured: 3,663 films /
+  29,774 people / 63,084 edges; corpus 630 KB gz → per-challenge subgraphs, which
+  measure ~4 KB gz median; median pair distance 2 degrees, p95 4). Next: Phase G2 —
+  offline chain validator + challenge generator. NOT for the vertical-dig game's rules
+  (that is the shipped game) or server phases (degreesoffilm-server-move-campaign).
 ---
 
 # Degrees of Film — the graph-mode campaign (true degrees-of-separation)
@@ -45,7 +46,14 @@ Buff autocomplete; it doubles as the film↔person edge list. **v0 needs zero ne
 | G-R4 | Payload budget: a playable challenge ships in **≤ 150 KB gzip** (measured, not vibes — that's smaller than one puzzle's image set). Whole-corpus shipping only if it measures under budget; otherwise per-challenge subgraphs. |
 | G-R5 | Spoiler posture decided at G0 and written down. Static graph = shipped solution space (same enumerability as the dig's answers — accepted there, probably acceptable here; say so explicitly). |
 
-## 2. Phase G0 — owner decision gate  [CANDIDATE — ASK BEFORE BUILDING]
+## 2. Phase G0 — owner decision gate  [DONE 2026-07-13 — ALL FIVE ANSWERED]
+
+> **Owner answers (2026-07-13):** (1) Shape = **daily challenge** first. (2) Hop format =
+> **alternate film↔person** (the classic form). (3) Assist = **autocomplete on by default**
+> (recommendation stood unvetoed; reuses both buff indexes). (4) Scoring = **par-based**
+> (BFS shortest path = par, golf-style hops-vs-par brag; per-hop attempts in the dig's
+> 3-guess rhythm). (5) Spoiler posture = **accept shipped solution space, like the dig**
+> (static-first; server validation stays an optional later hardening, W-G3 upheld).
 
 Questions for the owner (record answers in project_state.md):
 1. **Shape:** daily A→B challenge (one per day, like the dig) — or freeplay generator?
@@ -59,7 +67,19 @@ Questions for the owner (record answers in project_state.md):
 
 **Exit gate G0:** answers recorded; scope = which phases below are wanted.
 
-## 3. Phase G1 — extractor + size budget  [CANDIDATE]
+## 3. Phase G1 — extractor + size budget  [DONE 2026-07-13 — GATE G1 PASSED]
+
+> **Measured 2026-07-13** (`curation/graph_extract.py`, 11 pure tests green; films
+> metadata cached in gitignored `curation/films_cache.jsonl`): graph = **3,663 films /
+> 29,774 people / 63,084 edges**; person degree median 1, p95 7, max 74. Whole corpus =
+> 1,721 KB raw / **630 KB gz** → over the 150 KB G-R4 budget, so **DECISION: per-challenge
+> subgraphs** (as expected). A 2-hop pair subgraph measures **median 10 KB raw / 4 KB gz,
+> max 18/8** — far under budget, leaving ample room for decoy padding (and for k=3 balls
+> when par > 2; the generator must size k to the par). Path lengths over 300 random pairs:
+> 1° 3%, **2° 49%, 3° 34%**, 4° 8%, 5° 2%, 6° 0.3%, unreachable 2.3% — median 4 edges
+> (2 degrees), p95 8. Consequence for G2: natural dailies sit at par 2–4; par-1 pairs are
+> rare enough to be "easy day" specials; unreachable pairs must be filtered by the
+> generator (BFS returning None).
 
 1. `curation/graph_extract.py` (pure core + CLI, house pattern): read the harvest cache
    → nodes (films, people) + edges (credited-on), emit JSON. Include film year + person

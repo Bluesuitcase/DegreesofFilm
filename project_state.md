@@ -230,11 +230,18 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    evidence GATE 0 said was missing for accounts/leaderboard now accrues by itself. Reading
    it: `degreesoffilm-worker-ops` §3. If numbers justify it, reopen Phases 2–3 via the
    server-move campaign (magic-link auth already recorded as the owner preference).
-4. **Next build (owner's pick) — the menu, in rough value order:**
-   - **True degrees-of-separation** — the last big mode, now with an executable campaign
-     (`degreesoffilm-graph-mode-campaign`, phases G0–G4). Start = ask the owner G0's five
-     questions. Key unlock from 07-11: the buff people-harvest cache IS the film↔person
-     edge list — extractor v0 needs zero TMDB calls.
+4. **IN PROGRESS — graph mode (degrees-of-separation), started 2026-07-13:**
+   - **G0 PASSED** (owner answers): daily challenge · alternate film↔person hops ·
+     par-based scoring (BFS shortest = par) · autocomplete on by default · spoilability
+     accepted like the dig. **G1 PASSED** same day: `curation/graph_extract.py` (+11 pure
+     tests) built the graph from the buff harvest cache + a films-metadata sweep
+     (gitignored `films_cache.jsonl`) — 3,663 films / 29,774 people / 63,084 edges; corpus
+     630 KB gz (over budget) → **per-challenge subgraphs** (median ~4 KB gz!); pair
+     distances: 49% at 2 degrees, 34% at 3, median 4 edges, 2.3% unreachable.
+   - **NEXT = Phase G2** (campaign skill §4): pure chain-validator module (docs-shaped,
+     test-first) + challenge-generator CLI (pick A→B at target par, emit subgraph with
+     decoy padding sized k≥par, filter unreachable pairs) + hand-author challenge 001.
+     Then G3 client behind a route, G4 dailyization.
    - **v2.5 product polish** (DESIGN §6, new section): share card 2.0 (per-rung emoji grid),
      daily difficulty label/par, buff dropdown keyboard nav, PWA/offline (⚠ stale-cache
      trap), unified stats view, curation batch-draft flow, KV-sync button in the tool.

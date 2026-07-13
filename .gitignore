@@ -230,3 +230,4 @@ server/.wrangler/
 
 # people-index harvest cache (derived TMDB data, rebuildable)
 curation/people_harvest_cache.jsonl
+curation/films_cache.jsonl
