@@ -5,9 +5,13 @@
 > **this file = where we are right now** (living). A mirror also lives in auto-memory
 > (`degreesoffilm-status.md`).
 
-_Last updated: 2026-07-11 (night). **v1 live, ALL v2 shipped, 18-skill library on `main`** (the
-07-11 analysis added `degreesoffilm-worker-ops` + `degreesoffilm-graph-mode-campaign`; DESIGN §6
-gained a v2.5 product-polish backlog; the roadmap below was rewritten). **v3 Phase 1 is
+_Last updated: 2026-07-13 (session end). **v1 live · ALL v2 shipped · v3 Phase 1 LIVE (server
+matching ON) · graph mode G0–G3 DONE (`?connect` live, G4 pending) · 18-skill library.**
+Shipped 2026-07-13: graph campaign G0→G3 (engine + generator + playable prototype, PRs #26/#28),
+buff dropdown keyboard nav (PR #27), curation KV-sync button, auto-crop acceptance logging
+(frontier 1a step 1 — data accrues at every publish). Suites: 12 JS + 14 Python, all green.
+**THE CANONICAL TO-DO LIST for the next session is "Next phases" below** — present it when the
+owner says "continue". **v3 Phase 1 is
 DEPLOYED and GATE 1 PASSED (2026-07-11)** — the `/match` Worker is live at
 `https://dof-match.bluesuitcase.workers.dev` with all 11 puzzles' answers in KV; contract 9/9,
 parity 25/25, p95 = 41 ms, fallback drill green (see the v3 section). **`MATCH_API` is ON since
@@ -212,7 +216,49 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
    rebase-merge; rollback is flipping it back.
 3. Phases 2–3 stay parked per GATE 0 scope.
 
-## Next phases — the roadmap (rewritten 2026-07-11 night, after the improvement analysis)
+## Next phases — the roadmap (updated 2026-07-13 session end; ordered EASY → COMPLEX)
+
+**Quick (≤1 hour):**
+- **Q1. Owner plays `?connect` to completion** — the graph-mode G3 gate's human half
+  (https://bluesuitcase.github.io/DegreesofFilm/?connect — Trainspotting → Spirit, par 2).
+  Friction notes feed G4.
+- **Q2. Curate the next puzzle batch — DUE BEFORE 07-19** (stocked through 07-18). The
+  publish flow now: Approve → validator → spoiler-safe commit → push → **the tool's
+  "⬆ Sync answers to server" button** (KV). Every publish also feeds the new auto-crop
+  acceptance log for free.
+
+**Small builds (an evening):**
+- **S1. Share card 2.0** — per-rung emoji grid under the depth bar (client-only, test-first
+  on the share-string builder). DESIGN §6 v2.5 list.
+- **S2. Unified stats view** — merge `?history` + end-screen histogram + streak tiles.
+- **S3. v3 §6 step 5 (calendar-gated ~07-25)** — stop embedding answers in NEW puzzles.
+  Gates: 14-day flag-ON soak, zero fallback incidents, owner sign-off, rehearsed rollback.
+  Runbook: `degreesoffilm-worker-ops` §4.
+
+**Medium builds (a full session):**
+- **M1. Graph mode G4 — the campaign finale** (`degreesoffilm-graph-mode-campaign` §6):
+  challenge publisher in the curation tool, challenges manifest + archive semantics,
+  mode-select tile, share string, decide daily cadence vs puzzle. Owner sign-off to promote.
+- **M2. Difficulty label / "par" on the daily** — frontier 1b proxy first (offline over 21
+  puzzles), then a small client chip.
+- **M3. Decoy-quality scoring** (frontier 1c) — era/popularity-matched re-rank + blind A/B.
+- **M4. Replay validator** (frontier 3a) — offline Node script over unmodified game.js;
+  the integrity core for any future leaderboard.
+- **M5. Auto-crop tuning** (frontier 1a steps 2–3) — WAITS on ~20 logged publishes from Q2's
+  batches; then a one-script analysis of acceptance/IoU vs the scale + deweight defaults.
+
+**Large builds (multi-session):**
+- **L1. PWA / offline installable** — design doc FIRST (service worker vs the daily rollover
+  + the stale-cache trap class), then code. DESIGN §6 v2.5 list.
+
+**Gated on evidence, not effort:**
+- **E1. v3 Phase 2 (accounts + cross-device stats)** — parked by GATE 0 until demand
+  evidence; the Worker's Cloudflare metrics now accrue that passively (read: worker-ops §3;
+  ≈36 requests/game). Magic-link auth is the recorded preference.
+- **E2. v3 Phase 3 (leaderboard)** — needs Phase 2 + M4; transcript-replay design + asterisk
+  rule already specced in the server-move campaign.
+
+## The 2026-07-11 roadmap (superseded by the list above; kept for context)
 0. **Load the relevant skill first.** Curating → `degreesoffilm-run-and-operate`; Worker/KV
    anything → **`degreesoffilm-worker-ops` (NEW)**; degrees-of-separation →
    **`degreesoffilm-graph-mode-campaign` (NEW)**; committing → `degreesoffilm-change-control`.

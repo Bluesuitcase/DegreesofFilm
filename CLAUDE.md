@@ -27,22 +27,24 @@ TMDB headshots — the manual picker was removed), **vibrant themed tooltips** (
 (`/api/random`), **Auto-crop** (`/api/autocrop`, face-first via OpenCV → edge-energy fallback, with a
 size slider), and **Clear scheduled** (`/api/clear-schedule`, unschedule upcoming + free their films).
 The client routes views by query string: `?` home, `?modes` mode-select, `?play` today's game, `?id=N`
-an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?practice` the practice
-chooser, `?practice&mode=cinephile|poser` an endless practice run. **The only open v2 task is
+an archived game, `?archive` the index, `?play&mode=poser` a Poser game, `?play&mode=buff` Movie
+Buff, `?history` score history, `?connect[=N]` the graph-mode Connect prototype (quiet route, not
+on the mode-select yet), `?practice` the practice chooser, `?practice&mode=cinephile|poser` an
+endless practice run. **The only open v2 task is
 operational (curate more puzzles).** v3 status (2026-07-11): **Phase 1 server-side matching is
 LIVE — deployed, GATE 1 passed, and the client default is ON** (`MATCH_API` in app.js points at
 `https://dof-match.bluesuitcase.workers.dev`; Cloudflare Workers + KV, all puzzles' answers in KV).
 Cinephile guesses are verified by POST /match with a 2 s local-match fallback (`?servermatch=0`
 forces local); puzzle JSON still ships obfuscated answers as the fallback until §6 step 5 (gated on
-≥14 days' stability). The rest of
-the v3 parking lot — accounts/DB,
-**Leaderboard**, degrees-of-separation — stays parked;
-`degreesoffilm-server-move-campaign` is the decision-gated plan.
+≥14 days' stability). **Graph mode ("Connect", true degrees-of-separation) is IN FLIGHT:**
+campaign phases G0–G3 done as of 2026-07-13 — engine (`docs/chain.js`), generator, and the live
+`?connect` prototype; G4 (dailyization + mode tile) remains. The rest of the parking lot —
+accounts/DB, **Leaderboard** — stays parked; `degreesoffilm-server-move-campaign` owns those.
 **Read `project_state.md` for exactly where we are and what's next.**
 
-> This is a *vertical dig into one film's credits*, not "six degrees of separation" (hopping
-> between films). True degrees-of-separation is a deferred parking-lot mode — its executable,
-> decision-gated plan is `degreesoffilm-graph-mode-campaign` (nothing built as of 2026-07-11).
+> The daily is a *vertical dig into one film's credits*. True degrees-of-separation (hopping
+> between films) is now its own SECOND mode in flight — "Connect", `?connect`, campaign
+> `degreesoffilm-graph-mode-campaign` (G0–G3 done, G4 pending as of 2026-07-13).
 
 ## Run & test
 
@@ -52,12 +54,14 @@ the v3 parking lot — accounts/DB,
   `python -m http.server` from inside `docs/`.
 - **Tests:** plain Node, no framework or deps. Run `node match.test.js`, `node game.test.js`,
   `node daily.test.js`, `node theme.test.js`, `node stats.test.js`, `node frame.test.js`,
-  `node cipher.test.js`, `node worker.test.js`, and `node buff.test.js` from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
+  `node cipher.test.js`, `node worker.test.js`, `node buff.test.js`, and `node chain.test.js`
+  from the repo root. Each prints PASS/FAIL lines and exits non-zero on any failure. There is
   no `npm test` script; `package.json` exists only to set `"type": "module"` so the `.test.js`
   files can `import` the ES modules under `docs/`. The matcher's case table lives in
   `match.cases.js` (shared by match.test.js and worker.test.js) — add cases there.
 - **Curation tests (Phase 2):** run the `python curation/*.test.py` files (`build_rungs`, `ledger`,
-  `discover`, `decoys`, `manifest`, `publish`, `credits_images`, `cipher`, `push_answers`) — pure-logic, no network or API key,
+  `discover`, `decoys`, `manifest`, `publish`, `credits_images`, `cipher`, `push_answers`,
+  `title_index`, `people_index`, `graph_extract`, `challenge_gen`) — pure-logic, no network or API key,
   same PASS/FAIL + non-zero-exit style. The CLI modules (`discover.py`, `build_rungs.py`, `decoys.py`,
   `credits_images.py`) hit live TMDB and need the key in `curation/.env`.
 - **Image tests (Pillow):** `.venv/Scripts/python curation/images.test.py` — needs the repo-root
@@ -134,6 +138,7 @@ frame.test.js          Credit-image tests (node frame.test.js): pickCreditFrame 
 cipher.test.js         Answer-obfuscation tests (node cipher.test.js): decode/round-trip/passthrough
                        + a fixed vector shared with curation/cipher.test.py (cross-language parity).
 buff.test.js           Movie Buff autocomplete tests (node buff.test.js): indexKeys/suggest ranking.
+chain.test.js          Graph-mode engine tests (node chain.test.js): chain steps, par, forgeries, back().
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Mobile breakpoint at 600px.
@@ -151,6 +156,10 @@ docs/                  The entire static site = what gets hosted.
                        app.js decodes each puzzle's rungs at load. Pure logic, no DOM.
   buff.js              Movie Buff autocomplete core (indexKeys/suggest over title-index.json,
                        keyed via match.js normalize). Pure logic, no DOM.
+  chain.js             Graph-mode ("Connect") chain engine: alternating film/person steps,
+                       degrees-vs-par, back(). Imports only match.js. Pure logic, no DOM.
+  challenges/          Graph-mode challenge JSONs (001.json shipped; ?connect=N loads NNN.json).
+                       Generated by curation/challenge_gen.py (geodesic-ellipse subgraphs).
   title-index.json     Prebaked top-5k TMDB title index [[title,year],...] for Movie Buff
                        (built by curation/title_index.py; fetched only in buff mode).
   people-index.json    Prebaked people index ["Name",...] for Movie Buff credit rungs
@@ -200,6 +209,13 @@ curation/              PRIVATE (Phase 2) — never served. Holds the TMDB key (.
   backfill_answers.py  Re-runnable CLI: rebuild the whole answers artifact from the published
                        puzzles (decodes via cipher). Needed at Phase 1 cutover + rollback.
   validate_ladder.py   Throwaway de-risk script (popularity-vs-billing comparison).
+  title_index.py       Movie Buff title index builder (top-N TMDB-wide; ledger-coverage assert).
+  people_index.py      Movie Buff people index (credits harvest of all pool-floor films; the
+                       harvest cache doubles as the graph mode's edge list).
+  graph_extract.py     Graph-mode extractor: film<->person graph from the harvest cache + a
+                       cached films sweep; BFS distances, neighborhoods, subgraph JSON.
+  challenge_gen.py     Graph-mode challenge generator: exact-par pair pick + geodesic-ellipse
+                       decoy-padded subgraph, par asserted at build; spoiler solution sidecar.
 server/                v3 Phase 1 (LIVE since 2026-07-11, client flag ON) — the /match Cloudflare Worker.
   worker.js            POST /match {puzzleId, rungIndex, guess} -> {correct[, canonical]}.
                        Imports docs/match.js UNCHANGED (parity by reuse). Answers in KV,

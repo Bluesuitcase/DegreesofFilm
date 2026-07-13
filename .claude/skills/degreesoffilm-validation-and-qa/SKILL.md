@@ -66,6 +66,8 @@ counts drift as tests are added — a LOWER count than stated here is a red flag
 | `stats.test.js` | `docs/stats.js` (pure part) | `recordResult`: streak extend/reset/max, same-day idempotence, histogram, input non-mutation. NOT load/save. | 17 | `node stats.test.js` |
 | `frame.test.js` | `docs/frame.js` | `pickCreditFrame`: reveal tier widening + clamp (incl. single-tier 001 case), credit image + caption, full-frame fallback, overshoot clamp, no-frames edge. | 16 | `node frame.test.js` |
 | `cipher.test.js` | `docs/cipher.js` | Decodes the **Python-produced fixed vector** (§4), round-trips ASCII/Unicode, sentinel prefix, plaintext passthrough, idempotence, `decodeRungs` scope (answers+caption yes, decoys/prompt no). | 19 | `node cipher.test.js` |
+| `buff.test.js` (2026-07-11) | `docs/buff.js` | Movie Buff autocomplete core: keys via the shipped `normalize()` (article/diacritic handling), prefix-before-word-boundary ranking, min-2-char guard, limit, the one-element people-entry shape. | 13 | `node buff.test.js` |
+| `chain.test.js` (2026-07-13) | `docs/chain.js` | Graph-mode engine: legit chain wins at par, direct 1-degree close, the three forgery shapes (wrong credit / skipped hop / out-of-graph), strike-out, single-use films+people, `back()` semantics (degree spent, person blocked), matcher-contract carryover (single-token surnames only). | 27 | `node chain.test.js` |
 | `build_rungs.test.py` | `curation/build_rungs.py` | Ladder shape: cast by **billing not popularity** (a synthetic film where they disagree), director at rung 4, fixed deep-crew order, writer excluded, co-directors collapse to one rung, `max_cast` trim, original-title alternate. | 16 | `python curation/build_rungs.test.py` |
 | `ledger.test.py` | `curation/ledger.py` | Never-repeat ledger: dedupe by film id, `remove_by_puzzles` free-the-films split, id-required, save/reload round-trip (temp dirs). | 12 | `python curation/ledger.test.py` |
 | `discover.test.py` | `curation/discover.py` | Pool floor inclusive at ≥800 votes / ≥6.5 avg, used-film exclusion, `pick_random_unused` with an injected fake rng. | 11 | `python curation/discover.test.py` |
@@ -75,13 +77,17 @@ counts drift as tests are added — a LOWER count than stated here is a red flag
 | `push_answers.test.py` | `curation/push_answers.py` + `backfill_answers.py` | The /match answers artifact: payload shape (answers only, ladder order), `wrangler kv bulk` entry format (value is a JSON string), upsert dedupe/non-mutation, `file_sink` temp-dir round-trip, backfill decodes obfuscated puzzles + skips missing files. | 17 | `python curation/push_answers.test.py` |
 | `credits_images.test.py` | `curation/credits_images.py` | `caption_for` (cast "Name as Character", crew name-only, Film blank), `NNN-rK.jpg` naming, `attach_person_meta` headshot mapping, `finalize_rung_images` with an **injected fake save** — helper fields stripped, headshot-less rungs skipped. | 22 | `python curation/credits_images.test.py` |
 | `cipher.test.py` | `curation/cipher.py` | The SAME fixed vector as `cipher.test.js` (parity lock, §4), round-trips, sentinel, passthrough, idempotence, None handling, `encode_rungs`/`decode_rungs` non-mutation + scope. | 22 | `python curation/cipher.test.py` |
-| `images.test.py` | `curation/images.py` | Tier expansion + clamping, `best_window` edge-energy (hot-block/tie/oversize), `box_around` clamps, `deweight_bands`, accent/background color clamps, Pillow `crop_tiers`/`auto_crop_box`/`sample_accent`, `detect_faces` no-face path (degrades to `[]` without cv2 — suite passes either way). | 32 | `.venv/Scripts/python curation/images.test.py` |
+| `images.test.py` | `curation/images.py` | Tier expansion + clamping, `best_window` edge-energy (hot-block/tie/oversize), `box_around` clamps, `deweight_bands`, accent/background color clamps, Pillow `crop_tiers`/`auto_crop_box` (+face flag)/`sample_accent`, `box_iou` (auto-crop acceptance metric), `detect_faces` no-face path (degrades to `[]` without cv2 — suite passes either way). | 37 | `.venv/Scripts/python curation/images.test.py` |
+| `title_index.test.py` (2026-07-11) | `curation/title_index.py` | Movie Buff title index pure core: dedupe by id, [title,year] shaping, truncation, ledger-coverage gap detection (case-insensitive, year-aware). | 10 | `python curation/title_index.test.py` |
+| `people_index.test.py` (2026-07-11) | `curation/people_index.py` | People index: popular-source dedupe (id AND name), credits-harvest extraction (cast trim + rung crew jobs only), popularity ranking, spoiler-safe rung-coverage report. | 12 | `python curation/people_index.test.py` |
+| `graph_extract.test.py` (2026-07-13) | `curation/graph_extract.py` | Graph build (metadata join, adjacency inversion, labels), bipartite BFS distances (0/2/4/None), k-edge neighborhoods, compact subgraph serialization. | 11 | `python curation/graph_extract.test.py` |
+| `challenge_gen.test.py` (2026-07-13) | `curation/challenge_gen.py` | Alternating `bfs_path`, exact-par `pick_pair`, challenge assembly (endpoints/par/solution spine), solution-label alternation, broken-par assertion raises. | 9 | `python curation/challenge_gen.test.py` |
 
 Run-everything one-liners (Git Bash, from repo root):
 
 ```bash
-for t in match game daily theme stats frame cipher worker; do node $t.test.js || echo "** $t FAILED"; done
-for t in build_rungs ledger discover decoys manifest publish credits_images cipher push_answers; do python curation/$t.test.py || echo "** $t FAILED"; done
+for t in match game daily theme stats frame cipher worker buff chain; do node $t.test.js || echo "** $t FAILED"; done
+for t in build_rungs ledger discover decoys manifest publish credits_images cipher push_answers title_index people_index graph_extract challenge_gen; do python curation/$t.test.py || echo "** $t FAILED"; done
 .venv/Scripts/python curation/images.test.py    # .venv/bin/python on macOS/Linux
 ```
 
