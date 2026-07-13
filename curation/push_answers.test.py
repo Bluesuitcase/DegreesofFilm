@@ -86,5 +86,19 @@ with tempfile.TemporaryDirectory() as d:
           {"rungs": [{"answers": ["Test Film", "Le Film"]}, {"answers": ["Jane Doe"]}]})
     check("backfill keys by puzzle id", entries[0]["key"], "answers:4")
 
+# --- namespace_id: parse the ANSWERS KV id out of wrangler.toml ---
+TOML = '''name = "dof-match"
+[[kv_namespaces]]
+binding = "ANSWERS"
+id = "c6672c863072425f9b94d6b0501e2b03"   # from `wrangler kv namespace create`
+[[unsafe.bindings]]
+namespace_id = "1001"
+'''
+check("namespace_id parses the ANSWERS id (comment stripped)",
+      push_answers.namespace_id(TOML), "c6672c863072425f9b94d6b0501e2b03")
+check("namespace_id ignores the rate-limit namespace_id line",
+      push_answers.namespace_id('namespace_id = "1001"\nid = "abc"'), "abc")
+check("namespace_id -> None when absent", push_answers.namespace_id("name = 'x'"), None)
+
 print(f"\n{passed} passed, {failed} failed")
 sys.exit(1 if failed else 0)

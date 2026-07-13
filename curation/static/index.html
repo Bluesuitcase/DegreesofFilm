@@ -107,6 +107,7 @@
     <div class="sched" id="sched"></div>
     <div class="row" style="margin-top:8px">
       <p class="hint" style="margin:0;flex:1">Click an empty day to target it when you approve. Publishing auto-fills the next free day.</p>
+      <button class="btn ghost" id="kvsync">⬆ Sync answers to server</button>
       <button class="btn ghost" id="clearsched">🗑 Clear scheduled</button>
       <span class="hint" id="clearstatus"></span>
     </div>
@@ -236,6 +237,20 @@ function markTargeted(){
 }
 $('#date').addEventListener('input', markTargeted);
 loadSchedule();
+
+// KV sync: one-click push of the answers artifact to the /match Worker's KV
+// (the manual wrangler command from run-and-operate step 14). Idempotent upsert.
+$('#kvsync').onclick = async () => {
+  const b = $('#kvsync'), s = $('#clearstatus');
+  b.disabled = true; b.textContent = '⬆ syncing…'; s.textContent = '';
+  try{
+    const r = await fetch('/api/kv-sync', { method: 'POST' });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.detail || r.status);
+    s.textContent = `✓ ${j.synced} puzzles' answers live in KV`;
+  }catch(e){ s.textContent = 'kv-sync error: ' + e.message; }
+  finally{ b.disabled = false; b.textContent = '⬆ Sync answers to server'; }
+};
 
 // Clear scheduled: unschedule every upcoming (strictly-future) puzzle. Two-click
 // arm/confirm (no native modal): first click previews the count + arms; a second

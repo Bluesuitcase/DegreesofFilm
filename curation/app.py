@@ -147,6 +147,43 @@ def api_clear_schedule():
             "freed": len(freed), "freed_titles": [r.get("title") for r in freed]}
 
 
+@app.post("/api/kv-sync")
+def api_kv_sync():
+    """Push the answers artifact (server/answers-bulk.json, kept current by the
+    publish sink) to the /match Worker's KV via wrangler — the one-click version of
+    run-and-operate step 14. Needs CLOUDFLARE_API_TOKEN + CLOUDFLARE_ACCOUNT_ID in
+    curation/.env (tmdb.load_key()'s loader exports every .env line). The --remote
+    flag is MANDATORY: wrangler 4 silently writes to a local simulator without it."""
+    import shutil
+    import subprocess
+    _key()   # side effect: loads curation/.env into the environment
+    for var in ("CLOUDFLARE_API_TOKEN", "CLOUDFLARE_ACCOUNT_ID"):
+        if not os.environ.get(var):
+            raise HTTPException(500, f"{var} missing from curation/.env")
+    server_dir = os.path.join(push_answers.ROOT, "server")
+    entries = push_answers.load_bulk()
+    if not entries:
+        raise HTTPException(500, "server/answers-bulk.json is missing or empty — "
+                                 "run curation/backfill_answers.py first")
+    with open(os.path.join(server_dir, "wrangler.toml"), encoding="utf-8") as fh:
+        ns = push_answers.namespace_id(fh.read())
+    if not ns:
+        raise HTTPException(500, "no ANSWERS namespace id in server/wrangler.toml")
+    npx = shutil.which("npx") or shutil.which("npx.cmd")
+    if not npx:
+        raise HTTPException(500, "npx not found on PATH (Node is required)")
+    proc = subprocess.run(
+        [npx, "wrangler", "kv", "bulk", "put", "answers-bulk.json",
+         "--namespace-id", ns, "--remote"],
+        cwd=server_dir, capture_output=True, text=True, timeout=180)
+    # wrangler exits non-zero on failure; its "Success!" lands on stdout, which the
+    # Windows npx .cmd shim doesn't reliably pipe through — trust the exit code.
+    if proc.returncode != 0:
+        output = (proc.stdout or "") + (proc.stderr or "")
+        raise HTTPException(502, f"wrangler failed (exit {proc.returncode}): {output[-400:]}")
+    return {"synced": len(entries), "namespace": ns}
+
+
 @app.get("/api/discover")
 def api_discover(sort: str = "vote_count.desc", count: int = 12):
     k = _key()

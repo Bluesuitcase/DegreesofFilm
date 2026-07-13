@@ -44,6 +44,16 @@ def load_bulk(path=DEFAULT_PATH):
         return json.load(fh)
 
 
+def namespace_id(toml_text):
+    """The ANSWERS KV namespace id out of wrangler.toml — the first `id = "..."`
+    line (the rate-limit binding uses `namespace_id`, which must not match). Pure."""
+    for line in toml_text.splitlines():
+        stripped = line.strip()
+        if stripped.startswith("id") and stripped.split("=", 1)[0].strip() == "id":
+            return stripped.split("=", 1)[1].split("#", 1)[0].strip().strip('"')
+    return None
+
+
 def save_bulk(entries, path=DEFAULT_PATH):
     os.makedirs(os.path.dirname(path), exist_ok=True)
     with open(path, "w", encoding="utf-8") as fh:

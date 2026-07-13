@@ -213,7 +213,9 @@ git-reversible until committed); **step 12 (push) makes it public**.
     correct). Optionally play the live `?id=N`.
 14. **Sync the /match Worker's KV** (since 2026-07-11 — server matching is LIVE, so new
     puzzles need their answers in KV; the publish sink already refreshed the gitignored
-    `server/answers-bulk.json`):
+    `server/answers-bulk.json`). **Easiest (since 2026-07-13): the tool's
+    "⬆ Sync answers to server" button** in the schedule row (`POST /api/kv-sync` —
+    reports "✓ N puzzles' answers live in KV"). Manual equivalent:
     ```
     cd server && npx wrangler kv bulk put answers-bulk.json \
       --namespace-id c6672c863072425f9b94d6b0501e2b03 --remote
