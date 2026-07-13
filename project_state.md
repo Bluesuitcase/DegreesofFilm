@@ -238,10 +238,18 @@ Pages redeploy confirmed, live app.js carries the flag OFF):**
      (gitignored `films_cache.jsonl`) — 3,663 films / 29,774 people / 63,084 edges; corpus
      630 KB gz (over budget) → **per-challenge subgraphs** (median ~4 KB gz!); pair
      distances: 49% at 2 degrees, 34% at 3, median 4 edges, 2.3% unreachable.
-   - **NEXT = Phase G2** (campaign skill §4): pure chain-validator module (docs-shaped,
-     test-first) + challenge-generator CLI (pick A→B at target par, emit subgraph with
-     decoy padding sized k≥par, filter unreachable pairs) + hand-author challenge 001.
-     Then G3 client behind a route, G4 dailyization.
+   - **G2 PASSED (2026-07-13):** `docs/chain.js` pure engine (27 tests; matcher contract
+     carried verbatim — single-token surnames only, autocomplete carries the rest) +
+     `curation/challenge_gen.py` (9 tests). **Sizing lesson:** radius-ball subgraphs at
+     par 3 swallow 95% of the small-world corpus → shipped strategy is the **geodesic
+     ellipse** (shortest-path core + rank-filtered detours + capped decoy fringe):
+     par 3 = 112 KB gz, par 2 = 19 KB gz, both under the 150 KB budget, par asserted at
+     build. Gate: the generated challenge (par 3) replayed its solution to a win at par,
+     three forgery shapes rejected, 6/6. Suites now 10 JS + 12 Py.
+   - **NEXT = Phase G3** (campaign skill §5): the playable client behind a new route
+     (`?connect` or `?graph`) — new index.html section, rendering in app.js only,
+     autocomplete from the challenge's own subgraph labels, ships OFF the mode-select
+     until G4. Gate: a non-builder completes a challenge on a served static copy.
    - **v2.5 product polish** (DESIGN §6, new section): share card 2.0 (per-rung emoji grid),
      daily difficulty label/par, buff dropdown keyboard nav, PWA/offline (⚠ stale-cache
      trap), unified stats view, curation batch-draft flow, KV-sync button in the tool.

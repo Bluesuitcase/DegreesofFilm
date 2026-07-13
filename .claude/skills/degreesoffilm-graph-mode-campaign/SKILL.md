@@ -11,9 +11,12 @@ description: >
   (daily challenge · alternate film↔person hops · par-based scoring · autocomplete on ·
   spoilability accepted) and **G1 PASSED** (extractor built + measured: 3,663 films /
   29,774 people / 63,084 edges; corpus 630 KB gz → per-challenge subgraphs, which
-  measure ~4 KB gz median; median pair distance 2 degrees, p95 4). Next: Phase G2 —
-  offline chain validator + challenge generator. NOT for the vertical-dig game's rules
-  (that is the shipped game) or server phases (degreesoffilm-server-move-campaign).
+  measure ~4 KB gz median; median pair distance 2 degrees, p95 4) and **G2 PASSED**
+  (docs/chain.js pure engine + challenge_gen.py; geodesic-ellipse subgraphs — par 3 =
+  112 KB gz, par 2 = 19 KB gz; real challenge replayed to a win at par, forgeries
+  rejected 6/6). Next: Phase G3 — the playable client behind a route. NOT for the
+  vertical-dig game's rules (that is the shipped game) or server phases
+  (degreesoffilm-server-move-campaign).
 ---
 
 # Degrees of Film — the graph-mode campaign (true degrees-of-separation)
@@ -95,7 +98,23 @@ Questions for the owner (record answers in project_state.md):
 sizes measured and written into project_state; path-length distribution known. Decision
 recorded: whole-corpus vs per-challenge shipping (G-R4 budget applied).
 
-## 4. Phase G2 — offline prototype  [CANDIDATE]
+## 4. Phase G2 — offline prototype  [DONE 2026-07-13 — GATE G2 PASSED]
+
+> **Built + gated 2026-07-13:** `docs/chain.js` — the pure chain engine (imports only
+> match.js; 27 tests in chain.test.js): alternating person/film steps, degrees vs par,
+> 3-attempts-per-step strike-out, no-revisit rule, `back()` for dead ends (degree spent,
+> no refunds), chains CLOSE on a person credited in the goal. Matcher contract carries
+> over verbatim — single-token surname works, "De Niro" does not (documented in tests;
+> the G0 default-on autocomplete carries it). `curation/challenge_gen.py` (+9 tests):
+> pick_pair at exact par, geodesic-ellipse subgraph. **SIZING LESSON (measured):**
+> radius balls at par 3 swallow 95% of the small-world corpus (472 KB gz); the shipped
+> strategy is the ellipse — full shortest-path core + rank-filtered over-par detours +
+> a 6-person/film capped decoy fringe → **par 3 = 112 KB gz, par 2 = 19 KB gz**, both
+> under the 150 KB G-R4 budget, with a par-preservation assertion at build time.
+> **GATE evidence:** the generated challenge (Mad Max 2 → About Time, par 3) replayed
+> its curator-sidecar solution through the UNMODIFIED engine to a win at exactly par;
+> forged chains (skipped hop, wrong credit, out-of-graph gibberish → strike-out) all
+> rejected; post-terminal guesses ignored — 6/6.
 
 1. A pure `docs/graph.js`-shaped module (no DOM): load a challenge JSON, validate a
    player's chain step-by-step (is X actually credited on Y?), track hops/par/complete.
