@@ -46,7 +46,15 @@ research; `docs/match.js` is maintained via its contract table (`match.test.js`)
 
 ## Track 1 — AUTOMATED CURATION
 
-### 1a. Auto-crop acceptance — turn every publish into labeled training data [OPEN/CANDIDATE]
+### 1a. Auto-crop acceptance — turn every publish into labeled training data [STEP 1 DONE 2026-07-13 — data accruing]
+
+> **Instrumented 2026-07-13:** `doAutocrop()` stores the suggestion (`state.autoBox` +
+> scale + the face flag, now surfaced by `images.auto_crop_box`); approve/update bodies
+> carry it; `app.py _log_autocrop` appends one row per publish to **gitignored**
+> `curation/autocrop_log.jsonl` (spoiler-adjacent still URLs — local tuning data) with
+> IoU precomputed via the new pure `images.box_iou` (tested). Rows with `suggested:
+> null` measure adoption. Steps 2–3 (accumulate n≥20, then tune scale/deweight_bands
+> against the log) remain OPEN — nothing to do but curate normally.
 
 **Why current SOTA fails.** Generic saliency/smart-crop tools (CV saliency maps, cloud
 "smart crop" APIs) optimize for "keep the interesting part". This game's crop has constraints

@@ -109,6 +109,15 @@ ok("auto box is normalized in-bounds",
 ok("auto box keeps the frame aspect (w == h in normalized coords)", abs(ab["w"] - ab["h"]) < 0.02)
 _cx, _cy = ab["x"] + ab["w"] / 2, ab["y"] + ab["h"] / 2
 ok("auto box centres on the busy quadrant (bottom-right)", _cx > 0.5 and _cy > 0.5)
+ok("auto box carries the face flag (edge path -> False)", ab["face"] is False)
+
+# --- box_iou: the auto-crop acceptance metric (frontier 1a) ---
+B = {"x": 0.1, "y": 0.1, "w": 0.4, "h": 0.4}
+ok("iou: identical boxes = 1.0", images.box_iou(B, dict(B)) == 1.0)
+ok("iou: disjoint boxes = 0.0", images.box_iou(B, {"x": 0.6, "y": 0.6, "w": 0.3, "h": 0.3}) == 0.0)
+_half = images.box_iou(B, {"x": 0.3, "y": 0.1, "w": 0.4, "h": 0.4})   # half-overlap in x
+ok("iou: half-shifted box = 1/3", abs(_half - round(1 / 3, 4)) < 1e-9)
+ok("iou: degenerate zero-area box = 0.0", images.box_iou(B, {"x": 0.1, "y": 0.1, "w": 0, "h": 0}) == 0.0)
 
 # --- detect_faces: a flat image has no faces (also exercises the no-cv2 fallback) ---
 ok("no faces in a flat image", images.detect_faces(Image.new("RGB", (120, 80), (40, 40, 40))) == [])

@@ -231,3 +231,5 @@ server/.wrangler/
 # people-index harvest cache (derived TMDB data, rebuildable)
 curation/people_harvest_cache.jsonl
 curation/films_cache.jsonl
+# auto-crop acceptance log (frontier 1a) — local tuning data, spoiler-adjacent still URLs
+curation/autocrop_log.jsonl

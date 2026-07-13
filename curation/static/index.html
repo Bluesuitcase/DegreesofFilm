@@ -413,6 +413,7 @@ async function loadPuzzleForEdit(pid){
 
 function selectStill(url, el){
   state.stillUrl = url; state.box=null;
+  state.autoBox = null; state.autoScale = null; state.autoFace = null;   // suggestion was for the old still
   document.querySelectorAll('#stills img').forEach(i=>i.classList.remove('sel'));
   el.classList.add('sel');
   $('#still').src = url; $('#selbox').style.display='none';
@@ -475,6 +476,11 @@ async function doAutocrop(){
     const scale = $('#cropscale').value;
     const b = await jget('/api/autocrop?url='+encodeURIComponent(state.stillUrl)+'&scale='+scale);
     state.box = b; drawBox(b);
+    // remember the SUGGESTION separately from the (possibly re-dragged) final box —
+    // approve logs the pair for auto-crop acceptance tuning (frontier 1a)
+    state.autoBox = { x: b.x, y: b.y, w: b.w, h: b.h };
+    state.autoScale = Number(scale);
+    state.autoFace = !!b.face;
     $('#boxinfo').textContent = boxInfo(b) + ' · auto — approve or re-drag';
   }catch(e){ $('#boxinfo').textContent='auto-crop error: '+e.message; }
   finally{ btn.disabled=false; }
@@ -499,15 +505,22 @@ $('#approve').onclick = async ()=>{
   catch(e){ res.className='err'; res.textContent='Rungs JSON is invalid: '+e.message; return; }
   const accent = $('#ovr').checked ? $('#accent').value : null;
 
+  // auto-crop acceptance pair (frontier 1a): ship the suggestion beside the final
+  // box so the server can log suggested-vs-final. Null when auto-crop wasn't used.
+  const auto = (hasCrop && state.autoBox)
+    ? { auto_box: [state.autoBox.x, state.autoBox.y, state.autoBox.w, state.autoBox.h],
+        auto_scale: state.autoScale, auto_face: state.autoFace }
+    : { auto_box: null, auto_scale: null, auto_face: null };
+
   let url, body;
   if(editing){
-    body = { puzzle_id: editing, rungs, date: $('#date').value, accent };
+    body = { puzzle_id: editing, rungs, date: $('#date').value, accent, ...auto };
     if(hasCrop){ body.image_url = state.stillUrl; body.box = [state.box.x,state.box.y,state.box.w,state.box.h]; }
     url = '/api/update';
   } else {
     body = { film_id: state.film.id, image_url: state.stillUrl,
       box: [state.box.x,state.box.y,state.box.w,state.box.h], rungs,
-      date: $('#date').value, accent };
+      date: $('#date').value, accent, ...auto };
     url = '/api/approve';
   }
   $('#approve').disabled=true; res.textContent = editing ? 'updating…' : 'writing…';

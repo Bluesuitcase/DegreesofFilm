@@ -315,6 +315,29 @@ def api_puzzle(pid: int):
             "stills": stills, "rungs": existing["rungs"]}
 
 
+AUTOCROP_LOG = os.path.join(HERE, "autocrop_log.jsonl")
+
+
+def _log_autocrop(pid, image_url, final_box, auto_box, auto_scale, auto_face):
+    """Frontier 1a: one jsonl row per publish pairing the auto-crop SUGGESTION with
+    the curator's FINAL box (IoU precomputed; suggestion null when auto-crop wasn't
+    used — that measures adoption too). Gitignored: rows name future films' stills
+    (spoiler-adjacent) and it's local tuning data. Never blocks a publish."""
+    try:
+        def as_box(v):
+            return {"x": v[0], "y": v[1], "w": v[2], "h": v[3]} if v else None
+        final, auto = as_box(final_box), as_box(auto_box)
+        row = {"ts": datetime.datetime.now().isoformat(timespec="seconds"),
+               "puzzle": pid, "image_url": image_url,
+               "scale": auto_scale, "face": auto_face,
+               "suggested": auto, "final": final,
+               "iou": images_mod.box_iou(auto, final) if auto and final else None}
+        with open(AUTOCROP_LOG, "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(row, ensure_ascii=False) + "\n")
+    except Exception:
+        pass
+
+
 class Approve(BaseModel):
     film_id: int
     image_url: str
@@ -322,6 +345,9 @@ class Approve(BaseModel):
     rungs: list
     date: str
     accent: str | None = None
+    auto_box: list[float] | None = None    # frontier 1a: the auto-crop suggestion
+    auto_scale: float | None = None
+    auto_face: bool | None = None
 
 
 @app.post("/api/approve")
@@ -341,6 +367,7 @@ def api_approve(body: Approve):
                               image_files=image_files, date=body.date, puzzle_id=pid,
                               answers_sink=push_answers.file_sink())
     res["theme"] = theme
+    _log_autocrop(pid, body.image_url, body.box, body.auto_box, body.auto_scale, body.auto_face)
     return res
 
 
@@ -351,6 +378,9 @@ class Update(BaseModel):
     accent: str | None = None
     image_url: str | None = None    # supplied only when re-cropping the frame
     box: list[float] | None = None
+    auto_box: list[float] | None = None    # frontier 1a: the auto-crop suggestion
+    auto_scale: float | None = None
+    auto_face: bool | None = None
 
 
 @app.post("/api/update")
@@ -375,6 +405,7 @@ def api_update(body: Update):
     image_files = existing.get("images", [])
     if body.image_url and body.box:          # re-crop only if a new still + box came in
         image_files, theme = _crop_and_theme(body.image_url, body.box, body.accent, stem)
+        _log_autocrop(pid, body.image_url, body.box, body.auto_box, body.auto_scale, body.auto_face)
     elif body.accent:                        # accent-only override, keep the frame
         theme = {**(theme or {}), "accent": body.accent}
 

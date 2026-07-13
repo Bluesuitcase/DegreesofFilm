@@ -170,7 +170,9 @@ def auto_crop_box(image, *, scale=0.5, sample_w=160):
     faces = detect_faces(image)
     if faces:
         x, y, fw, fh = faces[0]
-        return box_around((x + fw / 2) / image.width, (y + fh / 2) / image.height, scale)
+        box = box_around((x + fw / 2) / image.width, (y + fh / 2) / image.height, scale)
+        box["face"] = True     # surfaced for the acceptance log (frontier 1a)
+        return box
 
     from PIL import ImageFilter
     sw = max(8, min(sample_w, image.width))
@@ -181,7 +183,17 @@ def auto_crop_box(image, *, scale=0.5, sample_w=160):
     win_r = max(1, round(sh * scale))
     c, r = best_window(energy, sw, sh, win_c, win_r)
     return {"x": round(c / sw, 4), "y": round(r / sh, 4),
-            "w": round(win_c / sw, 4), "h": round(win_r / sh, 4)}
+            "w": round(win_c / sw, 4), "h": round(win_r / sh, 4), "face": False}
+
+
+def box_iou(a, b):
+    """Intersection-over-union of two normalized {x,y,w,h} boxes — the acceptance
+    metric for the auto-crop log (IoU 1.0 = suggestion approved unchanged). Pure."""
+    ix = max(0.0, min(a["x"] + a["w"], b["x"] + b["w"]) - max(a["x"], b["x"]))
+    iy = max(0.0, min(a["y"] + a["h"], b["y"] + b["h"]) - max(a["y"], b["y"]))
+    inter = ix * iy
+    union = a["w"] * a["h"] + b["w"] * b["h"] - inter
+    return round(inter / union, 4) if union > 0 else 0.0
 
 
 def sample_accent(image, **clamp_opts):
