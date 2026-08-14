@@ -6,8 +6,22 @@
 _Last updated: **2026-08-11**. **THE GAME WAS REBUILT.** The vertical-dig daily (name the film
 from a still, then dig through its credits) was **retired and deleted** at the owner's direction —
 "I just don't find it very fun" — and the site is now built entirely around
-**degrees-of-separation: connect two films through the people who made them**. All work is on
-branch `claude/session-context-634bc2`, **not yet merged to `main` and not yet live.**_
+**degrees-of-separation: connect two films through the people who made them**. All work is
+**committed as `3da6a94`** on branch `claude/session-context-634bc2` (368 files, +2,080/−13,703)
+— **not pushed, not merged to `main`, not live.**_
+
+## ▶ Start here next session
+
+1. **Read this file, then `CLAUDE.md`.** Ignore the skill library where it disagrees with them
+   (see "Skill library — mid-migration" below).
+2. **The one open question is whether the game is fun.** It has never been played by anyone but
+   me. Serve it — `python -m http.server 8010 --directory docs` from the worktree, or the `docs`
+   entry in `.claude/launch.json` — and play today's daily.
+3. **Then decide the branch's fate.** Everything is committed locally; nothing is pushed. Merging
+   is player-facing and destructive (the live site loses the dig and its 21 puzzles), so it wants
+   an explicit go-ahead: branch → PR → rebase-merge per `degreesoffilm-change-control`.
+4. The worktree is at `.claude/worktrees/session-context-634bc2`. The two gitignored TMDB caches
+   were copied into it and are ~2.5 MB.
 
 ## What the game is now
 
@@ -43,7 +57,8 @@ Consequences worth remembering:
 
 ## Status
 
-- **Built, tested, verified in-browser. NOT merged, NOT deployed.**
+- **Built, tested, verified in-browser, and committed (`3da6a94`). NOT pushed, NOT merged, NOT
+  deployed.** The live site still serves the old dig until this branch lands.
 - **Tests: 8 suites, 183 assertions, all green.** JS: match 25, daily 11, stats 22, corpus 35,
   chain 36. Python: harvest 8, graph_build 23, challenge_gen 23.
 - **Content: 30 dailies, 2026-08-11 → 2026-09-09**, every one's par re-verified by BFS against
@@ -77,7 +92,8 @@ repo-root `.venv` is no longer needed by anything.
    holds the old puzzle answers.
 3. **Merging is player-facing and destructive** (the live site loses the dig and 21 puzzles).
    Per `degreesoffilm-change-control` this wants a branch → PR → rebase-merge, with your explicit
-   sign-off. Nothing has been pushed.
+   sign-off. The work is committed locally (`3da6a94`) but **nothing has been pushed** — the
+   rebuild is one `git push` away from being reviewable and two from being live.
 
 ## Next up (my recommendation, in order)
 
