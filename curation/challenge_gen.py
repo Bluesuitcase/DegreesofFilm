@@ -98,12 +98,12 @@ def degrees_between(adj, src, dst, max_degrees=6):
     return None if path is None else (len(path) - 1) // 2
 
 
-def count_routes(adj, src, dst, par, cap=50):
-    """How many DISTINCT people close a par chain (a fairness proxy: one single
-    connector is a needle, several is a game). Counts closers at the final step. Pure."""
+def par_closers(adj, src, dst, par):
+    """The set of people who can land the FINAL hop of a par chain. Doubles as the
+    fairness count's source and as the never-name-these list for curator notes. Pure."""
     film_people, person_films = adj
     if par < 1:
-        return 0
+        return set()
     reach = {src}
     for _ in range(par - 1):
         nxt = set()
@@ -114,16 +114,23 @@ def count_routes(adj, src, dst, par, cap=50):
                         nxt.add(f2)
         reach = nxt
         if not reach:
-            return 0
+            return set()
     goal_cast = set(film_people[dst])
-    closers = set()
-    for f in reach:
-        for p in film_people[f]:
-            if p in goal_cast:
-                closers.add(p)
-                if len(closers) >= cap:
-                    return cap
-    return len(closers)
+    return {p for f in reach for p in film_people[f] if p in goal_cast}
+
+
+def count_routes(adj, src, dst, par, cap=50):
+    """How many DISTINCT people close a par chain (a fairness proxy: one single
+    connector is a needle, several is a game). Pure."""
+    return min(cap, len(par_closers(adj, src, dst, par)))
+
+
+def note_violations(note, names):
+    """Which of `names` a curator's note mentions (case-insensitive substring).
+    A note must tease texture, never identify a connector — this is the enforced
+    half of that rule (endpoint titles are the prompt and stay allowed). Pure."""
+    low = note.lower()
+    return sorted(n for n in set(names) if n and n.lower() in low)
 
 
 def too_similar(title_a, title_b):
@@ -216,6 +223,7 @@ def _main(argv):
     daily = doc["daily"]
 
     if args.check:
+        solutions = _load(SOLUTIONS, {})
         bad = 0
         for e in daily:
             a, b = by_id.get(e["start"]), by_id.get(e["goal"])
@@ -229,6 +237,17 @@ def _main(argv):
             ok = got == e["par"] and labels_ok
             why = "" if ok else (f" but the corpus says {got}" if got != e["par"]
                                  else " — cached titles drifted from the corpus")
+            # A curator's note may tease texture but never identify a connector:
+            # check it against every possible closer and the sidecar chain.
+            if ok and e.get("note"):
+                never = [corpus["people"][p] for p in par_closers(adj, a, b, e["par"])]
+                sol = solutions.get(str(e["id"]), {})
+                never += [x for x in sol.get("chain", [])
+                          if x not in (corpus["films"][a][0], corpus["films"][b][0])]
+                leaked = note_violations(e["note"], never)
+                if leaked:
+                    ok = False
+                    why = f" — note names a connector: {', '.join(leaked)}"
             print(f"{'OK  ' if ok else 'FAIL'}  #{e['id']} {e['date']}  "
                   f"{corpus['films'][a][0]} -> {corpus['films'][b][0]}  par {e['par']}{why}")
             bad += 0 if ok else 1

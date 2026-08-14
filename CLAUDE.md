@@ -189,6 +189,12 @@ this catches a daily whose endpoint fell out of the pool.
 **Spoiler discipline:** `curation/challenge_solutions.json` is gitignored and must stay that way —
 this repo is public. Commit messages must not name a future daily's chain.
 
+**Curator's notes:** a daily may carry an optional `note` (one authored sentence, shown only on
+the end card). Notes ship publicly in `challenges.json` before their date, so the rule is hard:
+**texture only — a note must never identify a film or person on any geodesic** (endpoint titles
+are the prompt and are allowed). `challenge_gen.py --check` enforces it against every possible
+closer plus the solutions sidecar; write notes by hand, run `--check` before committing.
+
 **Known and accepted:** `challenges.json` ships future dailies, so a curious player can read
 tomorrow's film pair. The pair is the prompt, not the answer, and a static site can't hide it —
 same posture the original game took with its archive.

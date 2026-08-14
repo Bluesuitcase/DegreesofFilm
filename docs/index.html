@@ -100,6 +100,19 @@
       <a class="navback" href="?">← Home</a>
       <h2 class="modes-title">Your scorecard</h2>
       <div id="history-summary"></div>
+      <div id="history-cal" class="history-cal"></div>
+      <div class="backup">
+        <button id="bk-export" class="skip" data-tip="Serialize your whole record into a copyable code">Back up my record</button>
+        <button id="bk-import" class="skip" data-tip="Merge a code from another device — keeps the better result on conflicts">Restore from a code</button>
+      </div>
+      <div id="bk-area" class="bk-area" hidden>
+        <textarea id="bk-text" rows="4" spellcheck="false" aria-label="Backup code"></textarea>
+        <div class="bk-row">
+          <button id="bk-copy" class="skip">Copy</button>
+          <button id="bk-apply" class="skip">Import</button>
+        </div>
+        <p class="arc-sub" id="bk-note"></p>
+      </div>
       <div id="history-list" class="archive-list"></div>
     </section>
   </main>
