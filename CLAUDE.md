@@ -171,3 +171,19 @@ this repo is public. Commit messages must not name a future daily's chain.
 **Known and accepted:** `challenges.json` ships future dailies, so a curious player can read
 tomorrow's film pair. The pair is the prompt, not the answer, and a static site can't hide it —
 same posture the original game took with its archive.
+
+## Agent skills
+
+Per-repo config for the `mattpocock-skills` engineering flows. Note the path adaptation:
+`docs/` is the deployed site, so these live at the repo root instead of the usual `docs/…`.
+
+### Issue tracker
+
+Issues live in this repo's GitHub Issues, driven via the `gh` CLI (with a per-command
+`GH_TOKEN` from the cached git credential). See `agents/issue-tracker.md`.
+
+### Domain docs
+
+Single-context: `CONTEXT.md` at the repo root and ADRs in `adr/` (both created lazily; until
+then, `CLAUDE.md` + `project_state.md` carry the vocabulary and decisions). See
+`agents/domain.md`.
