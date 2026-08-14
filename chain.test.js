@@ -114,5 +114,43 @@ let threw = '';
 try { new Chain(CORPUS, { id: 9, start: 1, goal: 999, par: 2 }); } catch (e) { threw = e.message; }
 check('unknown challenge film throws', threw.includes('not in this corpus'), true);
 
+// --- mid-run persistence: toJSON/fromJSON round-trips portably ---
+const CHALLENGE = { id: 1, start: 1, goal: 3, par: 2 };
+c = CH();
+c.guess('Robert De Niro'); c.guess('Casino');
+let saved = c.toJSON();
+check('save carries films as TMDB ids, people as names',
+      saved.chain, [{ t: 'p', n: 'Robert De Niro' }, { t: 'f', id: 2 }]);
+let back = Chain.fromJSON(CORPUS, CHALLENGE, saved);
+check('restore rebuilds position/expecting/degrees',
+      [back.position, back.expecting, back.degrees, back.status],
+      [c.position, c.expecting, c.degrees, c.status]);
+check('restored run plays on to the win', back.guess('Joe Pesci').result, 'won');
+
+// back() state survives: the popped person stays blocked across a save.
+c = CH();
+c.guess('Val Kilmer'); c.back();
+back = Chain.fromJSON(CORPUS, CHALLENGE, c.toJSON());
+check('backed-out person stays blocked after restore',
+      back.guess('Val Kilmer').reason, 'used');
+check('  ... and the spent degree survives', back.degrees, 1);
+check('  ... expecting a person again', back.expecting, 'person');
+
+// Burn count survives so a reload can't refund attempts.
+c = CH();
+c.guess('Joe Pesci'); // wrong here: burns 1
+back = Chain.fromJSON(CORPUS, CHALLENGE, c.toJSON());
+check('attempts survive the round-trip', back.attempts, 1);
+
+// Discard-on-mismatch: wrong challenge, or names that no longer resolve.
+check('save for another challenge is rejected',
+      Chain.fromJSON(CORPUS, { id: 2, start: 1, goal: 3, par: 2 }, c.toJSON()), null);
+saved = CH().toJSON();
+saved.chain = [{ t: 'p', n: 'Gone From Corpus' }];
+check('unresolvable person discards the save', Chain.fromJSON(CORPUS, CHALLENGE, saved), null);
+saved = CH().toJSON();
+saved.usedF = [999];
+check('unresolvable film id discards the save', Chain.fromJSON(CORPUS, CHALLENGE, saved), null);
+
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

@@ -159,4 +159,66 @@ export class Chain {
     this.attempts = 0;
     return true;
   }
+
+  // Mid-run persistence. Serialized PORTABLY — films by TMDB id, people by exact
+  // name — never by corpus index: indices shift on every graph.json rebuild, and a
+  // save restored across one would silently corrupt the chain. The used sets ride
+  // along explicitly because back() removes a pill but keeps the person blocked,
+  // so the chain alone under-states them.
+  toJSON() {
+    return {
+      id: this.id,
+      status: this.status,
+      expecting: this.expecting,
+      degrees: this.degrees,
+      attempts: this.attempts,
+      chain: this.chain.map((s) => s.type === 'film'
+        ? { t: 'f', id: this.corpus.ids[s.index] }
+        : { t: 'p', n: this.corpus.personName(s.index) }),
+      usedF: [...this.usedFilms].map((f) => this.corpus.ids[f]),
+      usedP: [...this.usedPeople].map((p) => this.corpus.personName(p)),
+    };
+  }
+
+  // Rebuild a run from toJSON output, or null when the save doesn't fit — wrong
+  // challenge, or any name/id no longer resolving (a corpus rebuild happened).
+  // Discard-on-mismatch beats a corrupted chain.
+  static fromJSON(corpus, challenge, data) {
+    if (!data || data.id !== challenge.id) return null;
+    const personIx = (name) => {
+      const i = corpus.people.indexOf(name);
+      return i >= 0 ? i : null;
+    };
+    const c = new Chain(corpus, challenge);
+    c.status = data.status;
+    c.expecting = data.expecting;
+    c.degrees = data.degrees;
+    c.attempts = data.attempts;
+    for (const s of data.chain || []) {
+      if (s.t === 'f') {
+        const i = corpus.filmIndex(s.id);
+        if (i < 0) return null;
+        c.chain.push({ type: 'film', index: i, label: corpus.filmLabel(i) });
+        c.position = i;
+      } else {
+        const i = personIx(s.n);
+        if (i === null) return null;
+        c.chain.push({ type: 'person', index: i, label: corpus.personName(i) });
+        c.currentPerson = i;
+      }
+    }
+    const last = c.chain[c.chain.length - 1];
+    if (!last || last.type === 'film') c.currentPerson = null;
+    for (const id of data.usedF || []) {
+      const i = corpus.filmIndex(id);
+      if (i < 0) return null;
+      c.usedFilms.add(i);
+    }
+    for (const n of data.usedP || []) {
+      const i = personIx(n);
+      if (i === null) return null;
+      c.usedPeople.add(i);
+    }
+    return c;
+  }
 }

@@ -29,6 +29,26 @@ export function relativeLabel(degrees, par) {
   return d > 0 ? `+${d}` : `−${Math.abs(d)}`;
 }
 
+// Settle the streak against today BEFORE displaying it. recordResult only touches
+// the streak when a result lands, so after missed days the stored number is stale
+// until this runs — the honest-accounting fix. Pure; returns a new object only
+// when something changed.
+export function recomputeStreak(stats, today) {
+  if (!stats.lastDate || stats.currentStreak === 0) return stats;
+  const gap = dayDiff(stats.lastDate, today);
+  if (gap <= 1) return stats;            // played today, or yesterday (still alive)
+  return { ...stats, currentStreak: 0 };
+}
+
+// How the streak stands right now: 'safe' (played today), 'at-risk' (alive on
+// yesterday's play — today still unplayed), or 'none'. Drives the UI nudge. Pure.
+export function streakState(stats, today) {
+  if (!stats.lastDate || stats.currentStreak === 0) return 'none';
+  const gap = dayDiff(stats.lastDate, today);
+  if (gap === 0) return 'safe';
+  return gap === 1 ? 'at-risk' : 'none';
+}
+
 // Fold one finished daily into stats. Idempotent per date: replaying the same day
 // doesn't double-count or move the streak.
 export function recordResult(stats, { date, id, degrees, par, won }) {
@@ -50,12 +70,16 @@ export function recordResult(stats, { date, id, degrees, par, won }) {
   return s;
 }
 
-export function loadStats() {
+// Pass `today` (ISO) so the streak is settled at load — every render path then
+// shows an honest number without each caller remembering to recompute.
+export function loadStats(today = null) {
+  let s;
   try {
-    return { ...defaultStats(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
+    s = { ...defaultStats(), ...JSON.parse(localStorage.getItem(KEY) || '{}') };
   } catch {
-    return defaultStats();
+    s = defaultStats();
   }
+  return today ? recomputeStreak(s, today) : s;
 }
 
 export function saveStats(stats) {
