@@ -60,8 +60,9 @@ Consequences worth remembering:
 
 ## Status
 
-- **Built, tested, verified in-browser, and committed (`3da6a94`). NOT pushed, NOT merged, NOT
-  deployed.** The live site still serves the old dig until this branch lands.
+- **Built, tested, verified in-browser, committed (`3da6a94`) and pushed as
+  [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29). NOT merged, NOT deployed.**
+  The live site still serves the old dig until this branch lands.
 - **Tests: 8 suites, 183 assertions, all green.** JS: match 25, daily 11, stats 22, corpus 35,
   chain 36. Python: harvest 8, graph_build 23, challenge_gen 23.
 - **Content: 30 dailies, 2026-08-11 → 2026-09-09**, every one's par re-verified by BFS against
