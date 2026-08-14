@@ -3,7 +3,17 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-11**. **THE GAME WAS REBUILT.** The vertical-dig daily (name the film
+_Last updated: **2026-08-14** (short orientation session — no code changes). State re-verified
+that day: `main` unmoved at `87699a9`, [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29)
+still OPEN/unmerged, live site still the old dig. The rebuilt game was served locally for the
+owner playtest (clean load, zero console errors; daily #4 = The Prestige → The Purge: Anarchy,
+par 2) but **the playtest itself did NOT happen — it remains the open gate.** Session side
+effects: the `mattpocock-skills` plugin was installed at user scope (not project), and a
+temporary uncommitted `connect` entry (serves this worktree's `docs/` on port 8010 by absolute
+path) was added to `.claude/worktrees/amazing-sammet-cd9de5/.claude/launch.json` — drop or keep
+at will. Everything below is the 2026-08-11 rebuild handoff, still accurate._
+
+**THE GAME WAS REBUILT.** The vertical-dig daily (name the film
 from a still, then dig through its credits) was **retired and deleted** at the owner's direction —
 "I just don't find it very fun" — and the site is now built entirely around
 **degrees-of-separation: connect two films through the people who made them**. All work is
