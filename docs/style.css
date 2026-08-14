@@ -287,6 +287,8 @@ body{
 .reveal-count{margin:10px 0 0;font-size:13px;color:var(--muted)}
 .streakline{margin:14px 0 0;font-size:14px;color:var(--amber);font-weight:600;letter-spacing:.02em}
 .streakline:empty{display:none}
+.obsline{margin:14px 0 0;font-size:13px;color:var(--amber-deep);font-weight:600;letter-spacing:.03em;cursor:help}
+.obsline:empty{display:none}
 .countdown{margin:4px 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.06em}
 .countdown:empty{display:none}
 #end-hist{margin-top:18px}
@@ -319,4 +321,22 @@ body{
   .wordmark{font-size:11px;letter-spacing:.08em}
   .navlink{font-size:8px}
 }
-@media (prefers-reduced-motion:reduce){*{transition:none !important}}
+/* --- the feel layer (Wave 2 juice) ---
+   Every animation is decorative: base classes never pre-hide content, so with
+   animations off (reduced motion) everything is simply visible. Sequencing that
+   WOULD hide content (the win re-trace, confetti) is applied from JS only when
+   motion is allowed. */
+@keyframes pill-in{from{opacity:0;transform:translateY(7px) scale(.9)}to{opacity:1;transform:none}}
+.cpill.new{animation:pill-in .28s cubic-bezier(.2,.9,.3,1.35) both}
+@keyframes row-shake{10%,50%,90%{transform:translateX(-5px)}30%,70%{transform:translateX(5px)}}
+.guessrow.shake{animation:row-shake .3s}
+@keyframes dot-crack{0%{transform:scale(1)}55%{transform:scale(1.8);background:var(--red)}100%{transform:scale(1)}}
+.dot.crack{animation:dot-crack .45s both}
+@keyframes hero-pop{from{transform:scale(.6);opacity:0}to{transform:scale(1);opacity:1}}
+.herodepth{animation:hero-pop .5s cubic-bezier(.2,.9,.3,1.25) both}
+.endchain .trace{opacity:0;animation:pill-in .3s ease both}
+@keyframes confetti-fall{to{transform:translateY(105vh) rotate(560deg);opacity:0}}
+.confetti{position:fixed;top:-14px;width:9px;height:14px;border-radius:2px;
+          z-index:80;pointer-events:none;animation:confetti-fall linear both}
+
+@media (prefers-reduced-motion:reduce){*{transition:none !important;animation:none !important}}

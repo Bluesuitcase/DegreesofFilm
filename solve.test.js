@@ -4,7 +4,7 @@
 // test), mirroring chain.test.js's corpus so both engines are pinned to the same
 // tiny graph.
 import { Corpus } from './docs/corpus.js';
-import { shortestChain, degreesBetween, countGeodesics } from './docs/solve.js';
+import { shortestChain, degreesBetween, countGeodesics, obscurity } from './docs/solve.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
@@ -79,6 +79,16 @@ check('multiple closers in one film each count', countGeodesics(TWIN, 0, 1, 1), 
 
 // The cap keeps absurd counts readable.
 check('cap respected', countGeodesics(CORPUS, HEAT, GOODFELLAS, 2, 1), 1);
+
+// --- obscurity: the deep-cut factor (0-99) ---
+// Fixture fames: De Niro 3 films (the pool hub), everyone else 2 (the floor).
+// Hand-computed through the blend: hub -> 0, floor person -> 77, the pair -> 38.
+check('the pool hub grades 0', obscurity(CORPUS, [1]), 0);
+check('a floor person grades deep', obscurity(CORPUS, [2]), 77);
+check('a route averages its hops', obscurity(CORPUS, [1, 2]), 38);
+check('empty route has no grade', obscurity(CORPUS, []), null);
+check('an all-equal-fame pool still grades sanely (no div-by-zero)',
+      obscurity(TWIN, [0, 1]), 70);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);
