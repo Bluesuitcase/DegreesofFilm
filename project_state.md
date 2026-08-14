@@ -8,7 +8,7 @@ from a still, then dig through its credits) was **retired and deleted** at the o
 "I just don't find it very fun" — and the site is now built entirely around
 **degrees-of-separation: connect two films through the people who made them**. All work is
 **committed as `3da6a94`** on branch `claude/session-context-634bc2` (368 files, +2,080/−13,703)
-— **not pushed, not merged to `main`, not live.**_
+— **pushed as [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29), NOT merged, NOT live.**_
 
 ## ▶ Start here next session
 
@@ -17,9 +17,12 @@ from a still, then dig through its credits) was **retired and deleted** at the o
 2. **The one open question is whether the game is fun.** It has never been played by anyone but
    me. Serve it — `python -m http.server 8010 --directory docs` from the worktree, or the `docs`
    entry in `.claude/launch.json` — and play today's daily.
-3. **Then decide the branch's fate.** Everything is committed locally; nothing is pushed. Merging
-   is player-facing and destructive (the live site loses the dig and its 21 puzzles), so it wants
-   an explicit go-ahead: branch → PR → rebase-merge per `degreesoffilm-change-control`.
+3. **Then merge or don't.** The branch is pushed and
+   **[PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29) is open against `main`** —
+   review it there. Merging is player-facing and destructive (the live site loses the dig and its
+   21 puzzles), so it's deliberately left unmerged. Rebase-merge per `degreesoffilm-change-control`
+   (`main` had not moved, so it's a clean 2-commit fast-forward). Pushing `docs/` to `main`
+   auto-deploys to GitHub Pages.
 4. The worktree is at `.claude/worktrees/session-context-634bc2`. The two gitignored TMDB caches
    were copied into it and are ~2.5 MB.
 
@@ -92,8 +95,8 @@ repo-root `.venv` is no longer needed by anything.
    holds the old puzzle answers.
 3. **Merging is player-facing and destructive** (the live site loses the dig and 21 puzzles).
    Per `degreesoffilm-change-control` this wants a branch → PR → rebase-merge, with your explicit
-   sign-off. The work is committed locally (`3da6a94`) but **nothing has been pushed** — the
-   rebuild is one `git push` away from being reviewable and two from being live.
+   sign-off. **Pushed and open as [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29)**
+   (`3da6a94` + handoff commits) — deliberately not merged. One rebase-merge from being live.
 
 ## Next up (my recommendation, in order)
 
