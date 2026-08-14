@@ -20,6 +20,25 @@ then merge once (recommended), or merge PR #29 now and fast-follow.** Owner paus
 deciding. Everything below remains the accurate rebuild handoff; where the old 'Next up' list
 disagrees with the Comeback Loop plan, the plan wins._
 
+### ⭐ WAVE 3 BUILT — same evening (commit `dcafaac`). THE COMEBACK LOOP PLAN IS COMPLETE.
+
+Three of four Wave 3 items shipped: **(1) completion calendar + handicap** — ?history now
+renders a month-grid calendar (gold day-of ≤par / silver late-or-over / red broken / dashed
+replay-filled / dotted future); replays record into an isolated `archive` channel (`stats.js
+recordArchive`, by id, keep-better — the anticipated per-mode stats design, streak untouched);
+handicap = rolling avg vs par (losses +3, hidden until 10 rounds); day-of stamped via
+`playedOn`; **(2) backup codes** — `exportRecord`/`importRecord` (`DOF1.` prefix, byte-safe),
+merge = union keep-better then `rebuildStats` recomputes ALL derived fields from the merged
+history (tested: a bridged date gap yields a streak neither device had); Back up / Restore UI
+on the scorecard; **(3) curator's note** — optional `note` per daily on the end card;
+`challenge_gen --check` HARD-enforces "texture only, never a connector" against all closers +
+the sidecar; pilot note live on an upcoming daily; rule documented in CLAUDE.md. **(4) The
+soft-fail caddy was deliberately NOT built** — its own gate requires measured DNF rates (no
+players yet) + owner sign-off (rules change). **Suites: 268 assertions all green** (stats 62,
+challenge_gen 33). Browser-verified: calendar classes {gold 1, empty 3, future 30}, backup
+export→wipe→restore round-trip byte-identical. **PR #29 = rebuild + Waves 1+2+3. Merge =
+launch — the only remaining step.**
+
 ### ⭐ WAVE 2 BUILT TOO — same evening (commit `a1c4c12`)
 
 All three Wave 2 items shipped on this branch: **(1) near-miss feedback** — burned guesses
