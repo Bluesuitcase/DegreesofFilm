@@ -20,6 +20,27 @@ then merge once (recommended), or merge PR #29 now and fast-follow.** Owner paus
 deciding. Everything below remains the accurate rebuild handoff; where the old 'Next up' list
 disagrees with the Comeback Loop plan, the plan wins._
 
+### ⭐ WAVE 1 BUILT — 2026-08-14 evening, same session as the plan
+
+**All four Wave 1 items are implemented, tested, and committed on this branch** (two
+commits after the plan handoff): **(1) the ritual end card** — own chain kept visible,
+client-BFS shortest-route reveal via new pure `docs/solve.js` (loss now pays off; win
+compares; "N distinct ways" geodesic count), first-ever render of the stats histogram,
+streak line, countdown to midnight (only when tomorrow's daily exists); **(2) durable
+record** — finished-state restore (`dof-run-v1`), mid-run persistence (`dof-live-v1` via
+`chain.js toJSON/fromJSON`, portable TMDB-ids+names, discard-on-mismatch), streak
+recomputed at load + at-risk nudges on home/scorecard; **(3) share overhaul** — line-1
+grammar FROZEN (see CLAUDE.md "Share grammar"), glyph trail 🔗/🟥/↩, share text rendered
+on-page, favicon.svg + OG/Twitter meta + original-art og.png (Pillow one-off, repo-root
+.venv still has it); **(4) weekly difficulty arc** — `par_for_date` in challenge_gen.py
+(Mon–Wed 2, Thu–Fri 3, Sat 4, Sun 3, step-down fallback), future dailies restocked: 34
+total, 5 Saturdays all par 4, `--check` 34/34 green. **Suites: 9 (was 8), 224 assertions
+(match 25, daily 11, stats 33, corpus 35, chain 46, solve 15; harvest 8, graph_build 23,
+challenge_gen 28), all green.** In-browser verified end-to-end on :8010 (burn → hop →
+mid-run reload → finish → revisit; zero console errors). **NOT yet merged — PR #29 now
+carries the rebuild + Wave 1; merge = launch.** Wave 2 next (near-miss feedback, juice
+pass, obscurity score), then Wave 3 — see the plan below.
+
 ### The Comeback Loop (2026-08-14 plan — critic-verified, owner-briefed)
 
 **Wave 1, ship as ONE unit (~1–2 sessions):** (1) **Ritual end card** — own-chain recap stays
