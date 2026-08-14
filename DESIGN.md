@@ -1,4 +1,20 @@
-# Degrees of Film — v1 Design Doc
+# Degrees of Film — v1 Design Doc (HISTORICAL)
+
+> # ⚠️ This document describes a game that no longer exists.
+>
+> On **2026-08-11** the site was rebuilt around true degrees-of-separation — connecting two
+> films through the people who made them — and the vertical-dig game specced below was
+> **retired and deleted**: its routes, puzzle files, images, curation tool, cipher, and
+> `/match` Worker are all gone (recoverable from git history).
+>
+> Ironically, the mode this document's own note dismissed as "a clean Mode 2 for later"
+> is now the whole product.
+>
+> **Current sources of truth: [`CLAUDE.md`](CLAUDE.md) (how it works) and
+> [`project_state.md`](project_state.md) (where we are).** This file is kept for the
+> reasoning behind decisions that carried over — the TMDB pool floor (§1), the three-zone
+> architecture (§2), the matcher's fairness rules (§3), and the parking lot that produced
+> the current game (§6).
 
 A daily browser game that tests film knowledge. You're shown a cropped frame from a
 film (title hidden), name it, then dig down through its credits from famous to obscure.

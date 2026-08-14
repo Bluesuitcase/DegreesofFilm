@@ -1,67 +1,57 @@
-import { defaultStats, recordResult } from './docs/stats.js';
+// Stats/streak tests (node stats.test.js). recordResult is pure — no localStorage.
+import { defaultStats, recordResult, relativeLabel } from './docs/stats.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
-  const ok = JSON.stringify(got) === JSON.stringify(want);
+  const g = JSON.stringify(got), w = JSON.stringify(want);
+  const ok = g === w;
   ok ? pass++ : fail++;
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${JSON.stringify(got)}, want ${JSON.stringify(want)})`}`);
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${g}, want ${w})`}`);
 }
 
-// --- first finished run ---
-let s = recordResult(defaultStats(), { date: '2026-06-28', depth: 5, won: false });
-check('played counts', s.played, 1);
-check('first streak is 1', s.currentStreak, 1);
-check('best depth set', s.bestDepth, 5);
-check('histogram records depth', s.histogram, { 5: 1 });
-check('not a win', s.wins, 0);
+const win = (date, degrees, par = 2, id = 1) => ({ date, id, degrees, par, won: true });
 
-// --- consecutive day extends the streak ---
-s = recordResult(s, { date: '2026-06-29', depth: 8, won: false });
-check('consecutive day -> streak 2', s.currentStreak, 2);
-check('max streak tracks', s.maxStreak, 2);
-check('best depth keeps the max', s.bestDepth, 8);
+// --- golf labels ---
+check('matching par reads as even', relativeLabel(2, 2), 'E');
+check('over par is signed', relativeLabel(4, 2), '+2');
+check('under par is signed', relativeLabel(1, 2), '−1');
 
-// --- replaying the same day is idempotent ---
-let again = recordResult(s, { date: '2026-06-29', depth: 11, won: true });
-check('same date does not double-count played', again.played, s.played);
-check('same date does not change streak', again.currentStreak, s.currentStreak);
-check('same date does not change best depth', again.bestDepth, s.bestDepth);
+// --- first result ---
+let s = recordResult(defaultStats(), win('2026-08-11', 2));
+check('played counted', s.played, 1);
+check('win counted', s.wins, 1);
+check('streak opens at 1', [s.currentStreak, s.maxStreak], [1, 1]);
+check('history keyed by date', s.history['2026-08-11'], { id: 1, degrees: 2, par: 2, won: true });
+check('histogram keyed by the golf label', s.histogram, { E: 1 });
+check('best is degrees over par', s.best, 0);
 
-// --- a missed day resets the streak but keeps maxStreak ---
-let gapped = recordResult(s, { date: '2026-07-02', depth: 3, won: false });
-check('gap day resets streak to 1', gapped.currentStreak, 1);
-check('maxStreak preserved through a reset', gapped.maxStreak, 2);
-check('played still increments after a gap', gapped.played, 3);
+// --- consecutive days extend the streak ---
+s = recordResult(s, win('2026-08-12', 3, 2, 2));
+check('next day extends', [s.currentStreak, s.maxStreak], [2, 2]);
+check('best keeps the lower score', s.best, 0);
+s = recordResult(s, win('2026-08-13', 1, 3, 3));
+check('under par improves best', s.best, -2);
+check('histogram accumulates buckets', s.histogram, { E: 1, '+1': 1, '−2': 1 });
 
-// --- a win on a consecutive day counts ---
-let won = recordResult(s, { date: '2026-06-30', depth: 12, won: true });
-check('win increments wins', won.wins, 1);
-check('win extends streak to 3', won.currentStreak, 3);
+// --- a gap resets the current streak but not the max ---
+s = recordResult(s, win('2026-08-20', 2, 2, 4));
+check('gap resets current streak', s.currentStreak, 1);
+check('max streak remembered', s.maxStreak, 3);
 
-// --- per-day score history (Score History feature, 2026-07-11) ---
-let h = recordResult(defaultStats(), { date: '2026-07-11', depth: 6, score: 22, won: false });
-check('history records the day', h.history, { '2026-07-11': { depth: 6, score: 22, won: false } });
-h = recordResult(h, { date: '2026-07-12', depth: 12, score: 90, won: true });
-check('history accrues across days', Object.keys(h.history).length, 2);
-check('history keeps win + score', h.history['2026-07-12'], { depth: 12, score: 90, won: true });
-let hAgain = recordResult(h, { date: '2026-07-12', depth: 1, score: 1, won: false });
-check('same-day replay does not overwrite history', hAgain.history['2026-07-12'],
-      { depth: 12, score: 90, won: true });
-check('score defaults to 0 when absent',
-      recordResult(defaultStats(), { date: '2026-07-11', depth: 3, won: false }).history['2026-07-11'].score, 0);
-// migration: a pre-history stats blob (no history field) must not crash and must gain one
-const old = { played: 4, wins: 1, bestDepth: 9, currentStreak: 2, maxStreak: 3,
-              lastDate: '2026-07-10', lastDepth: 9, histogram: { 9: 1 } };
-const migrated = recordResult(old, { date: '2026-07-11', depth: 5, score: 15, won: false });
-check('pre-history blob gains a history on next record',
-      migrated.history, { '2026-07-11': { depth: 5, score: 15, won: false } });
-check('pre-history blob keeps its aggregates', migrated.played, 5);
+// --- a broken chain still counts as played, and still keeps the streak alive ---
+s = recordResult(s, { date: '2026-08-21', id: 5, degrees: 1, par: 3, won: false });
+check('loss counted as played', s.played, 5);
+check('loss not counted as a win', s.wins, 4);
+check('showing up keeps the streak', s.currentStreak, 2);
+check('failed runs bucket under x', s.histogram.x, 1);
+check('a loss never becomes your best score', s.best, -2);
 
-// --- input is not mutated (pure) ---
-const before = defaultStats();
-const snapshot = JSON.stringify(before);
-recordResult(before, { date: '2026-06-28', depth: 4, won: false });
-check('recordResult does not mutate its input', JSON.stringify(before), snapshot);
+// --- idempotent per date (replaying the same day changes nothing) ---
+const before = JSON.stringify(s);
+check('same date is a no-op', JSON.stringify(recordResult(s, win('2026-08-21', 1, 3, 5))), before);
+
+// --- defaults are safe ---
+check('fresh stats have no best yet', defaultStats().best, null);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

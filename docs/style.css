@@ -30,7 +30,7 @@ body{
 .stat span{text-transform:uppercase;letter-spacing:.18em;font-size:10px;color:var(--muted);margin-top:4px}
 
 .stage{
-  display:grid;grid-template-columns:64px 1fr;gap:0;
+  display:grid;grid-template-columns:1fr;gap:0;
   max-width:760px;margin:0 auto;padding:36px 28px 60px;
 }
 .rail{display:flex;flex-direction:column;gap:8px;padding-top:6px}
@@ -244,6 +244,34 @@ body{
 }
 [data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translate(-50%,0)}
 [data-tip]:hover::before,[data-tip]:focus-visible::before{opacity:1}
+
+/* --- Degrees: today's card, the rules block, scorecard rows --- */
+.stats[hidden]{display:none}
+.cpill.person{border-color:var(--muted)}
+.today{margin:26px 0 0;padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--ink2)}
+.today:empty{display:none}
+.today-eyebrow{margin:0 0 10px;text-transform:uppercase;letter-spacing:.18em;font-size:10px;color:var(--muted)}
+.today-pair{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin:0}
+.today-par{margin:12px 0 0;font-size:13px;color:var(--muted);letter-spacing:.04em}
+
+.rules{margin-top:34px;border-top:1px solid var(--line);padding-top:22px}
+.rules h2{margin:0 0 10px;font-size:15px;font-weight:600;letter-spacing:.02em}
+.rules ol{margin:0;padding-left:20px;font-size:14px;line-height:1.7}
+.rules b{color:var(--amber-deep)}
+.rules-note{margin:14px 0 0;color:var(--muted);font-size:13px;line-height:1.6;max-width:54ch}
+
+#archive-list,#history-list{grid-template-columns:1fr}
+.arc-row{
+  display:flex;align-items:baseline;gap:12px;padding:12px 14px;text-decoration:none;
+  background:var(--ink2);border:1px solid var(--line);border-radius:8px;color:var(--bone);
+}
+.arc-row:hover{border-color:var(--amber)}
+.arc-date{font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;flex:0 0 auto}
+.arc-pair{font-size:14px;font-weight:600;flex:1 1 auto;min-width:0}
+.arc-par{font-size:12px;color:var(--muted);flex:0 0 auto}
+
+.endrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.endrow .btn-primary{border:none;font-family:inherit;cursor:pointer;font-size:15px}
 
 @media (max-width:600px){
   .topbar{padding:14px 16px;align-items:center}

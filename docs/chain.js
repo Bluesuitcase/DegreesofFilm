@@ -1,94 +1,156 @@
-// Graph-mode chain engine (degrees-of-separation, campaign phase G2). Pure logic,
-// no DOM, imports only the matcher — the same purity contract as game.js, so Node
-// tests and any future server replay run this exact file.
+// Degrees — the chain engine. Pure logic, no DOM; imports only the corpus (which
+// imports only the matcher), so Node tests and any future server replay run this
+// exact file.
 //
-// A challenge is { start:{id,title,year}, goal:{...}, par, films:{id:[title,year]},
-// people:{id:name}, edges:[[filmId,personId],...] } — a decoy-padded subgraph.
-// Play alternates: from the current film name a PERSON credited in it, then a FILM
-// that person is also in, and so on. Naming a person who is ALSO credited in the
-// goal film closes the chain (a win). "Degrees" = successful person steps; the brag
-// is degrees vs par. 3 wrong guesses on any single step ends the run (the dig's
-// rhythm). back() abandons the current person (no refunds) when you hit a dead end.
-import { matchGuess } from './match.js';
-
+// A challenge is {id, start, goal, par} where start/goal are TMDB film ids into the
+// shared corpus. Play alternates: from the current film name a PERSON credited in
+// it, then a FILM they are also in, and so on. Naming a person who is ALSO credited
+// in the goal film closes the chain. "Degrees" = person steps taken; the brag is
+// degrees against par (golf).
+//
+// Verdicts are deliberately finer than right/wrong, because the corpus knows the
+// difference between a name that doesn't exist and one that does but doesn't help:
+//
+//   correct     the hop is legal, chain advanced
+//   won         that person is credited in the goal — chain closed
+//   wrong       a real person/film of the right kind that is NOT a legal hop  [burns]
+//   unknown     nothing by that name, or a film typed where a person belongs   [free]
+//   over        the third burn on one step ends the run
+//   ignored     the run is already finished
+//
+// Only `wrong` burns an attempt. Typos and category slips are not strategy errors,
+// and punishing them just makes the game feel like a spelling test.
 export const CHAIN_MAX_ATTEMPTS = 3;
 
 export class Chain {
-  constructor(ch) {
-    this.startFilm = ch.start;
-    this.goal = ch.goal;
-    this.par = ch.par;
-    this.filmLabels = new Map(Object.entries(ch.films).map(([k, v]) => [Number(k), v]));
-    this.personNames = new Map(Object.entries(ch.people).map(([k, v]) => [Number(k), v]));
-    this.filmPeople = new Map();
-    this.personFilms = new Map();
-    for (const [f, p] of ch.edges) {
-      if (!this.filmPeople.has(f)) this.filmPeople.set(f, []);
-      this.filmPeople.get(f).push(p);
-      if (!this.personFilms.has(p)) this.personFilms.set(p, []);
-      this.personFilms.get(p).push(f);
+  constructor(corpus, challenge) {
+    const start = corpus.filmIndex(challenge.start);
+    const goal = corpus.filmIndex(challenge.goal);
+    if (start < 0 || goal < 0) {
+      throw new Error(`challenge ${challenge.id}: film not in this corpus ` +
+                      `(start ${challenge.start}, goal ${challenge.goal})`);
     }
-    this.position = ch.start.id;       // current film id
-    this.currentPerson = null;
+    this.corpus = corpus;
+    this.id = challenge.id;
+    this.start = start;
+    this.goal = goal;
+    this.par = challenge.par;
+    this.position = start;             // current film index
+    this.currentPerson = null;         // person index once one is named
     this.expecting = 'person';         // 'person' | 'film'
-    this.chain = [];                   // [{type, id, label}] in play order
-    this.usedFilms = new Set([ch.start.id, ch.goal.id]);
+    this.chain = [];                   // [{type, index, label}] in play order
+    this.usedFilms = new Set([start, goal]);
     this.usedPeople = new Set();
-    this.degrees = 0;                  // successful person steps (the score vs par)
-    this.attempts = 0;                 // wrong guesses on the current step
+    this.degrees = 0;
+    this.attempts = 0;                 // burns on the current step
     this.status = 'playing';           // 'playing' | 'won' | 'over'
   }
 
-  // Valid next entities from here: [{id, label}] — person candidates credited in the
-  // current film (unused), or film candidates featuring the current person (unvisited,
-  // except the goal, which is never enterable — chains CLOSE on a person).
-  candidates() {
+  // The legal hops from here. Curator/test surface — never render this, it is the
+  // answer. Player-facing autocomplete comes from Corpus.suggest*, which is global.
+  legalMoves() {
+    if (this.status !== 'playing') return new Set();
     if (this.expecting === 'person') {
-      return (this.filmPeople.get(this.position) || [])
-        .filter((p) => !this.usedPeople.has(p))
-        .map((p) => ({ id: p, label: this.personNames.get(p) }));
+      return new Set(this.corpus.castOf(this.position).filter((p) => !this.usedPeople.has(p)));
     }
-    return (this.personFilms.get(this.currentPerson) || [])
-      .filter((f) => !this.usedFilms.has(f))
-      .map((f) => ({ id: f, label: this.filmLabels.get(f)[0] }));
+    return new Set(this.corpus.filmsOf(this.currentPerson).filter((f) => !this.usedFilms.has(f)));
   }
 
-  // One guess at the current step. The text is matched against every candidate's
-  // label with the shipped matcher (typo tolerance + surname rule apply).
+  get startLabel() { return this.corpus.filmLabel(this.start); }
+  get goalLabel() { return this.corpus.filmLabel(this.goal); }
+
+  // Where the next hop departs from: the last film reached (or the start).
+  get currentFilmLabel() { return this.corpus.filmLabel(this.position); }
+
   guess(text) {
     if (this.status !== 'playing') return { result: 'ignored' };
-    const hit = this.candidates().find((c) => c.label && matchGuess(text, [c.label]));
-    if (!hit) {
-      this.attempts += 1;
-      if (this.attempts >= CHAIN_MAX_ATTEMPTS) {
-        this.status = 'over';
-        return { result: 'over' };
-      }
-      return { result: 'wrong', attemptsLeft: CHAIN_MAX_ATTEMPTS - this.attempts };
-    }
-    this.attempts = 0;
-    if (this.expecting === 'person') {
-      this.currentPerson = hit.id;
-      this.usedPeople.add(hit.id);
-      this.degrees += 1;
-      this.chain.push({ type: 'person', id: hit.id, label: hit.label });
-      // the chain closes when this person is also credited in the goal film
-      if ((this.filmPeople.get(this.goal.id) || []).includes(hit.id)) {
-        this.status = 'won';
-        return { result: 'won', degrees: this.degrees, par: this.par };
-      }
-      this.expecting = 'film';
-      return { result: 'correct', step: 'person', label: hit.label };
-    }
-    this.position = hit.id;
-    this.usedFilms.add(hit.id);
-    this.chain.push({ type: 'film', id: hit.id, label: hit.label });
-    this.expecting = 'person';
-    return { result: 'correct', step: 'film', label: hit.label };
+    return this.expecting === 'person' ? this.guessPerson(text) : this.guessFilm(text);
   }
 
-  // Abandon the current person (dead end): return to the film you were at, keep the
-  // degree spent and keep the person blocked — no refunds, exactly like a golf stroke.
+  guessPerson(text) {
+    const legal = this.legalMoves();
+    const hit = this.corpus.resolvePerson(text, legal);
+    if (hit && hit.scope === 'here') return this.takePerson(hit.index);
+
+    // Not a legal hop. Say why — the corpus knows.
+    if (hit) {
+      const used = this.usedPeople.has(hit.index);
+      return this.burn({
+        reason: used ? 'used' : 'notCredited',
+        label: this.corpus.personName(hit.index),
+        film: this.currentFilmLabel,
+      });
+    }
+    const asFilm = this.corpus.resolveFilm(text, null);
+    if (asFilm) {
+      return { result: 'unknown', reason: 'wrongType', expected: 'person',
+               label: this.corpus.filmLabel(asFilm.index) };
+    }
+    return { result: 'unknown', reason: 'unrecognized' };
+  }
+
+  guessFilm(text) {
+    const legal = this.legalMoves();
+    const hit = this.corpus.resolveFilm(text, legal);
+    if (hit && hit.scope === 'here') return this.takeFilm(hit.index);
+
+    if (hit) {
+      if (hit.index === this.goal) {
+        // Naming the goal is a rules slip, not a wrong answer: you close the chain
+        // on a PERSON credited in it, you never step into it.
+        return { result: 'unknown', reason: 'goalFilm', label: this.goalLabel };
+      }
+      const used = this.usedFilms.has(hit.index);
+      return this.burn({
+        reason: used ? 'used' : 'notCredited',
+        label: this.corpus.filmLabel(hit.index),
+        person: this.corpus.personName(this.currentPerson),
+      });
+    }
+    const asPerson = this.corpus.resolvePerson(text, null);
+    if (asPerson) {
+      return { result: 'unknown', reason: 'wrongType', expected: 'film',
+               label: this.corpus.personName(asPerson.index) };
+    }
+    return { result: 'unknown', reason: 'unrecognized' };
+  }
+
+  takePerson(index) {
+    this.attempts = 0;
+    this.currentPerson = index;
+    this.usedPeople.add(index);
+    this.degrees += 1;
+    const label = this.corpus.personName(index);
+    this.chain.push({ type: 'person', index, label });
+    if (this.corpus.isCredited(this.goal, index)) {
+      this.status = 'won';
+      return { result: 'won', label, degrees: this.degrees, par: this.par };
+    }
+    this.expecting = 'film';
+    return { result: 'correct', step: 'person', label };
+  }
+
+  takeFilm(index) {
+    this.attempts = 0;
+    this.position = index;
+    this.usedFilms.add(index);
+    this.expecting = 'person';
+    const label = this.corpus.filmLabel(index);
+    this.chain.push({ type: 'film', index, label });
+    return { result: 'correct', step: 'film', label };
+  }
+
+  burn(detail) {
+    this.attempts += 1;
+    if (this.attempts >= CHAIN_MAX_ATTEMPTS) {
+      this.status = 'over';
+      return { result: 'over', ...detail };
+    }
+    return { result: 'wrong', attemptsLeft: CHAIN_MAX_ATTEMPTS - this.attempts, ...detail };
+  }
+
+  // Abandon the current person (dead end): back to the film you came from. The
+  // degree is spent and the person stays blocked — no refunds, like a golf stroke.
   back() {
     if (this.status !== 'playing' || this.expecting !== 'film') return false;
     this.chain.pop();

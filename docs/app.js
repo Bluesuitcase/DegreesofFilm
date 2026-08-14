@@ -1,827 +1,369 @@
-// DOM glue for Degrees of Film. All rules live in game.js; this just renders.
-import { Game, MAX_ATTEMPTS } from './game.js';
-import { pickPuzzle, pickById, todayISO } from './daily.js';
-import { onAccentText } from './theme.js';
-import { loadStats, saveStats, recordResult } from './stats.js';
-import { pickCreditFrame } from './frame.js';
-import { decodeRungs } from './cipher.js';
-import { indexKeys, suggest } from './buff.js';
+// DOM glue for Degrees. All rules live in chain.js and all graph knowledge in
+// corpus.js — this file only fetches, renders and wires buttons.
+//
+// Routes: ?  home · ?play today's daily · ?id=N replay a past daily ·
+//         ?archive the index · ?history your scorecard
+//
+// The corpus (~188 KB gz) is fetched only when you actually play; home and archive
+// render from challenges.json alone, which carries each day's two film titles.
+import { Corpus } from './corpus.js';
 import { Chain, CHAIN_MAX_ATTEMPTS } from './chain.js';
+import { pickPuzzle, pickById, todayISO } from './daily.js';
+import { loadStats, saveStats, recordResult, relativeLabel } from './stats.js';
 
 const $ = (id) => document.getElementById(id);
-let game, puzzleId = 1, puzzleDate = null, currentChoices = null, choicesForIndex = -1;
-let manifest = [], isArchive = false, mode = 'cinephile', frames = [];
-let isPractice = false, playedIds = [];
-const practiceTally = { films: 0, cleared: 0, depth: 0 };
-const POSER_RUNGS = 7;
-const MODE_LABELS = { cinephile: 'Cinephile', poser: 'Poser', buff: 'Movie Buff' };
+const SITE = 'https://bluesuitcase.github.io/DegreesofFilm/';
 
-// Server-side matching (v3 Phase 1) — ON since 2026-07-11 (GATE 1 passed; §6 step 2).
-// Set to '' to turn it OFF (instant rollback to pure-local matching);
-// ?servermatch=0 forces local matching regardless. When on, guesses are verified
-// by POST /match with a 2 s timeout; ANY failure (timeout, network, non-200, bad
-// body) falls back to local matching — the endpoint being down must never block
-// play. Poser is excluded (its trimmed ladder re-indexes rungs, so rungIndex
-// wouldn't line up server-side).
-const MATCH_API = 'https://dof-match.bluesuitcase.workers.dev';
-const MATCH_TIMEOUT_MS = 2000;
-let serverMatch = false, guessInFlight = false;
-let buffMode = false, titleIndex = null, titleKeys = null, peopleIndex = null, peopleKeys = null;
+let corpus = null;
+let game = null;
+let entry = null;
+let isReplay = false;
+let sel = -1;            // highlighted suggestion
 
-async function init() {
+// --- boot / routing -------------------------------------------------------
+
+boot();
+
+async function boot() {
   const params = new URLSearchParams(location.search);
-  if (params.has('modes')) return renderModes();
-  // Practice with no ruleset yet -> the practice chooser (Cinephile/Poser).
-  if (params.has('practice') && !params.has('mode')) return renderPractice();
-  // Graph mode (G3 prototype, not on the mode-select yet): ?connect[=N]
-  if (params.has('connect')) return renderConnectView(params.get('connect') || '1');
-  if (!params.has('play') && !params.has('id') && !params.has('archive') && !params.has('practice')
-      && !params.has('history'))
-    return renderHome();
-
   try {
-    // Date-key the manifest fetch so a cached copy can't freeze the daily rotation.
-    manifest = await (await fetch('puzzles/manifest.json?d=' + todayISO())).json();
-  } catch (e) {
-    $('prompt').textContent = 'Could not load — are you running a local server?';
+    if (params.has('archive')) return await renderArchive();
+    if (params.has('history')) return renderHistory();
+    if (params.has('play') || params.has('id')) return await startGame(params);
+    return await renderHome();
+  } catch (err) {
+    show('home');
+    $('today-card').innerHTML =
+      `<p class="feedback bad show">Couldn't load today's connection. ${escapeHtml(err.message)}</p>`;
+  }
+}
+
+function show(id) {
+  ['home', 'play', 'end', 'archive', 'history'].forEach((s) => $(s).classList.add('hidden'));
+  $(id).classList.remove('hidden');
+}
+
+// Date-keyed so a stale CDN copy can't outlive the day it was cached for.
+async function loadDailies() {
+  const res = await fetch(`challenges.json?d=${todayISO()}`);
+  if (!res.ok) throw new Error(`challenges.json ${res.status}`);
+  const doc = await res.json();
+  return doc.daily || [];
+}
+
+async function loadCorpus() {
+  if (corpus) return corpus;
+  const res = await fetch('graph.json');
+  if (!res.ok) throw new Error(`graph.json ${res.status}`);
+  corpus = new Corpus(await res.json());
+  return corpus;
+}
+
+// --- home -----------------------------------------------------------------
+
+async function renderHome() {
+  show('home');
+  const daily = await loadDailies();
+  const today = pickPuzzle(daily, todayISO());
+  if (!today) {
+    $('today-card').innerHTML = '<p class="arc-sub">No connections published yet.</p>';
     return;
   }
-
-  if (params.has('archive')) return renderArchiveView();
-  if (params.has('history')) return renderHistoryView();
-
-  isPractice = params.has('practice');
-  const m = params.get('mode');
-  mode = (m === 'poser' || m === 'buff') ? m : 'cinephile';
-  // Buff keeps the full untrimmed ladder, so rungIndex lines up server-side too.
-  serverMatch = !!MATCH_API && mode !== 'poser' && params.get('servermatch') !== '0';
-
-  // Movie Buff (?play&mode=buff): Cinephile rules + autocomplete on every rung —
-  // titles on the film rung, people (from the prebaked credits-harvested index) on
-  // the credit rungs. Lazy — other modes never fetch either index, and a failed
-  // fetch just means no suggestions (play is unaffected). The people index is flat
-  // names; wrap each as a one-element entry so buff.js handles both shapes.
-  buffMode = mode === 'buff';
-  if (buffMode) {
-    fetch('title-index.json').then((r) => r.json()).then((d) => {
-      titleIndex = d;
-      titleKeys = indexKeys(d);
-    }).catch(() => {});
-    fetch('people-index.json').then((r) => r.json()).then((d) => {
-      peopleIndex = d.map((name) => [name]);
-      peopleKeys = indexKeys(peopleIndex);
-    }).catch(() => {});
-  }
-
-  let entry;
-  if (isPractice) {
-    entry = nextPracticeEntry();
-    if (!entry) { $('prompt').textContent = 'No puzzles to practice yet.'; return; }
-    playedIds.push(entry.id);
-  } else {
-    const wantId = params.has('id') ? Number(params.get('id')) : null;
-    entry = wantId != null ? pickById(manifest, wantId) : pickPuzzle(manifest, todayISO());
-    if (!entry) { $('prompt').textContent = 'No such puzzle.'; return; }
-    isArchive = wantId != null;
-  }
-
-  await loadAndStart(entry);
+  const done = loadStats().history[today.date];
+  $('today-card').innerHTML = `
+    <p class="today-eyebrow">${today.date === todayISO() ? 'Today' : 'Latest'} · #${today.id}</p>
+    <p class="today-pair">
+      <span class="cpill film">${escapeHtml(filmLabel(today.from))}</span>
+      <span class="carrow">→</span>
+      <span class="cpill film goal">${escapeHtml(filmLabel(today.to))}</span>
+    </p>
+    <p class="today-par">par ${today.par}${done ? ` · you scored ${resultLabel(done)}` : ''}</p>`;
 }
 
-// Practice pool = every published puzzle except today's daily (so a practice run
-// can't spoil the daily). nextPracticeEntry picks one at random, avoiding an
-// immediate repeat whenever there's more than one to choose from.
-function practicePool() {
-  const daily = pickPuzzle(manifest, todayISO());
-  const dailyId = daily ? daily.id : null;
-  return manifest.filter((e) => e.id !== dailyId);
-}
-function nextPracticeEntry() {
-  const pool = practicePool();
-  if (!pool.length) return null;
-  const last = playedIds[playedIds.length - 1];
-  const choices = pool.length > 1 ? pool.filter((e) => e.id !== last) : pool;
-  return choices[Math.floor(Math.random() * choices.length)];
+function filmLabel(pair) { return `${pair[0]} (${pair[1]})`; }
+
+function resultLabel(r) {
+  return r.won ? `${r.degrees} degrees (${relativeLabel(r.degrees, r.par)})` : 'a broken chain';
 }
 
-// Fetch a puzzle file and (re)start a fresh game on it using the current `mode`.
-// Shared by the daily/archive load and by each film of a Practice endless run,
-// so it also re-shows the play view and clears per-puzzle render state.
-async function loadAndStart(entry) {
-  let puzzle;
-  try {
-    puzzle = await (await fetch('puzzles/' + entry.file)).json();
-  } catch (e) {
-    $('prompt').textContent = 'Could not load the puzzle.';
-    return;
-  }
-  // Answers + captions ship lightly obfuscated (anti-devtools-snoop); decode them
-  // back to plaintext here so the matcher/renderer downstream never see the cipher.
-  // Plaintext (old/hand-authored) rungs pass through untouched.
-  decodeRungs(puzzle.rungs || []);
-  puzzleId = puzzle.id ?? entry.id ?? 1;
-  puzzleDate = puzzle.date || entry.date || todayISO();
-  const playPuzzle = mode === 'poser' ? poserPuzzle(puzzle) : puzzle;
-  game = new Game(playPuzzle, { mode });
-  currentChoices = null; choicesForIndex = -1;   // rebuild choices for the new puzzle
-  $('mode-badge').textContent = (isPractice ? 'Practice · ' : '') + (MODE_LABELS[mode] || '');
-  applyTheme(puzzle.theme);
+// --- the game -------------------------------------------------------------
 
-  frames = puzzle.images || [];
-  // A missing person image falls back to the full frame; if even that fails,
-  // hide the (broken) image rather than leave it dangling.
-  $('frame-img').onerror = () => {
-    const full = frames.length ? 'puzzles/' + frames[frames.length - 1] : null;
-    const img = $('frame-img');
-    if (full && !img.src.endsWith(frames[frames.length - 1])) {
-      $('frame-cap').style.display = 'none';
-      img.src = full;
-    } else {
-      img.style.display = 'none';
-    }
-  };
-  // Un-hide the play view (a prior film's end screen may have hidden it) and
-  // clear any leftover broken-image display:none before the new frame is set.
-  $('end').classList.add('hidden');
-  $('play').classList.remove('hidden');
-  $('frame-img').style.display = '';
-  updateFrame();
+async function startGame(params) {
+  show('play');
+  $('prompt').textContent = 'Loading the film graph…';
+  const daily = await loadDailies();
+  const id = Number(params.get('id'));
+  entry = id ? pickById(daily, id) : pickPuzzle(daily, todayISO());
+  if (!entry) throw new Error('no such connection');
+  isReplay = Boolean(id) && entry.date !== todayISO();
+  await loadCorpus();
+  game = new Chain(corpus, entry);
 
-  buildRail(playPuzzle.rungs.length);
-  wire();
+  $('scoreboard').hidden = false;
+  $('mode-badge').textContent = isReplay ? `Replay · #${entry.id} · ${entry.date}` : '';
+  $('guess-btn').onclick = submit;
+  $('back-btn').onclick = () => { if (game.back()) { flash('Stepped back.', 'muted'); render(); } };
+  $('guess').addEventListener('input', renderSuggest);
+  $('guess').addEventListener('keydown', onKey);
   render();
+  $('guess').focus();
 }
 
-// Poser: every rung is multiple choice, so keep only rungs that have decoys, and
-// trim the obscure deep tail to keep it light.
-function poserPuzzle(puzzle) {
-  const rungs = puzzle.rungs.filter((r) => r.decoys && r.decoys.length).slice(0, POSER_RUNGS);
-  return { ...puzzle, rungs };
-}
+function render() {
+  $('degrees').textContent = game.degrees;
+  $('par').textContent = game.par;
 
-// Short, iconic one-liners — kept brief, and from films that aren't in the
-// puzzle set (no spoilers). Rotates by day.
-const QUOTES = [
-  ['“Round up the usual suspects.”', 'Casablanca'],
-  ['“I’ll be back.”', 'The Terminator'],
-  ['“You talkin’ to me?”', 'Taxi Driver'],
-  ['“May the Force be with you.”', 'Star Wars'],
-  ['“There is no spoon.”', 'The Matrix'],
-  ['“You can’t handle the truth!”', 'A Few Good Men'],
-];
-
-function enterLobby() {
-  document.body.classList.add('lobby');     // hides the game-only header stats
-  $('play').classList.add('hidden');
-  $('end').classList.add('hidden');
-  $('rail').style.display = 'none';
-  ['home', 'modes', 'archive', 'practice', 'history', 'connect'].forEach((s) => $(s).classList.add('hidden'));
-}
-
-function renderHome() {
-  enterLobby();
-  const day = Math.floor(Date.parse(todayISO() + 'T00:00:00Z') / 86400000);
-  const [q, film] = QUOTES[((day % QUOTES.length) + QUOTES.length) % QUOTES.length];
-  $('quote').innerHTML = `${q}<cite>— ${film}</cite>`;
-  $('home').classList.remove('hidden');
-}
-
-function renderModes() {
-  enterLobby();
-  $('modes').classList.remove('hidden');
-}
-
-// The practice chooser: pick Cinephile or Poser to start an endless run.
-function renderPractice() {
-  enterLobby();
-  $('practice').classList.remove('hidden');
-}
-
-function renderArchiveView() {
-  enterLobby();
-  $('archive').classList.remove('hidden');
-  buildArchive();
-}
-
-// --- Graph mode (campaign G3): connect film A to film B through shared credits.
-// All rules live in chain.js (pure); this is DOM glue only. Autocomplete draws from
-// the challenge's OWN subgraph labels (solution + decoys ship together, so the
-// dropdown reveals nothing). No daily stats, no streak — prototype route only.
-let chainGame = null;
-let cPeople = null, cPeopleKeys = null, cFilms = null, cFilmKeys = null, cSel = -1;
-
-async function renderConnectView(id) {
-  enterLobby();
-  $('connect').classList.remove('hidden');
-  let ch;
-  try {
-    ch = await (await fetch(`challenges/${String(id).padStart(3, '0')}.json`)).json();
-  } catch (e) {
-    $('c-brief').textContent = 'Could not load that challenge.';
-    return;
+  const row = $('chain');
+  row.innerHTML = '';
+  row.appendChild(pill(game.startLabel, 'film'));
+  game.chain.forEach((step) => {
+    row.appendChild(arrow());
+    row.appendChild(pill(step.label, step.type === 'film' ? 'film' : 'person'));
+  });
+  if (game.status === 'playing') {
+    row.appendChild(arrow());
+    row.appendChild(pill('?', 'current'));
   }
-  chainGame = new Chain(ch);
-  cPeople = Object.values(ch.people).map((n) => [n]);
-  cPeopleKeys = indexKeys(cPeople);
-  cFilms = Object.values(ch.films);
-  cFilmKeys = indexKeys(cFilms);
-  $('c-brief').textContent =
-    `Get from the start film to the goal by naming a person in the current film, ` +
-    `then another film they're in — and so on until someone connects to the goal. ` +
-    `Par ${ch.par}. ${CHAIN_MAX_ATTEMPTS} misses on any one link ends the run.`;
-  $('c-btn').onclick = onChainGuess;
-  $('c-guess').addEventListener('keydown', onChainKeydown);
-  $('c-guess').addEventListener('input', renderChainSuggest);
-  $('c-back').onclick = () => { if (chainGame.back()) renderChain(); };
-  renderChain();
+  row.appendChild(arrow());
+  row.appendChild(pill(game.goalLabel, 'film goal'));
+
+  $('prompt').innerHTML = game.expecting === 'person'
+    ? `Who worked on <b>${escapeHtml(game.currentFilmLabel)}</b>?`
+    : `Which other film did <b>${escapeHtml(lastLabel())}</b> work on?`;
+  $('guess').placeholder = game.expecting === 'person' ? 'Name someone…' : 'Name a film…';
+  $('back-btn').disabled = game.expecting !== 'film';
+
+  const dots = $('attempts');
+  dots.innerHTML = '';
+  for (let i = 0; i < CHAIN_MAX_ATTEMPTS; i++) {
+    const d = document.createElement('span');
+    d.className = `dot${i < game.attempts ? ' spent' : ''}`;
+    dots.appendChild(d);
+  }
+  hideSuggest();
+  if (game.status !== 'playing') renderEnd();
 }
 
-function chainPill(label, cls) {
+function lastLabel() {
+  const last = game.chain[game.chain.length - 1];
+  return last ? last.label : game.startLabel;
+}
+
+function pill(label, cls) {
   const el = document.createElement('span');
-  el.className = 'cpill ' + cls;
+  el.className = `cpill ${cls}`;
   el.textContent = label;
   return el;
 }
 
-function renderChain() {
-  const g = chainGame;
-  const row = $('c-chain');
-  row.innerHTML = '';
-  const arrow = () => { const a = document.createElement('span'); a.className = 'carrow'; a.textContent = '→'; return a; };
-  row.appendChild(chainPill(`${g.startFilm.title} (${g.startFilm.year})`, 'film'));
-  g.chain.forEach((step) => {
-    row.appendChild(arrow());
-    row.appendChild(chainPill(step.label, step.type === 'film' ? 'film' : 'person'));
-  });
-  if (g.status === 'playing') { row.appendChild(arrow()); row.appendChild(chainPill('?', 'current')); }
-  row.appendChild(arrow());
-  row.appendChild(chainPill(`${g.goal.title} (${g.goal.year})`, 'film goal'));
-
-  const playing = g.status === 'playing';
-  $('c-guess').disabled = !playing;
-  $('c-btn').disabled = !playing;
-  $('c-back').disabled = !playing || g.expecting !== 'film';
-  if (playing) {
-    const at = g.expecting === 'person'
-      ? (g.chain.length ? g.chain[g.chain.length - 1].label : g.startFilm.title)
-      : g.chain[g.chain.length - 1].label;
-    $('c-prompt').textContent = g.expecting === 'person'
-      ? `Name someone credited in ${at}.`
-      : `Name another film with ${at}.`;
-    $('c-status').textContent =
-      `${g.degrees} degree${g.degrees === 1 ? '' : 's'} used · par ${g.par}` +
-      (g.attempts ? ` · ${CHAIN_MAX_ATTEMPTS - g.attempts} tries left on this link` : '');
-    $('c-end').innerHTML = '';
-  } else {
-    $('c-prompt').textContent = '';
-    hideChainSuggest();
-    const over = g.degrees - g.par;
-    const line = g.status === 'won'
-      ? (over < 0 ? `Connected in ${g.degrees} — UNDER par. Showoff.`
-        : over === 0 ? `Connected in ${g.degrees} — right on par.`
-        : `Connected in ${g.degrees} — +${over} over par. The scenic route.`)
-      : 'Out of guesses — the connection stays secret.';
-    $('c-status').textContent = '';
-    $('c-end').innerHTML = `<div class="cend"><p class="eyebrow">${g.status === 'won' ? 'Linked!' : 'Run over'}</p>` +
-      `<p class="endline">${line}</p>` +
-      `<button class="again" onclick="location.reload()">Play it again</button></div>`;
-  }
+function arrow() {
+  const el = document.createElement('span');
+  el.className = 'carrow';
+  el.textContent = '→';
+  return el;
 }
 
-function hideChainSuggest() {
-  const box = $('c-suggest');
-  box.hidden = true;
-  box.innerHTML = '';
-  cSel = -1;
+function submit() {
+  if (!game || game.status !== 'playing') return;
+  const text = $('guess').value.trim();
+  if (!text) return;
+  const verdict = game.guess(text);
+  $('guess').value = '';
+  speak(verdict);
+  render();
+  $('guess').focus();
 }
 
-function renderChainSuggest() {
-  if (!chainGame || chainGame.status !== 'playing') { hideChainSuggest(); return; }
-  const person = chainGame.expecting === 'person';
-  const hits = suggest(person ? cPeople : cFilms, person ? cPeopleKeys : cFilmKeys, $('c-guess').value);
-  if (!hits.length) { hideChainSuggest(); return; }
-  const box = $('c-suggest');
-  box.innerHTML = '';
-  cSel = -1;
-  hits.forEach(([label, year]) => {
-    const btn = document.createElement('button');
-    btn.className = 'choice';
-    btn.textContent = label;
-    if (year) {
-      const yr = document.createElement('span');
-      yr.className = 'yr';
-      yr.textContent = year;
-      btn.appendChild(yr);
-    }
-    btn.onclick = () => {
-      $('c-guess').value = label;
-      hideChainSuggest();
-      $('c-guess').focus();
-    };
-    box.appendChild(btn);
-  });
-  box.hidden = false;
-}
-
-function onChainKeydown(e) {
-  const box = $('c-suggest');
-  if (!box.hidden && box.children.length) {
-    if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-      e.preventDefault();
-      const items = box.children;
-      if (cSel >= 0) items[cSel].classList.remove('sel');
-      cSel = (cSel + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length;
-      items[cSel].classList.add('sel');
-      return;
-    }
-    if (e.key === 'Escape') { hideChainSuggest(); return; }
-    if (e.key === 'Enter' && cSel >= 0) {
-      e.preventDefault();
-      box.children[cSel].click();
-      return;
-    }
+// Turn an engine verdict into a sentence. The engine already worked out WHY a
+// guess failed; this only picks the words.
+function speak(v) {
+  const person = game.expecting === 'person';
+  switch (v.result) {
+    case 'correct':
+      return flash(`${v.label} ✓`, 'good');
+    case 'won':
+      return flash(`${v.label} closes it.`, 'good');
+    case 'wrong':
+    case 'over':
+      if (v.reason === 'used') {
+        return flash(`You've already used ${v.label}.`, 'bad');
+      }
+      return flash(v.film
+        ? `${v.label} isn't credited on ${v.film}.`
+        : `${v.person} didn't work on ${v.label}.`, 'bad');
+    case 'unknown':
+      if (v.reason === 'goalFilm') {
+        return flash(`That's the target — close the chain by naming someone who worked on it.`,
+                     'muted');
+      }
+      if (v.reason === 'wrongType') {
+        return flash(v.expected === 'person'
+          ? `${v.label} is a film — name a person from it instead.`
+          : `${v.label} is a person — name one of their films.`, 'muted');
+      }
+      return flash(person
+        ? 'Nobody in the pool by that name — check the spelling?'
+        : 'No film in the pool by that title.', 'muted');
+    default:
+      return null;
   }
-  if (e.key === 'Enter') onChainGuess();
-}
-
-function onChainGuess() {
-  if (!chainGame || chainGame.status !== 'playing') return;
-  const v = $('c-guess').value.trim();
-  if (!v) return;
-  hideChainSuggest();
-  const r = chainGame.guess(v);
-  if (r.result === 'wrong') {
-    $('c-guess').select();
-  } else {
-    $('c-guess').value = '';
-  }
-  renderChain();
-}
-
-// Score history: this device's Cinephile daily results (stats.history), newest
-// first. Each row links to that day's puzzle in the archive for a replay.
-function renderHistoryView() {
-  enterLobby();
-  $('history').classList.remove('hidden');
-  const list = $('history-list');
-  list.innerHTML = '';
-  const history = loadStats().history || {};
-  const dates = Object.keys(history).sort().reverse();
-  if (!dates.length) {
-    list.innerHTML = '<p class="arc-sub">Nothing here yet — your next Cinephile daily starts the record.</p>';
-    return;
-  }
-  const idByDate = Object.fromEntries(manifest.map((e) => [e.date, e.id]));
-  dates.forEach((date) => {
-    const r = history[date];
-    const id = idByDate[date];
-    const row = document.createElement(id ? 'a' : 'div');
-    row.className = 'arc';
-    if (id) row.href = '?id=' + id;
-    row.innerHTML = `<span class="arc-d">${date}</span>` +
-      `<span class="arc-n">${r.won ? '🏆 bottom' : r.depth + ' deep'} · ${r.score} pts${id ? ' →' : ''}</span>`;
-    list.appendChild(row);
-  });
-}
-
-function buildArchive() {
-  const list = $('archive-list');
-  list.innerHTML = '';
-  const today = document.createElement('a');
-  today.className = 'arc';
-  today.href = '?play';
-  today.innerHTML = `<span class="arc-d">Today</span><span class="arc-n">daily →</span>`;
-  list.appendChild(today);
-  // most recent first; date + number + accent swatch, never the film title (no spoilers)
-  [...manifest].sort((a, b) => (a.date < b.date ? 1 : -1)).forEach((e) => {
-    const a = document.createElement('a');
-    a.className = 'arc';
-    a.href = '?id=' + e.id;
-    const sw = e.accent ? `<span class="arc-sw" style="background:${e.accent}"></span>` : '';
-    a.innerHTML = `${sw}<span class="arc-d">${fmtDate(e.date)}</span><span class="arc-n">#${e.id}</span>`;
-    list.appendChild(a);
-  });
-}
-
-function fmtDate(iso) {
-  const [y, m, d] = iso.split('-').map(Number);
-  return new Date(y, m - 1, d).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-}
-
-// Theme the page from the puzzle: accent on highlights (button text auto-
-// contrasts), plus deep film-hued background tones (theme.bg/bg2) tinting the
-// surfaces and a subtle gradient. Bone text stays fixed for legibility.
-function applyTheme(theme) {
-  if (!theme) return;
-  const s = document.documentElement.style;
-  if (theme.accent) {
-    s.setProperty('--amber', theme.accent);
-    s.setProperty('--amber-deep', theme.accent);
-    s.setProperty('--on-accent', onAccentText(theme.accent));
-  }
-  if (theme.bg) s.setProperty('--ink', theme.bg);
-  if (theme.bg2) s.setProperty('--ink2', theme.bg2);
-  if (theme.bg) {
-    const top = theme.bg2 || theme.bg;
-    document.body.style.background = `linear-gradient(180deg, ${top} 0%, ${theme.bg} 55%)`;
-    document.body.style.backgroundAttachment = 'fixed';
-  }
-}
-
-// The still tracks the last credit you answered (see frame.js for the rule):
-// tight crop on the film rung, then each passed credit rung swaps in that
-// person's image + caption, and any imageless rung holds the full uncropped
-// frame (which is also what the film rung reveals). A person image that fails
-// to load falls back to the full frame so the screen is never broken.
-function updateFrame() {
-  const img = $('frame-img'), cap = $('frame-cap');
-  // game.attempts (wrong guesses on the current rung) drives the film-rung reveal:
-  // each miss widens the crop one tier toward the full frame.
-  const { src, caption } = pickCreditFrame(game.index, game.rungs, frames, game.attempts);
-  // A credit image (the answered rung's own still/headshot) letterboxes so faces
-  // aren't cropped; the film frames stay edge-to-edge (cover).
-  const answered = game.rungs[Math.min(game.index, game.rungs.length) - 1];
-  const isCredit = !!(src && answered && answered.image === src);
-  if (src && !img.src.endsWith(src)) {
-    img.src = 'puzzles/' + src;
-    img.style.display = '';
-  }
-  img.classList.toggle('is-person', isCredit);
-  if (cap) {
-    cap.textContent = caption || '';
-    cap.style.display = caption ? '' : 'none';
-  }
-}
-
-function buildRail(n) {
-  const rail = $('rail');
-  rail.innerHTML = '';
-  for (let i = 0; i < n; i++) {
-    const m = document.createElement('div');
-    m.className = 'mark';
-    rail.appendChild(m);
-  }
-}
-
-function render() {
-  $('depth').textContent = game.depth;
-  $('score').textContent = game.score;
-
-  document.querySelectorAll('.mark').forEach((m, i) => {
-    m.classList.toggle('done', i < game.index);
-    m.classList.toggle('active', i === game.index && game.status === 'playing');
-  });
-
-  updateFrame();
-
-  if (game.status !== 'playing') return showEnd();
-
-  const rung = game.currentRung;
-  $('role').textContent = rung.role;
-  $('prompt').textContent = rung.prompt || 'Name it.';
-
-  const a = $('attempts');
-  a.innerHTML = '';
-  for (let i = 0; i < MAX_ATTEMPTS; i++) {
-    const d = document.createElement('span');
-    d.className = 'dot' + (i < game.attemptsLeft ? '' : ' spent');
-    a.appendChild(d);
-  }
-  $('skip-btn').textContent = `Skip −1  ·  ${game.skipsLeft} left`;
-  renderChoices();
-  if (mode !== 'poser') $('guess').focus();
-}
-
-// Choices + the text/help controls. Poser shows multiple choice for EVERY rung
-// (no text input, no lifeline); Cinephile shows the text input and only reveals
-// choices once I Need Help is used on the rung.
-function renderChoices() {
-  const rung = game.currentRung;
-  const poser = mode === 'poser';
-  const showMC = poser || game.helped;
-
-  $('guessrow').style.display = poser ? 'none' : '';
-
-  const btn = $('help-btn');
-  if (poser) {
-    btn.style.display = 'none';
-  } else {
-    const canHelp = game.helpsLeft > 0 && !game.helped && rung.decoys && rung.decoys.length > 0;
-    btn.textContent = `I Need Help · ${game.helpsLeft} left`;
-    btn.disabled = !canHelp;
-    btn.style.display = (game.helpsLeft === 0 && !game.helped) ? 'none' : '';
-  }
-
-  const box = $('choices');
-  box.innerHTML = '';
-  if (!showMC) { currentChoices = null; choicesForIndex = -1; return; }
-
-  if (choicesForIndex !== game.index || !currentChoices) {   // (re)build once per rung, stable order
-    currentChoices = shuffle([rung.answers[0], ...(rung.decoys || [])]);
-    choicesForIndex = game.index;
-  }
-  if (game.helped && !poser) {
-    const note = document.createElement('p');
-    note.className = 'choices-note';
-    note.textContent = 'Multiple choice — this rung is now worth 0.';
-    box.appendChild(note);
-  }
-  for (const c of currentChoices) {
-    const b = document.createElement('button');
-    b.className = 'choice';
-    b.textContent = c;
-    b.onclick = () => { $('guess').value = c; onGuess(); };
-    box.appendChild(b);
-  }
-}
-
-function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
 }
 
 function flash(msg, kind) {
-  const f = $('feedback');
-  f.textContent = msg;
-  f.className = 'feedback show ' + (kind || '');
+  const el = $('feedback');
+  el.textContent = msg;
+  el.className = `feedback show ${kind}`;
 }
 
-// Decide a guess: server verdict when server matching is on, local matcher
-// otherwise — and local as the fallback for ANY server failure. Both paths
-// drive the same Game state machine (guess() vs applyVerdict()).
-async function resolveGuess(text) {
-  if (!serverMatch || puzzleId == null) return game.guess(text);
-  try {
-    const ctrl = new AbortController();
-    const timer = setTimeout(() => ctrl.abort(), MATCH_TIMEOUT_MS);
-    const res = await fetch(MATCH_API + '/match', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ puzzleId, rungIndex: game.index, guess: text }),
-      signal: ctrl.signal,
-    });
-    clearTimeout(timer);
-    if (!res.ok) throw new Error('status ' + res.status);
-    const { correct } = await res.json();
-    if (typeof correct !== 'boolean') throw new Error('bad body');
-    return game.applyVerdict(correct);
-  } catch (e) {
-    return game.guess(text);   // pre-cutover puzzles still carry answers locally
-  }
-}
-
-// Movie Buff: suggestion dropdown under the guess input, film rung only.
-let suggestSel = -1;   // keyboard-highlighted suggestion (-1 = none)
-
-function hideSuggest() {
-  const box = $('suggest');
-  box.hidden = true;
-  box.innerHTML = '';
-  suggestSel = -1;
-}
-
-// Arrow keys move the highlight (wrapping); Enter on a highlighted item picks it.
-function moveSuggest(delta) {
-  const items = $('suggest').children;
-  if (!items.length) return;
-  if (suggestSel >= 0) items[suggestSel].classList.remove('sel');
-  suggestSel = (suggestSel + delta + items.length) % items.length;
-  items[suggestSel].classList.add('sel');
-}
+// --- suggestions (global: the whole pool, never just the legal hops) -------
 
 function renderSuggest() {
-  if (!buffMode || !game || game.status !== 'playing') { hideSuggest(); return; }
-  // Film rung suggests titles; credit rungs suggest people.
-  const [entries, keys] = game.index === 0 ? [titleIndex, titleKeys] : [peopleIndex, peopleKeys];
-  if (!entries) { hideSuggest(); return; }
-  const hits = suggest(entries, keys, $('guess').value);
-  if (!hits.length) { hideSuggest(); return; }
   const box = $('suggest');
+  if (!game || game.status !== 'playing') return hideSuggest();
+  const q = $('guess').value;
+  const person = game.expecting === 'person';
+  const hits = person ? corpus.suggestPeople(q) : corpus.suggestFilms(q);
+  if (!hits.length) return hideSuggest();
   box.innerHTML = '';
-  suggestSel = -1;   // fresh list, nothing highlighted yet
-  hits.forEach(([title, year]) => {
-    const btn = document.createElement('button');
-    btn.className = 'choice';
-    btn.textContent = title;
-    const yr = document.createElement('span');
-    yr.className = 'yr';
-    yr.textContent = year || '';
-    btn.appendChild(yr);
-    btn.onclick = () => {
-      $('guess').value = title;
+  hits.forEach((i, n) => {
+    const el = document.createElement('div');
+    el.className = `choice${n === sel ? ' sel' : ''}`;
+    el.innerHTML = person
+      ? escapeHtml(corpus.personName(i))
+      : `${escapeHtml(corpus.filmTitle(i))}<span class="yr">${corpus.filmYear(i)}</span>`;
+    el.onclick = () => {
+      $('guess').value = person ? corpus.personName(i) : corpus.filmTitle(i);
       hideSuggest();
-      $('guess').focus();
+      submit();
     };
-    box.appendChild(btn);
+    box.appendChild(el);
   });
   box.hidden = false;
 }
 
-async function onGuess() {
-  if (!game || game.status !== 'playing' || guessInFlight) return;
-  const v = $('guess').value.trim();
-  if (!v) return;
-  hideSuggest();
-  guessInFlight = true;
-  let r;
-  try { r = await resolveGuess(v); } finally { guessInFlight = false; }
-  $('guess').value = '';
-  if (r.result === 'correct') flash('Correct — keep digging.', 'good');
-  else if (r.result === 'wrong') {
-    // On the film rung, a wrong guess widens the crop (reveal mechanic) — cue it.
-    const widened = game.index === 0 && frames.length > 1 && game.attempts < frames.length;
-    flash(`Not it. ${r.attemptsLeft} ${r.attemptsLeft === 1 ? 'try' : 'tries'} left.`
-          + (widened ? ' More of the frame is showing.' : ''), 'bad');
-  }
-  render();
+function hideSuggest() {
+  $('suggest').hidden = true;
+  sel = -1;
 }
 
-function onSkip() {
-  if (!game || game.status !== 'playing') return;
-  const r = game.skip();
-  if (r.result === 'skipped') flash('Skipped (−1).', 'muted');
-  render();
-}
-
-function onHelp() {
-  if (!game || game.status !== 'playing') return;
-  if (!game.useHelp()) { flash('No help available here.', 'muted'); return; }
-  flash('Multiple choice — pick the right one (worth 0).', 'muted');
-  render();   // renderChoices builds the choices from the now-helped rung
-}
-
-function showEnd() {
-  $('play').classList.add('hidden');
-  const end = $('end');
-  end.classList.remove('hidden');
-
-  const won = game.status === 'won';
-  const reached = game.depth;
-  const missed = won ? null : game.currentRung;
-  const poser = mode === 'poser';
-  const buff = mode === 'buff';
-  // The roast is a Cinephile thing — it nudges you toward the easier modes, so it
-  // makes no sense on a run already played in one of them.
-  const r = (poser || buff) ? null : roast(reached, game.total, won);
-
-  let stats = loadStats();
-  // Only the real Cinephile daily touches the streak/stats — archive/practice runs
-  // and the easier modes (Poser, Movie Buff) are excluded (change-control §2.10).
-  if (!isArchive && !isPractice && mode === 'cinephile') {
-    stats = recordResult(stats, { date: todayISO(), depth: reached, won, score: game.score });
-    saveStats(stats);
-  }
-  if (isPractice) {                            // roll this film into the running practice tally
-    practiceTally.films += 1;
-    if (won) practiceTally.cleared += 1;
-    practiceTally.depth += reached;
-  }
-
-  const showCta = r && r.mode && !isPractice;  // the mode-nudge CTA is a daily-run thing
-  end.innerHTML = `
-    <p class="eyebrow">${won ? 'You reached the bottom' : 'Run over'}</p>
-    <div class="hero"><span class="herodepth">${reached}</span><label>degrees deep</label></div>
-    ${missed ? `<p class="reveal">${missed.role} was <strong>${missed.answers[0]}</strong></p>` : ''}
-    <p class="endline">${game.score} pts · ${game.skipsUsed} skip${game.skipsUsed === 1 ? '' : 's'} · ${reached}/${game.total} rungs${poser ? ' · Poser' : buff ? ' · Movie Buff' : ''}</p>
-    ${r ? `<p class="roast">${r.text}</p>${showCta ? `<a class="roast-cta" href="?modes">${r.mode} mode might be more your speed →</a>` : ''}` : ''}
-    ${isPractice ? practiceHtml() : statsHtml(stats, reached)}
-    ${isPractice ? '' : `<pre class="share" id="share">${shareText(reached, game.total, game.score, won)}</pre>`}
-    <div class="endbtns">
-      ${isPractice
-        ? `<button id="next" class="copy">Next film →</button><a class="again" style="text-decoration:none" href="?modes">End practice</a>`
-        : `<button id="copy" class="copy">Copy result</button><button id="again" class="again">Play again</button>`}
-    </div>`;
-
-  if (isPractice) {
-    $('next').onclick = async () => {
-      const entry = nextPracticeEntry();
-      if (!entry) { flash('No more puzzles to practice.', 'muted'); return; }
-      playedIds.push(entry.id);
-      await loadAndStart(entry);
-    };
+function onKey(e) {
+  const box = $('suggest');
+  const options = box.hidden ? [] : [...box.children];
+  if (e.key === 'ArrowDown' && options.length) {
+    e.preventDefault();
+    sel = (sel + 1) % options.length;
+  } else if (e.key === 'ArrowUp' && options.length) {
+    e.preventDefault();
+    sel = (sel - 1 + options.length) % options.length;
+  } else if (e.key === 'Enter') {
+    e.preventDefault();
+    if (sel >= 0 && options[sel]) return options[sel].click();
+    return submit();
+  } else if (e.key === 'Escape') {
+    return hideSuggest();
+  } else {
     return;
   }
-  $('again').onclick = () => location.reload();
-  $('copy').onclick = async () => {
-    const btn = $('copy');
-    try { await navigator.clipboard.writeText($('share').textContent); btn.textContent = 'Copied ✓'; }
-    catch { btn.textContent = 'Press Ctrl/Cmd+C'; }
-    setTimeout(() => { btn.textContent = 'Copy result'; }, 1600);
-  };
+  options.forEach((el, i) => el.classList.toggle('sel', i === sel));
 }
 
-// Running-tally panel for a Practice endless run (in place of the daily stats).
-function practiceHtml() {
-  const t = practiceTally;
-  const avg = t.films ? (t.depth / t.films).toFixed(1) : '0';
-  return `
+// --- end screen -----------------------------------------------------------
+
+function renderEnd() {
+  const won = game.status === 'won';
+  const rel = relativeLabel(game.degrees, game.par);
+  if (!isReplay) {
+    const stats = loadStats();
+    saveStats(recordResult(stats, {
+      date: entry.date, id: entry.id, degrees: game.degrees, par: game.par, won,
+    }));
+  }
+  const line = won
+    ? (game.degrees < game.par ? `Under par. You found a link the shortest path missed.`
+      : game.degrees === game.par ? `Par. That's the tightest chain there is.`
+      : `${rel} over par — the shortest route was ${game.par} degrees.`)
+    : `Three wrong links on one step. The connection stays hidden.`;
+
+  $('end').innerHTML = `
+    <p class="eyebrow">${escapeHtml(game.startLabel)} → ${escapeHtml(game.goalLabel)}</p>
+    <div class="hero">
+      <span class="herodepth">${won ? game.degrees : '—'}</span>
+      <label>${won ? 'degrees' : 'chain broken'}</label>
+    </div>
+    <p class="endline">${line}</p>
+    <div class="row endrow">
+      <button class="btn-primary" id="share-btn">Share</button>
+      <a class="btn-ghost" href="?archive">Archive</a>
+      <a class="btn-ghost" href="?history">Scorecard</a>
+    </div>
+    <p class="feedback muted" id="share-note">&nbsp;</p>`;
+  $('play').classList.add('hidden');
+  $('end').classList.remove('hidden');
+  $('share-btn').onclick = share;
+}
+
+// Spoiler-safe by construction: the two films are the prompt everyone sees, and
+// the chain itself is never in the text.
+function shareText() {
+  const won = game.status === 'won';
+  return [
+    `Degrees of Film #${entry.id}`,
+    `${game.startLabel} → ${game.goalLabel}`,
+    won ? `${'🔗'.repeat(Math.min(game.degrees, 10))} ${game.degrees} degrees (par ${game.par})`
+        : `💔 chain broken (par ${game.par})`,
+    SITE,
+  ].join('\n');
+}
+
+async function share() {
+  const text = shareText();
+  try {
+    if (navigator.share) return await navigator.share({ text });
+    await navigator.clipboard.writeText(text);
+    $('share-note').textContent = 'Copied to clipboard.';
+  } catch {
+    $('share-note').textContent = 'Copy failed — select the text above instead.';
+  }
+}
+
+// --- archive + scorecard --------------------------------------------------
+
+async function renderArchive() {
+  show('archive');
+  const daily = await loadDailies();
+  const today = todayISO();
+  const history = loadStats().history;
+  const past = daily.filter((e) => e.date <= today).reverse();
+  $('archive-list').innerHTML = past.length ? past.map((e) => `
+    <a class="arc-row" href="?id=${e.id}">
+      <span class="arc-date">${e.date}</span>
+      <span class="arc-pair">${escapeHtml(e.from[0])} → ${escapeHtml(e.to[0])}</span>
+      <span class="arc-par">par ${e.par}${history[e.date] ? ` · ${resultLabel(history[e.date])}` : ''}</span>
+    </a>`).join('') : '<p class="arc-sub">Nothing in the archive yet.</p>';
+}
+
+function renderHistory() {
+  show('history');
+  const s = loadStats();
+  const rows = Object.entries(s.history).sort((a, b) => (a[0] < b[0] ? 1 : -1));
+  $('history-summary').innerHTML = `
     <div class="statgrid">
-      <div><b>${t.films}</b><span>films</span></div>
-      <div><b>${t.cleared}</b><span>cleared</span></div>
-      <div><b>${t.depth}</b><span>total depth</span></div>
-      <div><b>${avg}</b><span>avg depth</span></div>
-    </div>`;
-}
-
-// Spoiler-free shareable result: a depth bar (dug rungs vs remaining) + score.
-function shareText(reached, total, score, won) {
-  const bar = '🟫'.repeat(reached) + '⬛'.repeat(Math.max(0, total - reached));
-  const line = won ? `Reached the bottom — ${total}/${total} · ${score} pts`
-                   : `${reached}/${total} deep · ${score} pts`;
-  const tag = mode === 'poser' ? ' (Poser)' : mode === 'buff' ? ' (Movie Buff)' : '';
-  return `🎬 Degrees of Film #${puzzleId}${tag}\n${line}\n${bar}`;
-}
-
-// End-of-round roast: savage but tasteful, and it nudges you toward the mode you
-// clearly belong in. Tier by how deep you dug; a win earns grudging respect.
-const ROASTS = {
-  poser: [
-    'You named the film and then ran on pure vibes. Poser mode is multiple choice — built for exactly that.',
-    'Bold of you to pick Cinephile. Poser mode exists for performances like the one we just watched.',
-    'The Academy would like its screener access back. Poser mode is down the hall, to your left.',
-    'A valiant nosedive. In Poser mode the choices are made for you — as, frankly, they should be.',
-  ],
-  buff: [
-    'You know the marquee names and then the credits got scary. Movie Buff is probably your ceiling.',
-    'Got the leads, fumbled everyone who actually made the film. Textbook Movie Buff energy.',
-    'Respectable — in the way that showing up is respectable. Movie Buff mode awaits.',
-    'You hit the wall labeled "the crew" at full speed. Movie Buff it is.',
-  ],
-  almost: [
-    'So close to the bottom you could smell the key grip. Almost a Cinephile. Almost.',
-    'One bad guess from greatness. The credits will remember this.',
-  ],
-  cinephile: [
-    'Certified Cinephile. You dug to the bottom and salted the earth.',
-    'Flawless descent. Everyone else is a poser and, deep down, they know it.',
-    'You named the production designer. Touch grass — right after you finish bragging.',
-  ],
-};
-
-function roastTier(reached, total, won) {
-  if (won) return 'cinephile';
-  const ratio = reached / total;
-  if (ratio >= 0.6) return 'almost';
-  if (ratio >= 0.3) return 'buff';
-  return 'poser';
-}
-
-function roast(reached, total, won) {
-  const tier = roastTier(reached, total, won);
-  const pool = ROASTS[tier];
-  return {
-    text: pool[Math.floor(Math.random() * pool.length)],
-    mode: tier === 'poser' ? 'Poser' : tier === 'buff' ? 'Movie Buff' : null,
-  };
-}
-
-function statsHtml(s, reached) {
-  const winPct = s.played ? Math.round((100 * s.wins) / s.played) : 0;
-  const tiles = `
-    <div class="statgrid">
-      <div><b>${s.currentStreak}</b><span>streak</span></div>
-      <div><b>${s.maxStreak}</b><span>max</span></div>
-      <div><b>${s.bestDepth}</b><span>best</span></div>
       <div><b>${s.played}</b><span>played</span></div>
-      <div><b>${winPct}%</b><span>won</span></div>
+      <div><b>${s.wins}</b><span>connected</span></div>
+      <div><b>${s.currentStreak}</b><span>streak</span></div>
+      <div><b>${s.maxStreak}</b><span>best streak</span></div>
+      <div><b>${s.best === null ? '—' : relativeLabel(s.best, 0)}</b><span>best score</span></div>
     </div>`;
-  const depths = Object.keys(s.histogram).map(Number).sort((a, b) => a - b);
-  const max = Math.max(1, ...depths.map((d) => s.histogram[d]));
-  const bars = depths.map((d) => {
-    const c = s.histogram[d];
-    const w = Math.max(8, Math.round((100 * c) / max));
-    return `<div class="hrow"><span class="hd">${d}</span><span class="hb${d === reached ? ' cur' : ''}" style="width:${w}%">${c}</span></div>`;
-  }).join('');
-  return tiles + (bars ? `<div class="hist"><p class="histlabel">depth distribution</p>${bars}</div>` : '')
-    + '<p class="histlabel"><a class="roast-cta" href="?history">Score history →</a></p>';
+  $('history-list').innerHTML = rows.length ? rows.map(([date, r]) => `
+    <a class="arc-row" href="?id=${r.id}">
+      <span class="arc-date">${date}</span>
+      <span class="arc-pair">${r.won ? `${r.degrees} degrees` : 'chain broken'}</span>
+      <span class="arc-par">par ${r.par}${r.won ? ` · ${relativeLabel(r.degrees, r.par)}` : ''}</span>
+    </a>`).join('')
+    : '<p class="arc-sub">No dailies played on this device yet.</p>';
 }
 
-function wire() {
-  $('guess-btn').onclick = onGuess;
-  $('skip-btn').onclick = onSkip;
-  $('help-btn').onclick = onHelp;
-  $('guess').addEventListener('keydown', (e) => {
-    const box = $('suggest');
-    if (!box.hidden && box.children.length) {
-      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
-        e.preventDefault();
-        moveSuggest(e.key === 'ArrowDown' ? 1 : -1);
-        return;
-      }
-      if (e.key === 'Escape') { hideSuggest(); return; }
-      if (e.key === 'Enter' && suggestSel >= 0) {
-        e.preventDefault();
-        box.children[suggestSel].click();   // fills the input + hides the list
-        return;
-      }
-    }
-    if (e.key === 'Enter') onGuess();
-  });
-  $('guess').addEventListener('input', renderSuggest);
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (c) =>
+    ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 }
-
-init();
