@@ -3,15 +3,47 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-14** (short orientation session — no code changes). State re-verified
-that day: `main` unmoved at `87699a9`, [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29)
-still OPEN/unmerged, live site still the old dig. The rebuilt game was served locally for the
-owner playtest (clean load, zero console errors; daily #4 = The Prestige → The Purge: Anarchy,
-par 2) but **the playtest itself did NOT happen — it remains the open gate.** Session side
-effects: the `mattpocock-skills` plugin was installed at user scope (not project), and a
-temporary uncommitted `connect` entry (serves this worktree's `docs/` on port 8010 by absolute
-path) was added to `.claude/worktrees/amazing-sammet-cd9de5/.claude/launch.json` — drop or keep
-at will. Everything below is the 2026-08-11 rebuild handoff, still accurate._
+_Last updated: **2026-08-14, second session (evening)**. **THE OWNER PLAYTEST HAPPENED — the
+gate is passed with a verdict:** "I like it, but it's missing something… feels like a one-off
+rather than I-need-to-come-back-and-play-this-again-asap." That verdict was put through a
+12-agent research workflow + 3 adversarial critics, merged with the owner's brief (Wordle is
+the model; end felt flat; wants beating-friends/route-comparison + film discovery; share-based
+social, NO accounts/leaderboards), and produced **THE COMEBACK LOOP plan** — see "Next phases"
+below (it replaces the old 'Next up' ordering) and the published report at
+https://claude.ai/code/artifact/83fee604-32dd-4373-885a-af1a4176b856 . Core diagnosis: **the
+game ends at the wrong moment** — no countdown, no solution reveal, own chain hidden at end,
+share link unfurls bare (no OG/favicon), zero @keyframes, all 30 pars are 2–3. Session
+side-effects: agent-skills setup committed to this branch as `3cc45ba` (agents/issue-tracker.md,
+agents/domain.md, CLAUDE.md "Agent skills" block — GitHub Issues tracker; ADRs will live in
+root `adr/`, NEVER under docs/). **OPEN DECISION for next session: build Wave 1 on this branch
+then merge once (recommended), or merge PR #29 now and fast-follow.** Owner paused before
+deciding. Everything below remains the accurate rebuild handoff; where the old 'Next up' list
+disagrees with the Comeback Loop plan, the plan wins._
+
+### The Comeback Loop (2026-08-14 plan — critic-verified, owner-briefed)
+
+**Wave 1, ship as ONE unit (~1–2 sessions):** (1) **Ritual end card** — own-chain recap stays
+visible, client-BFS shortest-route reveal (loss = the payoff, not "stays hidden"), render the
+already-recorded histogram (dead .hist CSS exists), streak, countdown to local midnight (only
+when tomorrow's entry exists), Share. New pure `docs/solve.js` + tests; count distinct routes
+via path-DP over BFS layers, not node counting. (2) **Durable record** — finished-state restore,
+mid-run persistence (serialize by TMDB ids/names, NOT corpus indices), streak recomputed at
+load + at-risk state; defer streak freezes. (3) **Share loop fix** — favicon + OG/Twitter meta
+FIRST (bare-URL unfurl kills the loop; og:image must be original art, never TMDB), render share
+text on page, glyph-trail share (🔗 + 🟥 burn pips + ↩, zero-data version; role glyphs 🎭🎬🎼
+need a harvest-schema change — later), freeze the line-1 grammar in DESIGN.md (enables Discord-
+bot leagues, no server). (4) **Difficulty arc** (curation) — NYT-crossword weekly par shape
+(2 early week → 4–5 weekend) + anti-hub pairs; use the discarded `count_routes`. Critics: this
+matters more than everything except the end card. **Wave 2:** near-miss feedback (validate
+distance distribution offline first — small-world risk), juice pass (staged reveals, named
+verdicts Eagle/Birdie/Par/Bogey, theme-toned), obscurity score 0–99 (calibrate vs bottom-heavy
+degree distribution). **Wave 3 (when streaks exist):** calendar+handicap, curator's note (hard
+rule: never identify a geodesic film/person; generator assert), backup codes, soft-fail caddy
+(ONLY if DNF >~10% measured; rules change = owner sign-off). **KILLED:** spoiler-gated challenge
+links (leaky funnel), community-pulse Worker (needs server AND a crowd; revival trigger =
+organic strangers sharing + min-N gate + owner sign-off), accounts/leaderboards (owner's call).
+Full research + verdicts: workflow run `wf_3e3c18d6-60e` in session
+`0198cf19-ed05-46a2-ab23-0a01aeb96843` (12 agents, ~1.07M tokens).
 
 **THE GAME WAS REBUILT.** The vertical-dig daily (name the film
 from a still, then dig through its credits) was **retired and deleted** at the owner's direction —
