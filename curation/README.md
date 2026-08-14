@@ -1,25 +1,56 @@
 # curation/ — the PRIVATE zone (your machine only)
 
-This is Phase 2 of Degrees of Film: the tooling that holds the **TMDB API key** and
-manufactures puzzles. **Nothing here is served to players** — players only ever fetch the
-finished static files under `docs/`. The key lives only in `curation/.env` (gitignored).
+The tooling that holds the **TMDB API key** and builds the game's data. **Nothing here is
+served to players** — they only ever fetch the finished static files under `docs/`. The key
+lives only in `curation/.env` (gitignored).
+
+**No dependencies.** Everything here is Python stdlib — there is no `.venv`, no `pip install`,
+no Pillow/FastAPI/OpenCV. (The old crop-and-publish tool that needed those was deleted with the
+dig game on 2026-08-11.)
 
 ## Setup
 
 1. `cp .env.example .env` (or copy it in your editor).
-2. Open `curation/.env` and paste your TMDB **v3 API Key** in place of the placeholder.
-   Do not paste the key into chat or commit it — `.env` is gitignored.
+2. Paste your TMDB **v3 API Key** in place of the placeholder. Never commit it or paste it
+   into chat — `.env` is gitignored.
 
-## What's here so far
+## The pipeline
 
-- **`validate_ladder.py`** — a throwaway de-risk script (stdlib only, no installs). It pulls
-  several known films from TMDB, sorts their credits by popularity, and prints the resulting
-  ladder so we can eyeball the project's riskiest assumption: *does popularity-sorting yield a
-  sane famous→obscure ladder?* Prove this before building any curation UI (DESIGN.md §5).
+Three steps, and only the first touches the network:
 
-  ```
-  python curation/validate_ladder.py
-  ```
+```bash
+python curation/harvest.py                    # 1. TMDB -> the two local caches
+python curation/graph_build.py                # 2. caches -> docs/graph.json  (the corpus)
+python curation/challenge_gen.py --days 30    # 3. corpus -> docs/challenges.json (dailies)
+```
 
-The real tool (Flask/FastAPI endpoints, Pillow cropping, the used-films ledger, decoy + accent
-generation, the `manifest.json` writer) gets built only once the ladder assumption checks out.
+- **`harvest.py`** sweeps every film clearing the pool floor (`vote_count >= 800` and
+  `vote_average >= 6.5` — about 3,700 films people have actually heard of) and caches each
+  one's top-billed cast plus five key crew jobs. Both caches (`films_cache.jsonl`,
+  `people_harvest_cache.jsonl`) are gitignored and append-only, so re-running months later
+  fetches only what's new.
+- **`graph_build.py`** turns the caches into `docs/graph.json`: it drops people credited on a
+  single film (they can never be a hop — 67% of them), ranks films and people by popularity so
+  autocomplete surfaces the famous entry first, index-encodes the adjacency, and validates the
+  result. `--check` re-validates the shipped file without rebuilding.
+- **`challenge_gen.py`** picks film pairs at an exact par *from the shipped corpus*, so a par
+  written into a daily is a par the player can actually reach. It draws endpoints from the most
+  popular films, rejects franchise pairs (*Infinity War* → *Endgame* is not a puzzle), requires
+  more than one shortest route so the answer isn't a needle, and asserts par at build time.
+  `--check` re-derives every published daily's par.
+
+## Spoilers
+
+`challenge_gen.py` writes the solution chains to **`curation/challenge_solutions.json`**, which
+is **gitignored and must stay that way — this repo is public**. Don't name a future daily's
+chain in a commit message either.
+
+## Tests
+
+Pure logic, no network, no fixtures to install:
+
+```bash
+python curation/harvest.test.py
+python curation/graph_build.test.py
+python curation/challenge_gen.test.py
+```

@@ -1,186 +1,265 @@
-"""Graph-mode challenge generator (campaign phase G2). Picks a film pair A->B at an
-exact target par from the extracted graph, emits a decoy-padded challenge JSON
-(subgraph radius sized to the par, so over-par wandering is possible but bounded),
-ASSERTS the par survives inside the shipped subgraph, and writes the solution chain
-to a separate curator-only spoiler file.
+"""Generate Degrees dailies: film pairs at an exact par, against the SHIPPED corpus.
 
-    python curation/challenge_gen.py --par 2 --seed 7 --out CH.json --solution SOL.json
-        [--top 1200]   # endpoints drawn from the N most-voted pool films (recognizable)
+The generator reads docs/graph.json — the same bytes the client plays — so a par
+written here is a par the player can actually reach. (Generating from the raw caches
+would let pruning or a rebuild quietly shift distances.)
 
-Pure core: bfs_path / pick_pair / build_challenge. Only the CLI touches disk, and
-nothing here touches the network (the graph comes from the G1 caches).
+A daily is ~50 bytes: {id, date, start, goal, par} with TMDB film ids. They all live
+in docs/challenges.json; the solution chains are written to a gitignored curator file
+and never committed, because this repo is public.
+
+    python curation/challenge_gen.py --days 30                 # append 30 dailies
+    python curation/challenge_gen.py --days 7 --par 3 --seed 4
+    python curation/challenge_gen.py --check                    # re-verify every daily
+
+Pure core (no IO): adjacency / bfs_path / degrees_between / count_routes /
+too_similar / pick_pair / next_dates.
 """
+import argparse
+import datetime as dt
 import json
+import os
 import random
 import sys
 from collections import deque
 
-import graph_extract as gx
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import graph_build as gb  # noqa: E402
+
+HERE = os.path.dirname(os.path.abspath(__file__))
+DOCS = os.path.join(os.path.dirname(HERE), "docs")
+CORPUS = os.path.join(DOCS, "graph.json")
+CHALLENGES = os.path.join(DOCS, "challenges.json")
+SOLUTIONS = os.path.join(HERE, "challenge_solutions.json")   # gitignored: spoilers
+
+CHALLENGES_VERSION = 1
+DEFAULT_TOP = 900        # endpoints drawn from the N most popular films
+MIN_ROUTES = 2           # more than one shortest path = a fair daily, not a needle
+TITLE_STOPWORDS = {"the", "a", "an", "of", "and", "part", "ii", "iii", "iv", "2", "3"}
 
 
-def bfs_path(g, src, dst, max_depth=12):
-    """Shortest alternating path [srcFilm, p1, f1, ..., pN, dstFilm] or None. Pure."""
+def adjacency(corpus):
+    """(film -> [person], person -> [film]) over array indices. Pure."""
+    film_people = [gb.decode_deltas(c) for c in corpus["cast"]]
+    person_films = [[] for _ in corpus["people"]]
+    for f, people in enumerate(film_people):
+        for p in people:
+            person_films[p].append(f)
+    return film_people, person_films
+
+
+def bfs_path(adj, src, dst, max_degrees=6):
+    """Shortest alternating path [("f",src), ("p",x), ("f",y), ..., ("f",dst)] or
+    None. Degrees = person steps = (len(path)-1)//2. Pure."""
+    film_people, person_films = adj
     if src == dst:
-        return [src]
+        return [("f", src)]
     parent = {("f", src): None}
-    q = deque([("f", src, 0)])
+    q = deque([(("f", src), 0)])
     while q:
-        kind, node, d = q.popleft()
-        if d >= max_depth:
-            continue
+        node, d = q.popleft()
+        kind, idx = node
         if kind == "f":
-            for p in g["film_people"].get(node, []):
+            if d >= max_degrees * 2:
+                continue
+            for p in film_people[idx]:
                 if ("p", p) not in parent:
-                    parent[("p", p)] = ("f", node)
-                    q.append(("p", p, d + 1))
+                    parent[("p", p)] = node
+                    q.append((("p", p), d + 1))
         else:
-            for f in g["person_films"].get(node, []):
+            for f in person_films[idx]:
+                if ("f", f) in parent:
+                    continue
+                parent[("f", f)] = node
                 if f == dst:
-                    path, cur = [dst], ("p", node)
-                    while cur:
-                        path.append(cur[1])
+                    path, cur = [], ("f", f)
+                    while cur is not None:
+                        path.append(cur)
                         cur = parent[cur]
                     return path[::-1]
-                if ("f", f) not in parent:
-                    parent[("f", f)] = ("p", node)
-                    q.append(("f", f, d + 1))
+                q.append((("f", f), d + 1))
     return None
 
 
-def pick_pair(g, rng, ranked_fids, par, tries=4000):
-    """A film pair whose shortest distance is EXACTLY 2*par edges, endpoints drawn
-    from ranked_fids. Returns (a, b, path) or None. Pure given rng."""
-    want = 2 * par
+def degrees_between(adj, src, dst, max_degrees=6):
+    """Par: the number of person steps on a shortest chain, or None. Pure."""
+    path = bfs_path(adj, src, dst, max_degrees)
+    return None if path is None else (len(path) - 1) // 2
+
+
+def count_routes(adj, src, dst, par, cap=50):
+    """How many DISTINCT people close a par chain (a fairness proxy: one single
+    connector is a needle, several is a game). Counts closers at the final step. Pure."""
+    film_people, person_films = adj
+    if par < 1:
+        return 0
+    reach = {src}
+    for _ in range(par - 1):
+        nxt = set()
+        for f in reach:
+            for p in film_people[f]:
+                for f2 in person_films[p]:
+                    if f2 != dst:
+                        nxt.add(f2)
+        reach = nxt
+        if not reach:
+            return 0
+    goal_cast = set(film_people[dst])
+    closers = set()
+    for f in reach:
+        for p in film_people[f]:
+            if p in goal_cast:
+                closers.add(p)
+                if len(closers) >= cap:
+                    return cap
+    return len(closers)
+
+
+def too_similar(title_a, title_b):
+    """Reject sequels/franchise pairs — "Avengers: Infinity War" -> "Avengers: Endgame"
+    is a connection nobody has to think about. Pure."""
+    def words(t):
+        return {w for w in "".join(ch.lower() if ch.isalnum() else " " for ch in t).split()
+                if w not in TITLE_STOPWORDS and len(w) > 2}
+    return bool(words(title_a) & words(title_b))
+
+
+def pick_pair(corpus, adj, rng, par, *, top=DEFAULT_TOP, avoid=(), tries=3000,
+              min_routes=MIN_ROUTES):
+    """A film pair at EXACTLY `par` degrees, both endpoints among the `top` most
+    popular films and neither in `avoid`. Returns (a_idx, b_idx, path) or None.
+    Pure given rng."""
+    pool = [i for i in range(min(top, len(corpus["films"]))) if i not in set(avoid)]
+    if len(pool) < 2:
+        return None
     for _ in range(tries):
-        a, b = rng.sample(ranked_fids, 2)
-        path = bfs_path(g, a, b, max_depth=want)
-        if path and len(path) - 1 == want:
-            return a, b, path
+        a, b = rng.sample(pool, 2)
+        if too_similar(corpus["films"][a][0], corpus["films"][b][0]):
+            continue
+        path = bfs_path(adj, a, b, max_degrees=par)
+        if path is None or (len(path) - 1) // 2 != par:
+            continue
+        if count_routes(adj, a, b, par) < min_routes:
+            continue
+        return a, b, path
     return None
 
 
-def _subgraph_adjacency(challenge):
-    """Rebuild a gx-shaped graph dict from a challenge payload (for assertions). Pure."""
-    film_people, person_films = {}, {}
-    for f, p in challenge["edges"]:
-        film_people.setdefault(f, []).append(p)
-        person_films.setdefault(p, []).append(f)
-    return {"films": {int(k): tuple(v) for k, v in challenge["films"].items()},
-            "film_people": film_people, "person_films": person_films,
-            "person_names": {int(k): v for k, v in challenge["people"].items()}}
-
-
-def _dists_from(g, src_fid, max_depth):
-    """Edge-distance maps ({fid: d}, {pid: d}) from a source film. Pure."""
-    df, dp = {src_fid: 0}, {}
-    q = deque([("f", src_fid, 0)])
-    while q:
-        kind, node, d = q.popleft()
-        if d >= max_depth:
-            continue
-        if kind == "f":
-            for p in g["film_people"].get(node, []):
-                if p not in dp:
-                    dp[p] = d + 1
-                    q.append(("p", p, d + 1))
-        else:
-            for f in g["person_films"].get(node, []):
-                if f not in df:
-                    df[f] = d + 1
-                    q.append(("f", f, d + 1))
-    return df, dp
-
-
-def build_challenge(g, cid, a, b, par, slack=2, ranked=None, fringe_cap=6):
-    """Decoy-padded challenge dict, sized by GEODESIC ELLIPSE, not radius balls
-    (measured 2026-07-13: radius balls at par 3 swallow 95% of the small-world
-    corpus). Core = every node on a SHORTEST path (dA + dB == 2*par) — always
-    kept in full — plus over-par detour nodes (<= 2*par + slack) kept only when
-    `ranked` says the film is recognizable (obscure detours are dead bytes).
-    Decoy fringe = up to fringe_cap extra people per core film beyond its core
-    people (billing order — plausible wrong turns, mostly dead ends inside the
-    subgraph). Asserts the subgraph preserves par (raises if it ever breaks). Pure."""
-    exact, budget = 2 * par, 2 * par + slack
-    daf, dap = _dists_from(g, a, budget)
-    dbf, dbp = _dists_from(g, b, budget)
-
-    def keep_film(f, total):
-        return total <= exact or (total <= budget and (ranked is None or f in ranked))
-
-    core_f = {f for f, d in daf.items() if f in dbf and keep_film(f, d + dbf[f])}
-    films = core_f | {a, b}
-    core_p = {p for p, d in dap.items() if p in dbp and d + dbp[p] <= budget
-              and any(f in films for f in g["person_films"].get(p, []))}
-    people = set(core_p)
-    for f in films:                       # capped decoy fringe, billing order
-        extra = 0
-        for p in g["film_people"].get(f, []):
-            if p in people:
-                continue
-            if extra >= fringe_cap:
-                break
-            people.add(p)
-            extra += 1
-    sub = gx.subgraph_json(g, films, people)
-    ta, tb = g["films"][a], g["films"][b]
-    ch = {"id": cid,
-          "start": {"id": a, "title": ta[0], "year": ta[1]},
-          "goal": {"id": b, "title": tb[0], "year": tb[1]},
-          "par": par, **sub}
-    got = gx.bfs_dist(_subgraph_adjacency(ch), a, b, max_depth=2 * par + 2)
-    if got != 2 * par:
-        raise AssertionError(f"subgraph broke the par: shipped distance {got}, want {2*par}")
-    return ch
-
-
-def solution_labels(g, path):
-    """The replayable solution: alternating person/film LABELS between the endpoints.
-    (Spoiler — never ships; the curator-only sidecar.) Pure."""
+def next_dates(existing, count, start=None, today=None):
+    """The next `count` free ISO dates: the day after the last scheduled daily, or
+    today if the schedule has lapsed. Pure."""
+    today = today or dt.date.today().isoformat()
+    if start:
+        cursor = dt.date.fromisoformat(start)
+    else:
+        latest = max((e["date"] for e in existing), default=None)
+        after = (dt.date.fromisoformat(latest) + dt.timedelta(days=1)).isoformat() if latest else today
+        cursor = dt.date.fromisoformat(max(after, today))
+    taken = {e["date"] for e in existing}
     out = []
-    for i, node in enumerate(path[1:-1], start=1):
-        out.append(g["person_names"][node] if i % 2 == 1 else g["films"][node][0])
+    while len(out) < count:
+        iso = cursor.isoformat()
+        if iso not in taken:
+            out.append(iso)
+        cursor += dt.timedelta(days=1)
     return out
 
 
+def _load(path, default):
+    if not os.path.exists(path):
+        return default
+    with open(path, encoding="utf-8") as fh:
+        return json.load(fh)
+
+
+def _write(path, obj):
+    with open(path, "w", encoding="utf-8") as fh:
+        json.dump(obj, fh, ensure_ascii=False, separators=(",", ":"))
+
+
+def _labels(corpus, path):
+    return [corpus["people"][i] if kind == "p" else corpus["films"][i][0]
+            for kind, i in path]
+
+
 def _main(argv):
-    par = int(argv[argv.index("--par") + 1]) if "--par" in argv else 2
-    seed = int(argv[argv.index("--seed") + 1]) if "--seed" in argv else 7
-    top = int(argv[argv.index("--top") + 1]) if "--top" in argv else 1200
-    out = argv[argv.index("--out") + 1] if "--out" in argv else None
-    sol_out = argv[argv.index("--solution") + 1] if "--solution" in argv else None
+    ap = argparse.ArgumentParser(description="Generate Degrees dailies")
+    ap.add_argument("--days", type=int, default=7)
+    ap.add_argument("--par", default="2,3", help="pars to draw from, comma separated")
+    ap.add_argument("--top", type=int, default=DEFAULT_TOP)
+    ap.add_argument("--seed", type=int, default=None)
+    ap.add_argument("--start", help="first date (YYYY-MM-DD); default = next free day")
+    ap.add_argument("--check", action="store_true", help="re-verify every existing daily")
+    args = ap.parse_args(argv)
 
-    films, order = {}, []
-    with open(gx.FILMS_CACHE, encoding="utf-8") as fh:
-        for line in fh:
-            rec = json.loads(line)
-            films[rec["id"]] = (rec["title"], rec["year"])
-            order.append(rec["id"])
-    g = gx.build_graph(films, gx.load_people_cache(gx.PEOPLE_CACHE))
-    ranked = [f for f in order if f in g["film_people"]][:top]
-
-    picked = pick_pair(g, random.Random(seed), ranked, par)
-    if not picked:
-        print(f"no pair found at par {par} within tries — loosen --top or change --seed")
+    corpus = _load(CORPUS, None)
+    if corpus is None:
+        print(f"no corpus at {CORPUS} — run: python curation/graph_build.py", file=sys.stderr)
         return 1
-    a, b, path = picked
-    ch = build_challenge(g, 1, a, b, par, ranked=set(ranked))
-    raw = json.dumps(ch, ensure_ascii=False, separators=(",", ":")).encode("utf-8")
-    import gzip
-    print(f"challenge: {ch['start']['title']} ({ch['start']['year']}) -> "
-          f"{ch['goal']['title']} ({ch['goal']['year']}), par {par}")
-    print(f"payload: {len(ch['films'])} films, {len(ch['people'])} people, "
-          f"{len(ch['edges'])} edges — {len(raw)/1024:.0f} KB raw / "
-          f"{len(gzip.compress(raw, 9))/1024:.0f} KB gz")
-    if out:
-        with open(out, "w", encoding="utf-8") as fh:
-            json.dump(ch, fh, ensure_ascii=False, separators=(",", ":"))
-        print(f"wrote {out}")
-    if sol_out:
-        with open(sol_out, "w", encoding="utf-8") as fh:
-            json.dump(solution_labels(g, path), fh, ensure_ascii=False)
-        print(f"wrote SPOILER solution -> {sol_out}")
+    gb.validate(corpus)
+    adj = adjacency(corpus)
+    by_id = {tid: i for i, tid in enumerate(corpus["ids"])}
+    doc = _load(CHALLENGES, {"v": CHALLENGES_VERSION, "daily": []})
+    daily = doc["daily"]
+
+    if args.check:
+        bad = 0
+        for e in daily:
+            a, b = by_id.get(e["start"]), by_id.get(e["goal"])
+            if a is None or b is None:
+                print(f"FAIL  #{e['id']} {e['date']}: endpoint missing from the corpus")
+                bad += 1
+                continue
+            got = degrees_between(adj, a, b)
+            labels_ok = (e.get("from") == corpus["films"][a]
+                         and e.get("to") == corpus["films"][b])
+            ok = got == e["par"] and labels_ok
+            why = "" if ok else (f" but the corpus says {got}" if got != e["par"]
+                                 else " — cached titles drifted from the corpus")
+            print(f"{'OK  ' if ok else 'FAIL'}  #{e['id']} {e['date']}  "
+                  f"{corpus['films'][a][0]} -> {corpus['films'][b][0]}  par {e['par']}{why}")
+            bad += 0 if ok else 1
+        print(f"\n{len(daily)} dailies, {bad} broken")
+        return 1 if bad else 0
+
+    rng = random.Random(args.seed)
+    pars = [int(p) for p in args.par.split(",")]
+    used = {by_id[e[k]] for e in daily for k in ("start", "goal") if e[k] in by_id}
+    dates = next_dates(daily, args.days, start=args.start)
+    solutions = _load(SOLUTIONS, {})
+    next_id = max((e["id"] for e in daily), default=0) + 1
+
+    for date in dates:
+        par = rng.choice(pars)
+        picked = pick_pair(corpus, adj, rng, par, top=args.top, avoid=used)
+        if picked is None:
+            print(f"could not find a par-{par} pair for {date} "
+                  f"(try a larger --top or fewer --days)", file=sys.stderr)
+            return 1
+        a, b, path = picked
+        assert degrees_between(adj, a, b) == par, "par assertion failed"
+        used.update({a, b})
+        # The two titles ride along so home/archive render without the 188 KB corpus;
+        # the ids stay authoritative (--check re-derives par and labels from them).
+        entry = {"id": next_id, "date": date, "start": corpus["ids"][a],
+                 "goal": corpus["ids"][b], "par": par,
+                 "from": corpus["films"][a], "to": corpus["films"][b]}
+        daily.append(entry)
+        solutions[str(next_id)] = {"date": date, "par": par,
+                                   "routes": count_routes(adj, a, b, par),
+                                   "chain": _labels(corpus, path)}
+        print(f"#{next_id} {date}  par {par}  "
+              f"{corpus['films'][a][0]} ({corpus['films'][a][1]}) -> "
+              f"{corpus['films'][b][0]} ({corpus['films'][b][1]})")
+        next_id += 1
+
+    daily.sort(key=lambda e: e["date"])
+    _write(CHALLENGES, {"v": CHALLENGES_VERSION, "daily": daily})
+    _write(SOLUTIONS, solutions)
+    print(f"\nwrote {CHALLENGES} ({len(daily)} dailies)")
+    print(f"solutions (gitignored, spoilers): {SOLUTIONS}")
     return 0
 
 
 if __name__ == "__main__":
-    sys.exit(_main(sys.argv[1:]))
+    raise SystemExit(_main(sys.argv[1:]))

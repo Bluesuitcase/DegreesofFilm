@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Degrees of Film</title>
+  <meta name="description" content="A daily film puzzle: connect two films through the people who made them, in as few degrees as possible." />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -11,40 +12,60 @@
     <div class="brand">
       <a class="wordmark" href="?">Degrees of Film</a>
       <a class="navlink" href="?">Home</a>
-      <a class="navlink" id="archive-link" href="?archive">Archive</a>
+      <a class="navlink" href="?archive">Archive</a>
+      <a class="navlink" href="?history">Stats</a>
     </div>
-    <div class="stats">
-      <span class="stat"><b id="depth">0</b><span>depth</span></span>
-      <span class="stat"><b id="score">0</b><span>score</span></span>
+    <div class="stats" id="scoreboard" hidden>
+      <span class="stat"><b id="degrees">0</b><span>degrees</span></span>
+      <span class="stat"><b id="par">0</b><span>par</span></span>
     </div>
   </header>
 
   <main class="stage">
-    <aside class="rail" id="rail" aria-hidden="true"></aside>
-
-    <section class="play" id="play">
-      <p class="mode-badge" id="mode-badge" aria-label="Current mode"></p>
-      <figure class="frame">
-        <img id="frame-img" alt="A frame from the film, with the title hidden" />
-        <figcaption id="frame-cap" class="frame-cap" style="display:none"></figcaption>
-      </figure>
-      <div class="rung">
-        <p class="eyebrow" id="role">&nbsp;</p>
-        <h1 class="prompt" id="prompt">Loading…</h1>
+    <section class="home hidden" id="home">
+      <p class="home-eyebrow">A daily film puzzle</p>
+      <h1 class="home-title">Every film is connected. Prove it.</h1>
+      <p class="home-tag">Two films, no obvious link. Name someone in the first, then another film
+        they're in, and keep hopping until you land on someone who worked on the second. Do it in as
+        few degrees as you can.</p>
+      <div class="today" id="today-card"></div>
+      <div class="home-cta">
+        <a class="btn-primary" href="?play" data-tip="Play today's connection">Play today</a>
+        <a class="btn-ghost" href="?archive" data-tip="Every past daily, still playable">Archive</a>
+        <a class="btn-ghost" href="?history" data-tip="Your streak and scorecard on this device">Stats</a>
       </div>
+      <div class="rules">
+        <h2>How it works</h2>
+        <ol>
+          <li><b>Name a person</b> from the starting film — cast or crew, anyone credited.</li>
+          <li><b>Name another film</b> they worked on.</li>
+          <li>Repeat. The chain <b>closes</b> the moment you name someone who also worked on the
+            target film.</li>
+        </ol>
+        <p class="rules-note">Each hop through a person is one <b>degree</b>. <b>Par</b> is the
+          shortest chain that exists — matching it is a good day, beating it means you found
+          something the graph didn't expect. Three wrong links on a single step and the run ends.
+          Misspellings and names nobody's heard of are free; naming a real person who simply isn't in
+          the film costs you.</p>
+      </div>
+    </section>
+
+    <section class="play hidden" id="play">
+      <p class="mode-badge" id="mode-badge"></p>
+      <div class="cchain" id="chain"></div>
+      <p class="cprompt" id="prompt">Loading…</p>
       <div class="controls">
-        <div class="guessrow" id="guessrow">
+        <div class="guessrow">
           <input id="guess" type="text" autocomplete="off" autocapitalize="off"
-                 spellcheck="false" placeholder="Name it…" />
-          <button id="guess-btn">Guess</button>
+                 spellcheck="false" placeholder="Name someone…" />
+          <button id="guess-btn">Link</button>
         </div>
         <div id="suggest" class="suggest" hidden></div>
-        <div id="choices" class="choices"></div>
         <div class="meta">
           <div class="attempts" id="attempts" aria-label="Attempts remaining"></div>
           <div class="lifelines">
-            <button id="help-btn" class="skip" data-tip="Turn this rung into multiple choice — capped at 0 points. 3 per game.">I Need Help</button>
-            <button id="skip-btn" class="skip" data-tip="Skip this rung to advance — costs 1 point (5 skips per game).">Skip</button>
+            <button id="back-btn" class="skip"
+                    data-tip="Dead end? Step back to the last film. The degree stays spent.">↩ Back up</button>
           </div>
         </div>
         <p class="feedback" id="feedback" role="status">&nbsp;</p>
@@ -53,97 +74,18 @@
 
     <section class="end hidden" id="end"></section>
 
-    <section class="archive hidden" id="archive">
-      <h2 class="arc-title">Past puzzles</h2>
-      <p class="arc-sub">Replay a previous daily. (Titles hidden so the film rung stays a challenge.)</p>
-      <div id="archive-list" class="archive-list"></div>
-    </section>
-
-    <section class="modes hidden" id="connect">
+    <section class="modes hidden" id="archive">
       <a class="navback" href="?">← Home</a>
-      <h2 class="modes-title">Connect the films</h2>
-      <p class="arc-sub" id="c-brief"></p>
-      <div id="c-chain" class="cchain"></div>
-      <p class="cprompt" id="c-prompt"></p>
-      <div class="guessrow">
-        <input id="c-guess" type="text" autocomplete="off" autocapitalize="off"
-               spellcheck="false" placeholder="Name it…" />
-        <button id="c-btn">Link</button>
-      </div>
-      <div id="c-suggest" class="suggest" hidden></div>
-      <div class="row" style="margin-top:10px">
-        <button id="c-back" class="btn ghost" data-tip="Abandon this person and step back — the degree stays spent">↩ Back up</button>
-        <span class="hint" id="c-status"></span>
-      </div>
-      <div id="c-end"></div>
+      <h2 class="modes-title">Past connections</h2>
+      <p class="arc-sub">Every daily is still playable. Replays don't touch your streak.</p>
+      <div id="archive-list" class="archive-list"></div>
     </section>
 
     <section class="modes hidden" id="history">
       <a class="navback" href="?">← Home</a>
-      <h2 class="modes-title">Score history</h2>
-      <p class="arc-sub">Your Cinephile daily results on this device, newest first. Recording starts
-        from your next daily — earlier days weren’t stored. Poser, Movie Buff, practice, and archive
-        replays don’t count here (they never touch daily stats).</p>
+      <h2 class="modes-title">Your scorecard</h2>
+      <div id="history-summary"></div>
       <div id="history-list" class="archive-list"></div>
-    </section>
-
-    <section class="home hidden" id="home">
-      <p class="home-eyebrow">A daily film puzzle</p>
-      <h1 class="home-title">Are you a Cinephile, a Movie Buff, or simply a poser?</h1>
-      <p class="home-tag">Play today to find out. Name the film from one still, then dig down through
-        its credits — famous to obscure.</p>
-      <blockquote class="quote" id="quote"></blockquote>
-      <div class="home-cta">
-        <a class="btn-primary" href="?play" data-tip="Start today's puzzle in Cinephile mode">Play today</a>
-        <a class="btn-ghost" href="?modes" data-tip="Choose your mode and difficulty">Modes</a>
-        <a class="btn-ghost" href="?history" data-tip="Your past daily results on this device">History</a>
-      </div>
-    </section>
-
-    <section class="modes hidden" id="modes">
-      <a class="navback" href="?">← Home</a>
-      <h2 class="modes-title">Choose your mode</h2>
-      <div class="mode-cards">
-        <a class="mode lit" href="?play">
-          <div class="mode-head"><span class="mode-name">Cinephile</span><span class="mode-soon">Play →</span></div>
-          <span class="mode-desc">The full dig: name the film, then every credit from marquee names
-            down to the key grip. Three lifelines, no autocomplete, no mercy.</span>
-        </a>
-        <a class="mode lit" href="?play&amp;mode=buff">
-          <div class="mode-head"><span class="mode-name">Movie Buff</span><span class="mode-soon">Play →</span></div>
-          <span class="mode-desc">Cinephile rules plus autocomplete on every rung — for when the
-            answer’s on the tip of your brain and just won’t shake loose.</span>
-        </a>
-        <a class="mode lit" href="?play&amp;mode=poser">
-          <div class="mode-head"><span class="mode-name">Poser</span><span class="mode-soon">Play →</span></div>
-          <span class="mode-desc">All multiple choice, deep cuts trimmed, a flat point a pop — for
-            when you’ve “only seen the trailer.”</span>
-        </a>
-        <a class="mode lit" href="?practice">
-          <div class="mode-head"><span class="mode-name">Practice</span><span class="mode-soon">Play →</span></div>
-          <span class="mode-desc">An endless warm-up: random past puzzles back to back with a running
-            tally, and it never touches your daily streak. Pick your ruleset.</span>
-        </a>
-      </div>
-    </section>
-
-    <section class="modes hidden" id="practice">
-      <a class="navback" href="?modes">← Modes</a>
-      <h2 class="modes-title">Practice</h2>
-      <p class="arc-sub">An endless run through random past puzzles, with a running tally of films
-        cleared and total depth. It doesn’t touch your daily streak or stats — and today’s daily is
-        held back so you can’t spoil it. Pick a ruleset to start.</p>
-      <div class="mode-cards">
-        <a class="mode lit" href="?practice&amp;mode=cinephile">
-          <div class="mode-head"><span class="mode-name">Cinephile</span><span class="mode-soon">Start →</span></div>
-          <span class="mode-desc">The full dig — text answers, three lifelines, all the way down to
-            the key grip.</span>
-        </a>
-        <a class="mode lit" href="?practice&amp;mode=poser">
-          <div class="mode-head"><span class="mode-name">Poser</span><span class="mode-soon">Start →</span></div>
-          <span class="mode-desc">All multiple choice, deep cuts trimmed — a gentle warm-up.</span>
-        </a>
-      </div>
     </section>
   </main>
 

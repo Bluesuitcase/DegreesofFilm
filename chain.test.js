@@ -1,5 +1,8 @@
-// Chain-engine tests (node chain.test.js) — graph-mode phase G2 gate suite.
-// Includes the gate's forged-chain shapes: wrong credit, skipped hop, out-of-graph.
+// Chain-engine tests (node chain.test.js) — Degrees played against the shared
+// corpus. Carries the old G2 gate's forged-chain shapes (wrong credit, skipped hop,
+// out-of-graph name) and pins the new verdict contract: only a real-but-illegal hop
+// burns an attempt.
+import { Corpus } from './docs/corpus.js';
 import { Chain, CHAIN_MAX_ATTEMPTS } from './docs/chain.js';
 
 let pass = 0, fail = 0;
@@ -10,79 +13,106 @@ function check(label, got, want) {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${g}, want ${w})`}`);
 }
 
-// Synthetic challenge: Heat -> Pacino -> Godfather II -> De Niro closes into Goal
-// (Casino). Decoys: person 300 (only in Heat, a dead end), film 40 (only via 300).
-const CH = () => new Chain({
-  start: { id: 1, title: 'Heat', year: 1995 },
-  goal: { id: 3, title: 'Casino', year: 1995 },
-  par: 2,
-  films: { 1: ['Heat', 1995], 2: ['The Godfather Part II', 1974], 3: ['Casino', 1995], 4: ['Dead End Movie', 2001] },
-  people: { 100: 'Al Pacino', 200: 'Robert De Niro', 300: 'Val Kilmer', 400: 'Joe Pesci' },
-  edges: [[1, 100], [1, 200], [1, 300], [2, 100], [2, 200], [3, 200], [3, 400], [4, 300]],
+// Heat --De Niro--> Casino --Pesci--> Goodfellas is the par-2 line. Nobody in Heat
+// is credited in Goodfellas, so par really is 2. Godfather II and Dead End Movie are
+// the detours that make dead ends and back() testable.
+const CORPUS = new Corpus({
+  v: 1,
+  ids: [1, 2, 3, 4, 5],
+  films: [['Heat', 1995], ['Casino', 1995], ['Goodfellas', 1990],
+          ['The Godfather Part II', 1974], ['Dead End Movie', 2001]],
+  people: ['Al Pacino', 'Robert De Niro', 'Joe Pesci', 'Val Kilmer', 'Ray Liotta'],
+  cast: ['0,1,2', '1,1', '2,2', '0,1', '3,1'],
 });
+const CH = () => new Chain(CORPUS, { id: 1, start: 1, goal: 3, par: 2 });
 
-// --- the legit chain wins at par ---
+// --- setup ---
 let c = CH();
-check('opening candidates are the start film people', c.candidates().map((x) => x.label),
-      ['Al Pacino', 'Robert De Niro', 'Val Kilmer']);
-check('person step accepted', c.guess('Al Pacino').result, 'correct');
-check('film step accepted (matcher handles the article)', c.guess('godfather part ii').result, 'correct');
-// Matcher contract carried over: single-token surname works, two-token does NOT
-// ("De Niro" fails against 'Robert De Niro' exactly as it would in the dig) —
-// the G0 default-on autocomplete is what makes this a non-issue in play.
-check('two-token surname does not match (documented matcher rule)', c.guess('De Niro').result, 'wrong');
-check('single-token surname closes the chain', c.guess('niro').result, 'won');
+check('start and goal resolve by TMDB id', [c.startLabel, c.goalLabel],
+      ['Heat (1995)', 'Goodfellas (1990)']);
+check('opens expecting a person', c.expecting, 'person');
+
+// --- the par line ---
+check('person step accepted', c.guess('Robert De Niro').result, 'correct');
+check('now expecting a film', c.expecting, 'film');
+check('film step accepted', c.guess('Casino').result, 'correct');
+check('person credited in the goal closes the chain', c.guess('Joe Pesci').result, 'won');
 check('won at 2 degrees = par', [c.degrees, c.par], [2, 2]);
-check('post-win guesses are ignored', c.guess('anything').result, 'ignored');
+check('post-win guesses ignored', c.guess('anything').result, 'ignored');
 
-// --- direct connection wins at 1 degree ---
+// --- a longer route still wins, over par ---
 c = CH();
-check('person also in goal closes immediately', c.guess('Robert De Niro').result, 'won');
-check('direct close = 1 degree (under par)', c.degrees, 1);
+c.guess('Al Pacino'); c.guess('The Godfather Part II'); c.guess('Robert De Niro');
+c.guess('Casino');
+check('detour route closes too', c.guess('Joe Pesci').result, 'won');
+check('three degrees, one over par', [c.degrees, c.par], [3, 2]);
 
-// --- forged chain 1: wrong credit (person not in the current film) ---
+// --- verdict contract: what burns and what does not ---
 c = CH();
-c.guess('Al Pacino'); c.guess('Godfather Part II');
-check('forge: person NOT credited in current film rejected', c.guess('Joe Pesci').result, 'wrong');
+check('unrecognized name is free', c.guess('Zzz Nobody').result, 'unknown');
+check('  ... and burns nothing', c.attempts, 0);
+check('a film typed where a person belongs is free',
+      c.guess('Casino').reason, 'wrongType');
+check('  ... and burns nothing', c.attempts, 0);
+const notHere = c.guess('Joe Pesci');
+check('a real person not in this film is wrong', notHere.result, 'wrong');
+check('  ... with the reason and both labels for the message',
+      [notHere.reason, notHere.label, notHere.film],
+      ['notCredited', 'Joe Pesci', 'Heat (1995)']);
+check('  ... and burns an attempt', c.attempts, 1);
+check('attemptsLeft counts down', c.guess('Ray Liotta').attemptsLeft, CHAIN_MAX_ATTEMPTS - 2);
+check('third burn ends the run', c.guess('Ray Liotta').result, 'over');
+check('run frozen at zero degrees', [c.status, c.degrees], ['over', 0]);
 
-// --- forged chain 2: skipped hop (film the current person is not in) ---
+// --- typo tolerance survives, in context ---
+c = CH();
+check('typo in a legal hop still lands', c.guess('Robert De Nir').result, 'correct');
+c = CH();
+check('surname alone lands a legal hop', c.guess('kilmer').result, 'correct');
+
+// --- the goal film is never a step ---
+c = CH();
+c.guess('Robert De Niro');
+const g = c.guess('Goodfellas');
+check('naming the goal is a rules slip, not a wrong answer',
+      [g.result, g.reason], ['unknown', 'goalFilm']);
+check('  ... and burns nothing', c.attempts, 0);
+
+// --- no revisiting ---
+c = CH();
+c.guess('Robert De Niro'); c.guess('Casino');
+const again = c.guess('Robert De Niro');
+check('a spent person is blocked, with a distinct reason',
+      [again.result, again.reason], ['wrong', 'used']);
+
+// --- forged chains (the old G2 gate shapes) ---
 c = CH();
 c.guess('Al Pacino');
-check('forge: film without the current person rejected', c.guess('Casino').result, 'wrong');
-check('forge: goal film is never enterable as a step', c.guess('Casino').result, 'wrong');
-
-// --- forged chain 3: out-of-graph name ---
+check('forge: film the current person is not in is rejected',
+      c.guess('Dead End Movie').result, 'wrong');
 c = CH();
-check('forge: out-of-graph person rejected', c.guess('Tom Hanks').result, 'wrong');
-check('attempts burn toward strike-out', c.guess('Meryl Streep').result, 'wrong');
-check('third wrong = over', c.guess('Nicolas Cage').result, 'over');
-check('status over, chain frozen', [c.status, c.degrees], ['over', 0]);
+check('forge: out-of-corpus person is not a hop', c.guess('Tom Hanks').result, 'unknown');
 
-// --- no revisits: films and people are single-use ---
-c = CH();
-c.guess('Al Pacino'); c.guess('The Godfather Part II');
-check('used person not offered again', c.candidates().map((x) => x.label), ['Robert De Niro']);
-check('revisiting the start film rejected', c.guess('Heat').result, 'wrong');
-
-// --- dead end + back(): degree spent, person stays blocked ---
+// --- back() out of a dead end ---
 c = CH();
 c.guess('Val Kilmer');
-check('dead-end film list excludes goal/used', c.candidates().map((x) => x.label), ['Dead End Movie']);
-check('back() from a person returns to the film', c.back(), true);
-check('back() does not refund the degree', c.degrees, 1);
-check('dead-end person stays blocked after back()', c.candidates().map((x) => x.label),
-      ['Al Pacino', 'Robert De Niro']);
-check('back() only legal when expecting a film', c.back(), false);
-let done = CH(); done.guess('Robert De Niro');
-check('back() ignored after the game ends', done.back(), false);
+check('dead-end person accepted (Heat -> Kilmer)', c.expecting, 'film');
+check('back() returns to the film', c.back(), true);
+check('  ... expecting a person again', c.expecting, 'person');
+check('  ... the degree is spent, no refund', c.degrees, 1);
+check('  ... and that person stays blocked', c.guess('Val Kilmer').reason, 'used');
+check('back() only from a film step', CH().back(), false);
 
-// --- attempts reset on success ---
+// --- legalMoves is the answer, and is not what the player sees ---
 c = CH();
-c.guess('nobody'); c.guess('nobody2');
-check('two wrong then correct still plays', c.guess('Al Pacino').result, 'correct');
-check('attempts reset after a correct step', c.guess('zzz').result === 'wrong' && c.status === 'playing', true);
+check('legalMoves lists the start cast', [...c.legalMoves()].sort(), [0, 1, 3]);
+check('suggestions are global, not the legal set',
+      CORPUS.suggestPeople('joe').includes(2), true);
 
-check('exported attempt cap matches the dig rhythm', CHAIN_MAX_ATTEMPTS, 3);
+// --- a challenge pointing outside the corpus fails loudly (stale daily after a rebuild) ---
+let threw = '';
+try { new Chain(CORPUS, { id: 9, start: 1, goal: 999, par: 2 }); } catch (e) { threw = e.message; }
+check('unknown challenge film throws', threw.includes('not in this corpus'), true);
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

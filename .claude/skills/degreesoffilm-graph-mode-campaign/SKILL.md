@@ -26,6 +26,22 @@ An executable, decision-gated plan patterned on the server-move campaign (phases
 numeric gates, fenced wrong paths). **Everything below is CANDIDATE as of 2026-07-11.**
 When a phase ships, mark it DONE here with date + evidence, same session.
 
+> ## ⚠️ SUPERSEDED 2026-08-11 — this campaign shipped, and then became the whole product.
+>
+> The owner found the vertical-dig daily unfun, so the site was **rebuilt around this mode** and
+> the dig was retired and deleted. Read `CLAUDE.md` + `project_state.md` — they are current.
+> Everything below is the historical campaign record, and these facts are now stale:
+>
+> - **Per-challenge subgraphs were REPLACED by one shipped corpus** (`docs/graph.json` —
+>   3,637 films / 9,679 people / 42,367 edges, 188 KB gz, cached after first play). G-R4's
+>   150 KB budget was *per challenge*; a daily is now ~50 bytes. The subgraph design had a real
+>   flaw: autocomplete drawn from it handed the player the answer.
+> - **G4 is largely done** (dailies, archive, scorecard, share — 2026-08-11). What's left is
+>   product polish, not campaign phases.
+> - `graph_extract.py`, `people_index.py`, `discover.py` are gone; the pipeline is
+>   `harvest.py` → `graph_build.py` → `challenge_gen.py`.
+> - W-G1 (don't bulk-crawl TMDB beyond the pool floor) and W-G3 (no server needed) still hold.
+
 ## 1. Charter
 
 **The mode:** connect film A to film B through shared credits — *"Heat → Al Pacino →
