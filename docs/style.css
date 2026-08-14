@@ -289,6 +289,8 @@ body{
 .streakline:empty{display:none}
 .obsline{margin:14px 0 0;font-size:13px;color:var(--amber-deep);font-weight:600;letter-spacing:.03em;cursor:help}
 .obsline:empty{display:none}
+.curator-note{margin:14px 0 0;font-size:13.5px;font-style:italic;color:var(--muted);max-width:46ch}
+.curator-note:empty{display:none}
 .countdown{margin:4px 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.06em}
 .countdown:empty{display:none}
 #end-hist{margin-top:18px}
@@ -297,6 +299,29 @@ body{
 #share-text{text-align:left;max-width:420px;width:100%;margin-top:14px}
 .riskline{margin-top:10px}
 .riskline a{color:var(--amber)}
+
+/* --- completion calendar + backup (scorecard) --- */
+.history-cal{display:flex;flex-direction:column;gap:18px;margin:22px 0}
+.cal-month h3{margin:0 0 8px;font-size:12px;font-weight:600;text-transform:uppercase;
+              letter-spacing:.16em;color:var(--muted)}
+.calgrid{display:grid;grid-template-columns:repeat(7,34px);gap:5px}
+.cal{width:34px;height:34px;display:flex;align-items:center;justify-content:center;
+     font-size:11px;border-radius:6px;border:1px solid var(--line);color:var(--muted);
+     text-decoration:none;font-variant-numeric:tabular-nums}
+.cal.void{border:none}
+.cal.future{border-style:dotted;opacity:.38}
+.cal.empty:hover{border-color:var(--muted);color:var(--bone)}
+.cal.gold{background:var(--amber);border-color:var(--amber);color:var(--on-accent);font-weight:700}
+.cal.silver{background:var(--bone);border-color:var(--bone);color:#1a1206;font-weight:700}
+.cal.loss{border-color:var(--red);color:var(--red);font-weight:700}
+.cal.replay{border-color:var(--amber-deep);color:var(--amber-deep);border-style:dashed}
+.backup{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 16px}
+.bk-area{display:flex;flex-direction:column;gap:8px;margin:0 0 18px}
+.bk-area[hidden]{display:none}
+#bk-text{background:var(--ink2);border:1px solid var(--line);border-radius:6px;color:var(--bone);
+         font-family:var(--mono);font-size:12px;padding:10px 12px;resize:vertical;word-break:break-all}
+#bk-text:focus{outline:none;border-color:var(--amber)}
+.bk-row{display:flex;gap:10px}
 
 @media (max-width:600px){
   .topbar{padding:14px 16px;align-items:center}

@@ -1,6 +1,8 @@
 // Stats/streak tests (node stats.test.js). recordResult is pure — no localStorage.
 import { defaultStats, recordResult, relativeLabel,
-         recomputeStreak, streakState, verdictName } from './docs/stats.js';
+         recomputeStreak, streakState, verdictName,
+         recordArchive, handicap, rebuildStats,
+         exportRecord, importRecord } from './docs/stats.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
@@ -80,6 +82,61 @@ check('played today reads safe', streakState(r, '2026-08-11'), 'safe');
 check('played yesterday reads at-risk', streakState(r, '2026-08-12'), 'at-risk');
 check('a dead streak reads none', streakState(r, '2026-08-13'), 'none');
 check('no history reads none', streakState(defaultStats(), '2026-08-11'), 'none');
+
+// --- the archive channel: replays fill cells, never the scorecard ---
+let a = recordArchive(defaultStats(), { id: 3, degrees: 4, par: 3, won: true });
+check('replay lands in the archive map', a.archive[3], { degrees: 4, par: 3, won: true });
+check('  ... and touches nothing else',
+      [a.played, a.wins, a.currentStreak, a.lastDate], [0, 0, 0, null]);
+a = recordArchive(a, { id: 3, degrees: 3, par: 3, won: true });
+check('a better replay takes the cell', a.archive[3].degrees, 3);
+a = recordArchive(a, { id: 3, degrees: 5, par: 3, won: true });
+check('a worse replay is ignored', a.archive[3].degrees, 3);
+a = recordArchive(a, { id: 9, degrees: 1, par: 2, won: false });
+check('a loss records', a.archive[9].won, false);
+a = recordArchive(a, { id: 9, degrees: 4, par: 2, won: true });
+check('any win beats any loss', a.archive[9], { degrees: 4, par: 2, won: true });
+
+// --- handicap: the golfer's number, hidden until it means something ---
+let h = defaultStats();
+for (let i = 1; i <= 9; i++) h = recordResult(h, win(`2026-09-${String(i).padStart(2, '0')}`, 3, 2, i));
+check('nine rounds is not yet a handicap', handicap(h), null);
+check('  ... unless the minimum is tuned down (9 bogeys average +1)', handicap(h, 5), 1);
+h = recordResult(h, { date: '2026-09-10', id: 10, degrees: 1, par: 3, won: false });
+check('ten rounds: 9 bogeys + 1 loss (+3) averages +1.2', handicap(h), 1.2);
+check('an empty record never grades', handicap(defaultStats(), 0), null);
+
+// --- rebuildStats: derived fields from history alone ---
+const hist = {
+  '2026-08-11': { id: 1, degrees: 2, par: 2, won: true },
+  '2026-08-12': { id: 2, degrees: 5, par: 3, won: true },
+  '2026-08-14': { id: 4, degrees: 1, par: 3, won: false },
+};
+const rb = rebuildStats(hist);
+check('rebuild counts plays and wins', [rb.played, rb.wins], [3, 2]);
+check('rebuild finds the streak runs (max 2, current 1)',
+      [rb.maxStreak, rb.currentStreak], [2, 1]);
+check('rebuild recomputes best and lastDate', [rb.best, rb.lastDate], [0, '2026-08-14']);
+check('rebuild rebuilds the histogram', rb.histogram, { E: 1, '+2': 1, x: 1 });
+
+// --- backup codes: export -> import round-trips and merges honestly ---
+const code = exportRecord(rb);
+check('codes carry the version prefix', code.startsWith('DOF1.'), true);
+check('import into empty stats restores everything',
+      JSON.stringify(importRecord(defaultStats(), code).history), JSON.stringify(hist));
+const other = recordResult(defaultStats(), win('2026-08-13', 3, 3, 3));
+const merged = importRecord(other, code);
+check('merge unions both devices', merged.played, 4);
+check('merge RECOMPUTES the streak across the union (13 bridges 12 -> 14: a 4-run neither device had)',
+      [merged.maxStreak, merged.currentStreak], [4, 4]);
+const clash = recordResult(defaultStats(), { date: '2026-08-12', id: 2, degrees: 3, par: 3, won: true });
+check('conflicting dates keep the better run', importRecord(clash, code).history['2026-08-12'].degrees, 3);
+check('garbage is rejected, not merged', importRecord(rb, 'DOF1.@@@not-base64@@@'), null);
+check('a foreign prefix is rejected', importRecord(rb, 'WORDLE.abc'), null);
+check('non-Latin titles survive the encoding',
+      importRecord(defaultStats(),
+        exportRecord(rebuildStats({ '2026-08-11': { id: 1, degrees: 2, par: 2, won: true, note: '寄生虫' } })))
+        .history['2026-08-11'].note, '寄生虫');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

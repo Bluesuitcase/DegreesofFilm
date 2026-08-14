@@ -51,6 +51,18 @@ check("depth cap refuses a longer answer", cg.bfs_path(ADJ, 0, 2, max_degrees=1)
 # --- fairness proxy: how many distinct people can close the chain ---
 check("both par-2 closers found", cg.count_routes(ADJ, 0, 2, 2), 2)
 check("one-degree pair counts its shared credits", cg.count_routes(ADJ, 0, 1, 1), 1)
+check("par_closers names them (Pesci + Liotta close Heat -> Goodfellas)",
+      sorted(cg.par_closers(ADJ, 0, 2, 2)), [2, 4])
+
+# --- curator's notes must never identify a connector ---
+NEVER = ["Joe Pesci", "Ray Liotta", "Casino"]
+check("a clean texture note passes",
+      cg.note_violations("The long way round — four people of daylight.", NEVER), [])
+check("naming a closer is flagged",
+      cg.note_violations("Today's route runs through Joe Pesci.", NEVER), ["Joe Pesci"])
+check("naming a geodesic film is flagged, case-insensitively",
+      cg.note_violations("think CASINO floors", NEVER), ["Casino"])
+check("empty never-list never flags", cg.note_violations("anything at all", []), [])
 
 # --- franchise filter ---
 check("sequel pair rejected",

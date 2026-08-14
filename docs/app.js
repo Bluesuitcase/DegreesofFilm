@@ -17,8 +17,8 @@
 import { Corpus } from './corpus.js';
 import { Chain, CHAIN_MAX_ATTEMPTS } from './chain.js';
 import { pickPuzzle, pickById, todayISO } from './daily.js';
-import { loadStats, saveStats, recordResult, relativeLabel, streakState,
-         verdictName } from './stats.js';
+import { loadStats, saveStats, recordResult, recordArchive, relativeLabel,
+         streakState, verdictName, handicap, exportRecord, importRecord } from './stats.js';
 import { shortestChain, countGeodesics, obscurity } from './solve.js';
 
 const $ = (id) => document.getElementById(id);
@@ -399,11 +399,15 @@ function renderEnd() {
     start: game.startLabel, goal: game.goalLabel,
     steps: game.chain.map((s) => ({ t: s.type, label: s.label })),
     trail: [...trail],
+    playedOn: todayISO(),
     // graded at creation (labels can't be re-resolved after a corpus rebuild)
     obscurity: won ? obscurity(corpus,
       game.chain.filter((s) => s.type === 'person').map((s) => s.index)) : null,
   };
-  if (!isReplay) {
+  if (isReplay) {
+    // Replays fill their own reward channel (calendar cells) — never the streak.
+    saveStats(recordArchive(loadStats(), record));
+  } else {
     saveStats(recordResult(loadStats(), record));
     writeJSON(RUN_KEY, record);
     clearLive();
@@ -438,6 +442,7 @@ function renderEndCard(rec, opts = {}) {
     <p class="endline">${line}</p>
     <div class="endchain" id="end-mine"></div>
     <div class="revealbox" id="end-reveal"></div>
+    <p class="curator-note" id="end-note"></p>
     <p class="obsline" id="end-obs"></p>
     <div class="hist" id="end-hist"></div>
     <p class="streakline" id="end-streak"></p>
@@ -452,6 +457,9 @@ function renderEndCard(rec, opts = {}) {
 
   renderMyChain(rec);
   renderReveal(rec);
+  // The curator's voice — one authored sentence, revealed only after the run.
+  // Texture only, never a connector (challenge_gen --check enforces it).
+  if (entry && entry.note) $('end-note').textContent = entry.note;
   renderObscurity(rec);
   if (rec.won && rec.degrees < rec.par && !opts.restored) celebrate();
   renderHistogram(rec, opts.replay ? null : stats);
@@ -677,11 +685,12 @@ async function renderArchive() {
     </a>`).join('') : '<p class="arc-sub">Nothing in the archive yet.</p>';
 }
 
-function renderHistory() {
+async function renderHistory() {
   show('history');
   const today = todayISO();
   const s = loadStats(today);
   const risk = streakState(s, today) === 'at-risk';
+  const hcp = handicap(s);
   const rows = Object.entries(s.history).sort((a, b) => (a[0] < b[0] ? 1 : -1));
   $('history-summary').innerHTML = `
     <div class="statgrid">
@@ -690,8 +699,16 @@ function renderHistory() {
       <div><b>${s.currentStreak}</b><span>streak${risk ? ' ⚠' : ''}</span></div>
       <div><b>${s.maxStreak}</b><span>best streak</span></div>
       <div><b>${s.best === null ? '—' : relativeLabel(s.best, 0)}</b><span>best score</span></div>
+      <div data-tip="${hcp === null
+        ? 'Your rolling average vs par — appears after 10 recorded dailies.'
+        : 'Rolling average vs par across every daily. A broken chain counts +3.'}">
+        <b>${hcp === null ? '—' : hcp === 0 ? 'E' : hcp > 0 ? `+${hcp}` : `−${Math.abs(hcp)}`}</b>
+        <span>handicap</span></div>
     </div>
     ${risk ? `<p class="arc-sub riskline">Your ${s.currentStreak}-day streak ends at midnight — <a href="?play">play today's connection</a>.</p>` : ''}`;
+
+  renderCalendar(s, today);
+
   $('history-list').innerHTML = rows.length ? rows.map(([date, r]) => `
     <a class="arc-row" href="?id=${r.id}">
       <span class="arc-date">${date}</span>
@@ -699,6 +716,112 @@ function renderHistory() {
       <span class="arc-par">par ${r.par}${r.won ? ` · ${relativeLabel(r.degrees, r.par)}` : ''}</span>
     </a>`).join('')
     : '<p class="arc-sub">No dailies played on this device yet.</p>';
+
+  wireBackup();
+}
+
+// The completion calendar: every daily is a cell — gold when solved at-or-under
+// par on its own day, silver when solved late or over, a red mark for a broken
+// chain, an outline when a replay filled it in. Empty cells are the itch.
+async function renderCalendar(s, today) {
+  const box = $('history-cal');
+  box.innerHTML = '';
+  try { daily = await loadDailies(); } catch { return; }
+  if (!daily.length) return;
+  const byMonth = new Map();
+  for (const e of daily) {
+    const m = e.date.slice(0, 7);
+    if (!byMonth.has(m)) byMonth.set(m, []);
+    byMonth.get(m).push(e);
+  }
+  const months = [...byMonth.keys()].sort().reverse();
+  const NAMES = ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+                 'August', 'September', 'October', 'November', 'December'];
+  for (const m of months) {
+    const [y, mo] = m.split('-').map(Number);
+    const wrap = document.createElement('div');
+    wrap.className = 'cal-month';
+    wrap.innerHTML = `<h3>${NAMES[mo - 1]} ${y}</h3>`;
+    const grid = document.createElement('div');
+    grid.className = 'calgrid';
+    const entries = new Map(byMonth.get(m).map((e) => [e.date, e]));
+    const daysIn = new Date(y, mo, 0).getDate();
+    const offset = (new Date(y, mo - 1, 1).getDay() + 6) % 7;   // Monday-first
+    for (let i = 0; i < offset; i++) {
+      grid.appendChild(Object.assign(document.createElement('span'), { className: 'cal void' }));
+    }
+    for (let d = 1; d <= daysIn; d++) {
+      const date = `${m}-${String(d).padStart(2, '0')}`;
+      const e = entries.get(date);
+      if (!e) {
+        grid.appendChild(Object.assign(document.createElement('span'),
+          { className: 'cal void', textContent: '' }));
+        continue;
+      }
+      const cell = document.createElement(e.date <= today ? 'a' : 'span');
+      cell.textContent = d;
+      let cls = 'cal';
+      let tip = `#${e.id} · par ${e.par}`;
+      const r = s.history[date];
+      const replay = (s.archive || {})[e.id];
+      if (date > today) {
+        cls += ' future';
+      } else if (r) {
+        const dayOf = !r.playedOn || r.playedOn === date;
+        if (r.won && r.degrees <= r.par && dayOf) cls += ' gold';
+        else if (r.won) cls += ' silver';
+        else cls += ' loss';
+        tip += r.won ? ` · ${r.degrees}° (${relativeLabel(r.degrees, r.par)})` : ' · chain broken';
+      } else if (replay) {
+        cls += ' replay';
+        tip += replay.won ? ` · replayed: ${replay.degrees}° (${relativeLabel(replay.degrees, replay.par)})`
+                          : ' · replayed: broken';
+      } else {
+        cls += ' empty';
+        tip += ' · unplayed';
+      }
+      cell.className = cls;
+      if (e.date <= today) { cell.href = `?id=${e.id}`; cell.setAttribute('data-tip', tip); }
+      grid.appendChild(cell);
+    }
+    wrap.appendChild(grid);
+    box.appendChild(wrap);
+  }
+}
+
+// Backup codes: the record serialized into copyable text — the insurance that
+// makes a streak worth investing in. Import merges (keep-better) and recomputes.
+function wireBackup() {
+  const area = $('bk-area'), text = $('bk-text'), note = $('bk-note');
+  const copy = $('bk-copy'), apply = $('bk-apply');
+  $('bk-export').onclick = () => {
+    area.hidden = false;
+    apply.hidden = true;
+    copy.hidden = false;
+    text.value = exportRecord(loadStats());
+    text.readOnly = true;
+    note.textContent = 'Keep this code somewhere safe — paste it on another device to restore.';
+  };
+  $('bk-import').onclick = () => {
+    area.hidden = false;
+    copy.hidden = true;
+    apply.hidden = false;
+    text.value = '';
+    text.readOnly = false;
+    text.placeholder = 'Paste a DOF1. code…';
+    note.textContent = '';
+    text.focus();
+  };
+  copy.onclick = async () => {
+    try { await navigator.clipboard.writeText(text.value); note.textContent = 'Copied.'; }
+    catch { note.textContent = 'Copy failed — select the text and copy it yourself.'; }
+  };
+  apply.onclick = () => {
+    const merged = importRecord(loadStats(), text.value.trim());
+    if (!merged) { note.textContent = "That code didn't parse — check you pasted the whole thing."; return; }
+    saveStats(merged);
+    renderHistory();
+  };
 }
 
 function escapeHtml(s) {
