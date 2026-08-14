@@ -162,7 +162,7 @@ silently, so it is frozen as of 2026-08-14. `shareText()` in `docs/app.js` imple
 line 1 (win):   Degrees of Film #<id> — <degrees>° (par <par>, <E|+n|−n>)
 line 1 (loss):  Degrees of Film #<id> — X (par <par>)
 line 2:         <start title (year)> → <goal title (year)>
-line 3 (win):   <glyph trail>[ · streak <n>]        n >= 2, daily runs only
+line 3 (win):   <glyph trail>[ · obscurity <n>][ · streak <n>]   streak n >= 2, daily runs only
 line 3 (loss):  💔 <glyph trail>
 line 4:         the site URL
 ```

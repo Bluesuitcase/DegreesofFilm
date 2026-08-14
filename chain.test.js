@@ -15,14 +15,18 @@ function check(label, got, want) {
 
 // Heat --De Niro--> Casino --Pesci--> Goodfellas is the par-2 line. Nobody in Heat
 // is credited in Goodfellas, so par really is 2. Godfather II and Dead End Movie are
-// the detours that make dead ends and back() testable.
+// the detours that make dead ends and back() testable. Outer Reach hangs one hop
+// further out (Far Guy is 2 from Heat's cast) and the Isle pair is disconnected
+// entirely — the near-miss temperature ladder.
 const CORPUS = new Corpus({
   v: 1,
-  ids: [1, 2, 3, 4, 5],
+  ids: [1, 2, 3, 4, 5, 6, 7],
   films: [['Heat', 1995], ['Casino', 1995], ['Goodfellas', 1990],
-          ['The Godfather Part II', 1974], ['Dead End Movie', 2001]],
-  people: ['Al Pacino', 'Robert De Niro', 'Joe Pesci', 'Val Kilmer', 'Ray Liotta'],
-  cast: ['0,1,2', '1,1', '2,2', '0,1', '3,1'],
+          ['The Godfather Part II', 1974], ['Dead End Movie', 2001],
+          ['Outer Reach', 2010], ['Isle Story', 2015]],
+  people: ['Al Pacino', 'Robert De Niro', 'Joe Pesci', 'Val Kilmer', 'Ray Liotta',
+           'Far Guy', 'Isle One', 'Isle Two'],
+  cast: ['0,1,2', '1,1', '2,2', '0,1', '3,1', '2,3', '6,1'],
 });
 const CH = () => new Chain(CORPUS, { id: 1, start: 1, goal: 3, par: 2 });
 
@@ -113,6 +117,25 @@ check('suggestions are global, not the legal set',
 let threw = '';
 try { new Chain(CORPUS, { id: 9, start: 1, goal: 999, par: 2 }); } catch (e) { threw = e.message; }
 check('unknown challenge film throws', threw.includes('not in this corpus'), true);
+
+// --- near-miss temperature on burns (measured 2026-08-14: d=1 27% / d=2 60% /
+// --- d=3+ 15% over the real corpus — every bucket is signal) ---
+c = CH();
+let miss = c.guess('Joe Pesci');
+check('a warm miss carries d=1 and a witness year, never a name',
+      miss.near, { d: 1, year: 1995 });
+miss = c.guess('Far Guy');
+check('two hops out reads d=2, no witness', miss.near, { d: 2 });
+miss = c.guess('Isle One');
+check('a disconnected guess reads cold (d=3)', miss.near, { d: 3 });
+c = CH();
+c.guess('Robert De Niro'); c.guess('Casino');
+check('a spent person burns WITHOUT near-miss info (already known-connected)',
+      'near' in c.guess('Robert De Niro'), false);
+c = CH();
+c.guess('Al Pacino');
+check('film-step burns get temperature too (person -> guessed film)',
+      c.guess('Dead End Movie').near, { d: 1, year: 1995 });
 
 // --- mid-run persistence: toJSON/fromJSON round-trips portably ---
 const CHALLENGE = { id: 1, start: 1, goal: 3, par: 2 };

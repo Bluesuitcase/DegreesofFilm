@@ -58,6 +58,40 @@ export function degreesBetween(corpus, start, goal, maxDegrees = 6) {
   return steps.length === 0 ? 0 : (steps.length + 1) / 2;
 }
 
+// The route's deep-cut factor, 0–99: how obscure were the people you hopped
+// through, relative to the whole pool? Fame proxy = pool credit count (the only
+// signal the shipped graph carries; the pool prunes single-credit people, so the
+// floor is 2). Score per person = geometric blend of a midpoint-rank percentile
+// (population-honest, but the bottom-heavy pile compresses it) and a log-scale
+// position (spreads the obscure end, but flatters mid-fame) — each corrects the
+// other's failure mode. Calibrated on the real corpus 2026-08-14: hub people 0,
+// fame-10 ≈ 20, fame-4 ≈ 49, the floor ≈ 88. Returns null for an empty route.
+export function obscurity(corpus, people) {
+  if (!people || !people.length) return null;
+  const fame = corpus.people.map((_, i) => corpus.filmsOf(i).length);
+  const sorted = [...fame].sort((a, b) => a - b);
+  const vmax = sorted[sorted.length - 1];
+  const logDen = vmax > 2 ? Math.log(vmax - 1) : 1;
+  const below = (v) => {   // index of first element >= v
+    let lo = 0, hi = sorted.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; sorted[m] < v ? lo = m + 1 : hi = m; }
+    return lo;
+  };
+  const above = (v) => {   // index of first element > v
+    let lo = 0, hi = sorted.length;
+    while (lo < hi) { const m = (lo + hi) >> 1; sorted[m] <= v ? lo = m + 1 : hi = m; }
+    return lo;
+  };
+  let sum = 0;
+  for (const p of people) {
+    const v = fame[p];
+    const pct = (below(v) + 0.5 * (above(v) - below(v))) / sorted.length;
+    const logPos = vmax > 2 ? 1 - Math.log(v - 1) / logDen : 1;
+    sum += Math.sqrt(Math.max(0, (1 - pct) * logPos));
+  }
+  return Math.round((sum / people.length) * 99);
+}
+
 // How many DISTINCT shortest chains exist at exactly `par` degrees — full
 // (person, film, person, …) sequences, not just closing people. Path-DP over the
 // layered BFS DAG: count paths into each film at its minimal depth, then multiply

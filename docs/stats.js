@@ -29,6 +29,15 @@ export function relativeLabel(degrees, par) {
   return d > 0 ? `+${d}` : `−${Math.abs(d)}`;
 }
 
+// The golf verdict as a NAME — vocabulary players carry into group chats
+// ("birdied it through the composer"). Null past double bogey; the signed label
+// does the talking out there.
+export function verdictName(degrees, par) {
+  const d = degrees - par;
+  if (d <= -3) return 'Albatross';
+  return { '-2': 'Eagle', '-1': 'Birdie', 0: 'Par', 1: 'Bogey', 2: 'Double bogey' }[d] || null;
+}
+
 // Settle the streak against today BEFORE displaying it. recordResult only touches
 // the streak when a result lands, so after missed days the stored number is stale
 // until this runs — the honest-accounting fix. Pure; returns a new object only

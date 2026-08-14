@@ -1,6 +1,6 @@
 // Stats/streak tests (node stats.test.js). recordResult is pure — no localStorage.
 import { defaultStats, recordResult, relativeLabel,
-         recomputeStreak, streakState } from './docs/stats.js';
+         recomputeStreak, streakState, verdictName } from './docs/stats.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
@@ -65,6 +65,15 @@ check('  ... without touching the original object', r.currentStreak, 1);
 check('  ... and maxStreak is untouched', recomputeStreak(r, '2026-08-13').maxStreak, 1);
 check('recompute is a no-op when nothing changes', recomputeStreak(r, '2026-08-12') === r, true);
 check('fresh stats recompute safely', recomputeStreak(defaultStats(), '2026-08-11').currentStreak, 0);
+
+// --- named golf verdicts ---
+check('even is Par', verdictName(2, 2), 'Par');
+check('one under is Birdie', verdictName(2, 3), 'Birdie');
+check('two under is Eagle', verdictName(1, 3), 'Eagle');
+check('three under is Albatross', verdictName(1, 4), 'Albatross');
+check('one over is Bogey', verdictName(3, 2), 'Bogey');
+check('two over is Double bogey', verdictName(4, 2), 'Double bogey');
+check('past double bogey the number speaks', verdictName(6, 2), null);
 
 // --- streakState drives the at-risk nudge ---
 check('played today reads safe', streakState(r, '2026-08-11'), 'safe');

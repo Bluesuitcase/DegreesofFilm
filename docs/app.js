@@ -17,8 +17,9 @@
 import { Corpus } from './corpus.js';
 import { Chain, CHAIN_MAX_ATTEMPTS } from './chain.js';
 import { pickPuzzle, pickById, todayISO } from './daily.js';
-import { loadStats, saveStats, recordResult, relativeLabel, streakState } from './stats.js';
-import { shortestChain, countGeodesics } from './solve.js';
+import { loadStats, saveStats, recordResult, relativeLabel, streakState,
+         verdictName } from './stats.js';
+import { shortestChain, countGeodesics, obscurity } from './solve.js';
 
 const $ = (id) => document.getElementById(id);
 const SITE = 'https://bluesuitcase.github.io/DegreesofFilm/';
@@ -33,6 +34,12 @@ let isReplay = false;
 let sel = -1;            // highlighted suggestion
 let trail = [];          // this run's glyph story: 🔗 hop · 🟥 burn · ↩ back
 let ticker = null;       // countdown interval
+let lastChain = -1;      // chain length at the previous render (animates the new pill)
+let burnFlash = false;   // this render should crack the freshly spent attempt dot
+
+// Sequencing that hides content before animating it is gated on this — with
+// motion reduced, everything simply appears.
+const MOTION_OK = !matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 // --- boot / routing -------------------------------------------------------
 
@@ -179,12 +186,19 @@ function render() {
   $('degrees').textContent = game.degrees;
   $('par').textContent = game.par;
 
+  // The row is rebuilt, but only the pill that just landed gets the entrance
+  // animation — visually append-only without the insert-before-tail bookkeeping.
+  const grew = lastChain >= 0 && game.chain.length > lastChain;
+  lastChain = game.chain.length;
+
   const row = $('chain');
   row.innerHTML = '';
   row.appendChild(pill(game.startLabel, 'film'));
-  game.chain.forEach((step) => {
+  game.chain.forEach((step, i) => {
     row.appendChild(arrow());
-    row.appendChild(pill(step.label, step.type === 'film' ? 'film' : 'person'));
+    const cls = step.type === 'film' ? 'film' : 'person';
+    row.appendChild(pill(step.label,
+      grew && i === game.chain.length - 1 ? `${cls} new` : cls));
   });
   if (game.status === 'playing') {
     row.appendChild(arrow());
@@ -203,11 +217,22 @@ function render() {
   dots.innerHTML = '';
   for (let i = 0; i < CHAIN_MAX_ATTEMPTS; i++) {
     const d = document.createElement('span');
-    d.className = `dot${i < game.attempts ? ' spent' : ''}`;
+    const cracking = burnFlash && i === game.attempts - 1;
+    d.className = `dot${i < game.attempts ? ' spent' : ''}${cracking ? ' crack' : ''}`;
     dots.appendChild(d);
   }
+  burnFlash = false;
   hideSuggest();
   if (game.status !== 'playing') renderEnd();
+}
+
+// The felt cost hierarchy: every rejection shakes; only a real burn cracks a dot.
+function shakeRow() {
+  const row = document.querySelector('.guessrow');
+  if (!row) return;
+  row.classList.remove('shake');
+  void row.offsetWidth;            // restart the animation
+  row.classList.add('shake');
 }
 
 function lastLabel() {
@@ -244,7 +269,13 @@ function submit() {
   if (!text) return;
   const verdict = game.guess(text);
   $('guess').value = '';
-  if (verdict.result === 'wrong' || verdict.result === 'over') trail.push('🟥');
+  if (verdict.result === 'wrong' || verdict.result === 'over') {
+    trail.push('🟥');
+    burnFlash = true;
+    shakeRow();
+  } else if (verdict.result === 'unknown') {
+    shakeRow();
+  }
   if (verdict.result === 'won' || (verdict.result === 'correct' && verdict.step === 'person')) {
     trail.push('🔗');
   }
@@ -268,9 +299,9 @@ function speak(v) {
       if (v.reason === 'used') {
         return flash(`You've already used ${v.label}.`, 'bad');
       }
-      return flash(v.film
+      return flash((v.film
         ? `${v.label} isn't credited on ${v.film}.`
-        : `${v.person} didn't work on ${v.label}.`, 'bad');
+        : `${v.person} didn't work on ${v.label}.`) + nearNote(v), 'bad');
     case 'unknown':
       if (v.reason === 'goalFilm') {
         return flash(`That's the target — close the chain by naming someone who worked on it.`,
@@ -287,6 +318,16 @@ function speak(v) {
     default:
       return null;
   }
+}
+
+// The burn's temperature (chain.js nearMiss): a wrong answer becomes a deduction
+// clue instead of a dead penalty. Measured on the real corpus so each bucket is
+// genuinely informative — warm misses are ~1 in 4, not a constant.
+function nearNote(v) {
+  if (!v.near) return '';
+  if (v.near.d === 1) return ` Close, though — one degree away (a shared ${v.near.year} film).`;
+  if (v.near.d === 2) return ' Two degrees off.';
+  return ' Stone cold — no near tie.';
 }
 
 function flash(msg, kind) {
@@ -350,13 +391,17 @@ function onKey(e) {
 // --- end of a live run ----------------------------------------------------
 
 function renderEnd() {
+  const won = game.status === 'won';
   const record = {
     date: entry.date, id: entry.id,
-    won: game.status === 'won',
+    won,
     degrees: game.degrees, par: game.par,
     start: game.startLabel, goal: game.goalLabel,
     steps: game.chain.map((s) => ({ t: s.type, label: s.label })),
     trail: [...trail],
+    // graded at creation (labels can't be re-resolved after a corpus rebuild)
+    obscurity: won ? obscurity(corpus,
+      game.chain.filter((s) => s.type === 'person').map((s) => s.index)) : null,
   };
   if (!isReplay) {
     saveStats(recordResult(loadStats(), record));
@@ -374,9 +419,11 @@ function renderEnd() {
 function renderEndCard(rec, opts = {}) {
   const stats = loadStats(todayISO());
   const rel = relativeLabel(rec.degrees, rec.par);
+  const name = verdictName(rec.degrees, rec.par);
   const line = rec.won
-    ? (rec.degrees < rec.par ? `Under par. You found a link the shortest path missed.`
+    ? (rec.degrees < rec.par ? `${name}! You found a link the shortest path missed.`
       : rec.degrees === rec.par ? `Par. That's the tightest chain there is.`
+      : name ? `${name} — the shortest route was ${rec.par} degrees.`
       : `${rel} over par — the shortest route was ${rec.par} degrees.`)
     : `Three wrong links on one step ended the run.`;
 
@@ -391,6 +438,7 @@ function renderEndCard(rec, opts = {}) {
     <p class="endline">${line}</p>
     <div class="endchain" id="end-mine"></div>
     <div class="revealbox" id="end-reveal"></div>
+    <p class="obsline" id="end-obs"></p>
     <div class="hist" id="end-hist"></div>
     <p class="streakline" id="end-streak"></p>
     <p class="countdown" id="end-count"></p>
@@ -404,6 +452,8 @@ function renderEndCard(rec, opts = {}) {
 
   renderMyChain(rec);
   renderReveal(rec);
+  renderObscurity(rec);
+  if (rec.won && rec.degrees < rec.par && !opts.restored) celebrate();
   renderHistogram(rec, opts.replay ? null : stats);
   renderStreak(stats, opts.replay);
   renderCountdown(opts.replay);
@@ -416,7 +466,8 @@ function renderEndCard(rec, opts = {}) {
 }
 
 // The chain you actually built — the run's content, kept on screen to admire,
-// screenshot, or compare. On a loss it ends at the open step.
+// screenshot, or compare. On a loss it ends at the open step. A win re-traces
+// itself pill by pill (motion permitting) — the 1.5-second victory lap.
 function renderMyChain(rec) {
   const row = $('end-mine');
   row.appendChild(pill(rec.start, 'film'));
@@ -427,6 +478,30 @@ function renderMyChain(rec) {
   if (!rec.won) { row.appendChild(arrow()); row.appendChild(pill('?', 'current')); }
   row.appendChild(arrow());
   row.appendChild(pill(rec.goal, 'film goal'));
+  if (rec.won && MOTION_OK) {
+    [...row.children].forEach((el, i) => {
+      el.classList.add('trace');
+      el.style.animationDelay = `${i * 90}ms`;
+    });
+  }
+}
+
+// Celebration scaled to the result: under par earns a theme-toned burst; at par,
+// the clean re-trace is the reward; over par stays quiet. Fresh finishes only —
+// revisiting your result shouldn't re-fire the party.
+function celebrate() {
+  if (!MOTION_OK) return;
+  const colors = ['#eba53c', '#caa64f', '#ece7dd'];
+  for (let i = 0; i < 36; i++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    c.style.left = `${Math.random() * 100}vw`;
+    c.style.background = colors[i % colors.length];
+    c.style.animationDuration = `${0.9 + Math.random() * 0.8}s`;
+    c.style.animationDelay = `${Math.random() * 0.35}s`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 2400);
+  }
 }
 
 // The payoff: one shortest route, revealed only now that the run is over. On a
@@ -474,6 +549,20 @@ function renderReveal(rec) {
 
 function labelOf(step) {
   return step.type === 'film' ? corpus.filmLabel(step.index) : corpus.personName(step.index);
+}
+
+// The deep-cut grade — the second brag axis, unbounded where par is capped.
+// One small number a casual player can ignore completely.
+function renderObscurity(rec) {
+  if (!rec.won || rec.obscurity === null || rec.obscurity === undefined) return;
+  const el = $('end-obs');
+  const read = rec.obscurity >= 70 ? 'a connoisseur’s route'
+    : rec.obscurity >= 40 ? 'off the beaten path'
+    : rec.obscurity >= 15 ? 'a well-trodden route'
+    : 'straight through the stars';
+  el.textContent = `Obscurity ${rec.obscurity} — ${read}`;
+  el.setAttribute('data-tip',
+    '0–99: how obscure your route’s people are, versus the whole pool. Higher = deeper cut.');
 }
 
 // Your golf distribution, today's bucket lit — the daily self-comparison hit.
@@ -549,9 +638,11 @@ function shareText(rec, stats) {
   const glyphs = rec.trail.length > 14
     ? `🔗×${rec.trail.filter((g) => g === '🔗').length} 🟥×${rec.trail.filter((g) => g === '🟥').length}`
     : rec.trail.join('');
+  const obs = rec.won && rec.obscurity !== null && rec.obscurity !== undefined
+    ? ` · obscurity ${rec.obscurity}` : '';
   const streak = !isReplay && rec.won && stats.currentStreak >= 2
     ? ` · streak ${stats.currentStreak}` : '';
-  const line3 = rec.won ? `${glyphs}${streak}` : `💔 ${glyphs}`;
+  const line3 = rec.won ? `${glyphs}${obs}${streak}` : `💔 ${glyphs}`;
   return [
     line1,
     `${rec.start} → ${rec.goal}`,
