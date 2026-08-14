@@ -20,6 +20,22 @@ then merge once (recommended), or merge PR #29 now and fast-follow.** Owner paus
 deciding. Everything below remains the accurate rebuild handoff; where the old 'Next up' list
 disagrees with the Comeback Loop plan, the plan wins._
 
+### ⭐ WAVE 2 BUILT TOO — same evening (commit `a1c4c12`)
+
+All three Wave 2 items shipped on this branch: **(1) near-miss feedback** — burned guesses
+return graph temperature via `chain.js nearMiss` ("one degree away (a shared 2010 film)" /
+"two degrees off" / "stone cold"); the small-world worry was measured and FALSIFIED first
+(6,800 samples: d=1 27%, d=2 60%, d=3+ 15% — the experiment script is in the session
+scratchpad, prediction written before running); **(2) the juice pass** — first @keyframes
+ever (pill entrances, shake-vs-dot-crack two-tier errors, hero pop, staggered win re-trace,
+theme-toned under-par confetti on fresh finishes), all inert under prefers-reduced-motion,
+plus named golf verdicts (`stats.js verdictName`: Albatross→Double bogey) on the endline;
+**(3) the obscurity score** — `solve.js obscurity()` 0–99 (percentile×log geometric blend,
+calibrated: hubs 0, floor 88, textbook routes median 19), on the end card with tooltip and
+in share line 3 (grammar doc updated, line 1 untouched). **Suites now 241 assertions, all
+green** (chain 51, stats 40, solve 20). Browser-verified on a replay end-to-end. Wave 3
+remains: calendar+handicap, curator's note, backup codes, evidence-gated soft-fail caddy.
+
 ### ⭐ WAVE 1 BUILT — 2026-08-14 evening, same session as the plan
 
 **All four Wave 1 items are implemented, tested, and committed on this branch** (two
