@@ -152,6 +152,27 @@ stay DOM-free so the Node tests import them directly.
     rank when the lower-ranked one is the legal hop.
 - Worst case (a guess matching nothing, scanning all 9,679 names) measures **~5 ms**.
 
+## Share grammar (FROZEN — never reformat line 1)
+
+The share string's first line is a machine-parseable contract. Accountless leagues
+(Discord bots parsing group-chat shares) depend on it; changing it breaks every parser
+silently, so it is frozen as of 2026-08-14. `shareText()` in `docs/app.js` implements it.
+
+```
+line 1 (win):   Degrees of Film #<id> — <degrees>° (par <par>, <E|+n|−n>)
+line 1 (loss):  Degrees of Film #<id> — X (par <par>)
+line 2:         <start title (year)> → <goal title (year)>
+line 3 (win):   <glyph trail>[ · streak <n>]        n >= 2, daily runs only
+line 3 (loss):  💔 <glyph trail>
+line 4:         the site URL
+```
+
+Glyph trail = the run's shape in play order, names never included: `🔗` a completed
+degree · `🟥` a burned attempt · `↩` a back-up. Runs longer than 14 glyphs compress to
+`🔗×a 🟥×b`. Lines 2–4 may evolve; **line 1 may only ever gain content after the final
+`)`** so prefix parsers keep working. The golf label uses `−` (U+2212), matching
+`relativeLabel`.
+
 ## Content operations
 
 Refreshing the corpus and stocking dailies is now three commands, and only the first needs TMDB:

@@ -1,5 +1,6 @@
 // Stats/streak tests (node stats.test.js). recordResult is pure — no localStorage.
-import { defaultStats, recordResult, relativeLabel } from './docs/stats.js';
+import { defaultStats, recordResult, relativeLabel,
+         recomputeStreak, streakState } from './docs/stats.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
@@ -52,6 +53,24 @@ check('same date is a no-op', JSON.stringify(recordResult(s, win('2026-08-21', 1
 
 // --- defaults are safe ---
 check('fresh stats have no best yet', defaultStats().best, null);
+
+// --- recomputeStreak: the display is honest even before today's play ---
+let r = recordResult(defaultStats(), win('2026-08-11', 2));
+check('streak survives same-day recompute', recomputeStreak(r, '2026-08-11').currentStreak, 1);
+check('streak survives into the next day (still playable)',
+      recomputeStreak(r, '2026-08-12').currentStreak, 1);
+check('a missed day zeroes the displayed streak',
+      recomputeStreak(r, '2026-08-13').currentStreak, 0);
+check('  ... without touching the original object', r.currentStreak, 1);
+check('  ... and maxStreak is untouched', recomputeStreak(r, '2026-08-13').maxStreak, 1);
+check('recompute is a no-op when nothing changes', recomputeStreak(r, '2026-08-12') === r, true);
+check('fresh stats recompute safely', recomputeStreak(defaultStats(), '2026-08-11').currentStreak, 0);
+
+// --- streakState drives the at-risk nudge ---
+check('played today reads safe', streakState(r, '2026-08-11'), 'safe');
+check('played yesterday reads at-risk', streakState(r, '2026-08-12'), 'at-risk');
+check('a dead streak reads none', streakState(r, '2026-08-13'), 'none');
+check('no history reads none', streakState(defaultStats(), '2026-08-11'), 'none');
 
 console.log(`\n${pass} passed, ${fail} failed`);
 process.exit(fail ? 1 : 0);

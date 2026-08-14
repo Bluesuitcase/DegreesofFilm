@@ -273,6 +273,29 @@ body{
 .endrow{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
 .endrow .btn-primary{border:none;font-family:inherit;cursor:pointer;font-size:15px}
 
+/* --- the ritual end card --- */
+.endchain{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;margin:10px 0 0;max-width:640px}
+.endchain:empty{display:none}
+.revealbox{display:flex;flex-direction:column;align-items:center;gap:4px;margin-top:18px;
+           padding-top:16px;border-top:1px solid var(--line);width:100%;max-width:640px}
+.revealbox:empty{display:none}
+.reveal-label{margin:0;text-transform:uppercase;letter-spacing:.18em;font-size:10px;
+              font-weight:600;color:var(--amber-deep)}
+.revealchain{margin-top:8px}
+.cpill.reveal{border-color:var(--amber-deep);color:var(--bone);border-style:dashed}
+.cpill.dim{opacity:.55}
+.reveal-count{margin:10px 0 0;font-size:13px;color:var(--muted)}
+.streakline{margin:14px 0 0;font-size:14px;color:var(--amber);font-weight:600;letter-spacing:.02em}
+.streakline:empty{display:none}
+.countdown{margin:4px 0 0;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;letter-spacing:.06em}
+.countdown:empty{display:none}
+#end-hist{margin-top:18px}
+#end-hist:empty{display:none}
+.hb{transition:width .4s ease}
+#share-text{text-align:left;max-width:420px;width:100%;margin-top:14px}
+.riskline{margin-top:10px}
+.riskline a{color:var(--amber)}
+
 @media (max-width:600px){
   .topbar{padding:14px 16px;align-items:center}
   .wordmark{letter-spacing:.12em;font-size:12px}
