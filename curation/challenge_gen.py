@@ -37,6 +37,17 @@ DEFAULT_TOP = 900        # endpoints drawn from the N most popular films
 MIN_ROUTES = 2           # more than one shortest path = a fair daily, not a needle
 TITLE_STOPWORDS = {"the", "a", "an", "of", "and", "part", "ii", "iii", "iv", "2", "3"}
 
+# The weekly difficulty arc (NYT-crossword convention): gentle early week, a real
+# reach on the weekend. Without par spread, day 14 feels identical to day 3 —
+# monotony, not difficulty, is what kills a daily. Mon..Sun by weekday().
+WEEKLY_ARC = {0: 2, 1: 2, 2: 2, 3: 3, 4: 3, 5: 4, 6: 3}
+
+
+def par_for_date(iso, arc=None):
+    """The arc's par for an ISO date (Mon=2 … Sat=4). Pure."""
+    arc = arc or WEEKLY_ARC
+    return arc[dt.date.fromisoformat(iso).weekday()]
+
 
 def adjacency(corpus):
     """(film -> [person], person -> [film]) over array indices. Pure."""
@@ -185,7 +196,9 @@ def _labels(corpus, path):
 def _main(argv):
     ap = argparse.ArgumentParser(description="Generate Degrees dailies")
     ap.add_argument("--days", type=int, default=7)
-    ap.add_argument("--par", default="2,3", help="pars to draw from, comma separated")
+    ap.add_argument("--par", default=None,
+                    help="pars to draw from, comma separated; default = the weekly arc "
+                         "(Mon-Wed 2, Thu-Fri 3, Sat 4, Sun 3)")
     ap.add_argument("--top", type=int, default=DEFAULT_TOP)
     ap.add_argument("--seed", type=int, default=None)
     ap.add_argument("--start", help="first date (YYYY-MM-DD); default = next free day")
@@ -223,15 +236,22 @@ def _main(argv):
         return 1 if bad else 0
 
     rng = random.Random(args.seed)
-    pars = [int(p) for p in args.par.split(",")]
+    pars = [int(p) for p in args.par.split(",")] if args.par else None
     used = {by_id[e[k]] for e in daily for k in ("start", "goal") if e[k] in by_id}
     dates = next_dates(daily, args.days, start=args.start)
     solutions = _load(SOLUTIONS, {})
     next_id = max((e["id"] for e in daily), default=0) + 1
 
     for date in dates:
-        par = rng.choice(pars)
+        par = rng.choice(pars) if pars else par_for_date(date)
         picked = pick_pair(corpus, adj, rng, par, top=args.top, avoid=used)
+        # A high-par day the popular pool can't satisfy steps down rather than
+        # aborting the whole run — a par-3 Saturday beats no Saturday.
+        while picked is None and not pars and par > 2:
+            par -= 1
+            print(f"  {date}: no par-{par + 1} pair in the pool — stepping down to {par}",
+                  file=sys.stderr)
+            picked = pick_pair(corpus, adj, rng, par, top=args.top, avoid=used)
         if picked is None:
             print(f"could not find a par-{par} pair for {date} "
                   f"(try a larger --top or fewer --days)", file=sys.stderr)

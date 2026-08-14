@@ -74,6 +74,14 @@ check("a par nothing satisfies -> None",
 check("needle pairs filtered out by min_routes",
       cg.pick_pair(CORPUS, ADJ, random.Random(3), 2, top=6, min_routes=99), None)
 
+# --- the weekly difficulty arc ---
+check("Monday is a par-2 warm-up", cg.par_for_date("2026-08-10"), 2)
+check("Thursday steps up to 3", cg.par_for_date("2026-08-13"), 3)
+check("Saturday is the reach", cg.par_for_date("2026-08-15"), 4)
+check("Sunday relaxes to 3", cg.par_for_date("2026-08-16"), 3)
+check("a custom arc overrides the default",
+      cg.par_for_date("2026-08-10", arc={i: 9 for i in range(7)}), 9)
+
 # --- scheduling ---
 check("empty schedule starts today",
       cg.next_dates([], 3, today="2026-08-11"),
