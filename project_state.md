@@ -5,6 +5,18 @@
 
 _Last updated: **2026-08-15, launch-prep session (evening)**._
 
+## 🩹 MOBILE SHARE FIX — MERGED 2026-08-15 (PR #36, `d089f39`)
+
+Owner reported the share button flaky on mobile. Root causes, both fixed: **(1) expired
+user gesture** — the handler awaited the invite.gif download before `navigator.share()`;
+mobile Safari's transient-activation window closed and the sheet silently refused. The
+card is now **prefetched when a share button appears** and the tap shares instantly with
+whatever is ready. **(2) tooltip tap-trap** — `data-tip` hover bubbles ate the first tap
+on touch (iOS hover-before-click); tooltips are now `display:none` under
+`@media (hover:none)`, sitewide. Verified under mobile emulation (first tap fires, no
+overflow at 375px). Merged directly given launch timing (owner-reported launch-day bug);
+PR #36 carries the full evidence.
+
 ## 🔗 SHARE-THE-GAME BUTTON — MERGED 2026-08-15 (PR #35, `a423a33`)
 
 The game shares itself: "Share this game" on the home CTA row + "Share the game" on the
