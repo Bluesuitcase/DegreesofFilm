@@ -4,10 +4,10 @@
 > work. It's the running handoff — current task, decisions, next steps. This file (CLAUDE.md)
 > explains how the code works; `project_state.md` tracks where we are right now.
 >
-> ⚠️ **The skill library under [`.claude/skills/`](.claude/skills/) is MID-MIGRATION.** It was
-> written for the retired dig game (see below). The skills that described deleted tooling have been
-> removed; the survivors are being reviewed. Trust this file, `project_state.md`, and the code over
-> any skill until that pass is done.
+> The skill library under [`.claude/skills/`](.claude/skills/) was **re-verified for the rebuilt
+> game on 2026-08-14** (10 skills; every fact checked against this repo). If a code change
+> invalidates something a skill says, update the skill in the same session
+> (see `degreesoffilm-docs-and-writing`).
 
 A daily browser game about how films connect. You're given **two films** and you chain from one to
 the other through the people who made them: name someone credited on the first film, then another
@@ -43,10 +43,10 @@ Two prunes make the corpus small enough: people credited on only one film can ne
 
 - **Play it:** serve `docs/` — the game uses `fetch`, so `file://` won't work. Use the `docs` entry
   in `.claude/launch.json` (port 8010) or `python -m http.server 8010 --directory docs`.
-- **JS tests** (plain Node, no framework): `node match.test.js`, `node daily.test.js`,
-  `node stats.test.js`, `node corpus.test.js`, `node chain.test.js` from the repo root. Each prints
-  PASS/FAIL and exits non-zero on failure. `package.json` exists only to set `"type": "module"`.
-  The matcher's case table lives in `match.cases.js`.
+- **JS tests** (plain Node, no framework): `node <name>.test.js` from the repo root for
+  `match`, `daily`, `stats`, `corpus`, `chain`, `solve`. Each prints PASS/FAIL and exits non-zero
+  on failure. `package.json` exists only to set `"type": "module"`. The matcher's case table
+  lives in `match.cases.js`.
 - **Python tests** (stdlib only — there is no longer a `.venv` or any pip dependency):
   `python curation/harvest.test.py`, `python curation/graph_build.test.py`,
   `python curation/challenge_gen.test.py`.
@@ -65,9 +65,9 @@ The design still turns on one fact: **the TMDB API key never reaches a player.**
    streak and scorecard live in localStorage.
 
 There is **no server**. Guess validation is client-side against the shipped graph. (The old
-`/match` Cloudflare Worker existed to hide the dig's answers; with no answers shipped there is
-nothing for it to protect. The deployed Worker at `dof-match.bluesuitcase.workers.dev` is orphaned
-and should be deleted from the Cloudflare dashboard.)
+`/match` Cloudflare Worker existed to hide the dig's answers; with no answers shipped there was
+nothing left to protect, and the Worker + its KV namespace were deleted on 2026-08-14 — nothing
+remains on Cloudflare.)
 
 ## File layout
 
@@ -78,11 +78,12 @@ CLAUDE.md              This file (how the code works).
 project_state.md       Running session handoff — read FIRST.
 package.json           Just { "type": "module" }.
 match.cases.js         The matcher contract as data: [guess, answers, expected, label] rows.
-match.test.js          Matcher tests (25).
-daily.test.js          Daily-selection tests (11): pickPuzzle date logic.
-stats.test.js          Streak/scorecard tests (22): recordResult, golf labels.
-corpus.test.js         Corpus tests (35): decoding, resolution, suggestions + real-asset invariants.
-chain.test.js          Chain-engine tests (36): verdicts, forged chains, back(), par.
+match.test.js          Matcher tests.
+daily.test.js          Daily-selection tests: pickPuzzle date logic.
+stats.test.js          Streak/scorecard tests: recordResult, golf labels, archive channel, backup codes.
+corpus.test.js         Corpus tests: decoding, resolution, suggestions + real-asset invariants.
+chain.test.js          Chain-engine tests: verdicts, forged chains, back(), par, near-miss.
+solve.test.js          End-card analysis tests: shortest routes, route counts, obscurity.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
   style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Breakpoint at 600px.
@@ -93,6 +94,8 @@ docs/                  The entire static site = what gets hosted.
                        suggestions. Pure logic, no DOM. Imports only match.js.
   match.js             Fuzzy name matching (normalize/levenshtein/matchGuess). No imports.
   daily.js             Which challenge is today's (pickPuzzle/pickById). Pure, no DOM.
+  solve.js             End-card analysis: BFS shortest routes, distinct-route count, obscurity
+                       score. Pure logic, no DOM.
   stats.js             localStorage streak + scorecard; recordResult is pure.
   graph.json           THE CORPUS: {v, ids, films, people, cast} — 190 KB gz. Built by
                        curation/graph_build.py. Fetched only when you actually play.
@@ -188,6 +191,10 @@ this catches a daily whose endpoint fell out of the pool.
 
 **Spoiler discipline:** `curation/challenge_solutions.json` is gitignored and must stay that way —
 this repo is public. Commit messages must not name a future daily's chain.
+
+**Immutable past:** a daily whose date has passed was played — never edit or delete it. Fixes
+apply to future-dated dailies only. (Carried over from the original game; the tooling doesn't
+enforce it, the discipline does.)
 
 **Curator's notes:** a daily may carry an optional `note` (one authored sentence, shown only on
 the end card). Notes ship publicly in `challenges.json` before their date, so the rule is hard:

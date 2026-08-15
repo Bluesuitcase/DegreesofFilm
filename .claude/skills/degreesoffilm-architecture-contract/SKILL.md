@@ -1,338 +1,175 @@
 ---
 name: degreesoffilm-architecture-contract
-description: The load-bearing design decisions, testable invariants, data contracts, and known weak points of Degrees of Film. Load this BEFORE any structural change; when asking "can I add X here?" or "which zone does this belong in?"; when a change spans both docs/ (player client) and curation/ (private tool); when evaluating whether a feature is static-v2-shaped or needs the v3 server move; when touching the puzzle/manifest/ledger schemas, the cipher, imports between docs/*.js modules, or anything involving the TMDB key. Also load it before "fixing" the daily-rollover date logic or editing an already-published puzzle — both are guarded here.
+description: The load-bearing design decisions, testable invariants, and known weak points of Degrees of Film (the degrees-of-separation rebuild, 2026-08). Load this BEFORE any structural change; when asking "can I add X here?" or "which zone does this belong in?" (docs/ player client vs curation/ private tool); when touching the shape of docs/graph.json, docs/challenges.json, or the share string; when changing imports between docs/*.js modules or anything involving the TMDB key; when judging whether a feature is static-shaped or would need a server (there is none); and before "fixing" the daily-rollover date logic — it is guarded here. NOT for how changes land (degreesoffilm-change-control), doc ownership (degreesoffilm-docs-and-writing), term definitions (degreesoffilm-domain-reference), public claims/attribution (degreesoffilm-external-positioning), past dead ends (degreesoffilm-failure-archaeology), or the evidence bar (degreesoffilm-validation-and-qa).
 ---
 
 # Degrees of Film — Architecture Contract
 
-This skill is the contract you must not break. It states the invariants testably, the
-schemas exactly, and the weak points honestly. How to *run* things lives in
-`degreesoffilm-run-and-operate`; how to *land* a change lives in `degreesoffilm-change-control`.
+The contract you must not break, stated testably, with the weak points admitted.
+Inventory facts (corpus size, test counts, file list, ruleset, share grammar) live in
+`CLAUDE.md` — this file deliberately does not cache them. How a change *lands* is
+`degreesoffilm-change-control`; what "proven" means is `degreesoffilm-validation-and-qa`.
 
-## 1. The one load-bearing fact
+## 1. The two load-bearing facts
 
-**The TMDB API key never reaches a player.** It lives only in gitignored `curation/.env`,
-read by `curation/tmdb.py` on the curator's machine. Players only ever fetch finished
-static files. Every other architectural choice follows from this.
+**F1 — The TMDB key never reaches a player.** It lives only in gitignored
+`curation/.env`, read by `curation/tmdb.py` at harvest time. Players fetch finished
+static files from GitHub Pages (`main` `/docs`) and nothing else. There is **no
+server anywhere** — the old `/match` Worker is deleted and Cloudflare is torn down
+(2026-08-14). Anything needing a play-time secret or a runtime write has no home in
+this architecture; proposing one is a project-posture decision, not a feature.
 
-```
-TMDB API
-   |  (queried with the key, curation time only)
-   v
-+--------------------------------------------------+
-| ZONE 1: PRIVATE — curator's machine              |
-|   curation/ (FastAPI tool, holds the key)        |
-|   used-films ledger (never repeat a film)        |
-+--------------------------------------------------+
-   |  (publishes static files into docs/)
-   v
-+--------------------------------------------------+
-| ZONE 2: STATIC HOSTING — GitHub Pages, main /docs|
-|   puzzle JSON (one per day) + pre-cropped images |
-|   game client (html / js / css)                  |
-+--------------------------------------------------+
-   |  (browser fetches files; nothing else)
-   v
-+--------------------------------------------------+
-| ZONE 3: PLAYER BROWSER — no key, no backend      |
-|   vanilla ES modules: rules + fuzzy matching     |
-|   stats/streak in localStorage ('dof-stats-v1')  |
-+--------------------------------------------------+
-```
+**F2 — Ship the whole graph once, not a puzzle at a time.** `docs/graph.json` is the
+entire pool (see CLAUDE.md for current counts/size); a daily in `docs/challenges.json`
+is ~50 bytes of endpoints + par. Because the shipped data is *everything*, nothing
+about today's answer is in it. The corollary that keeps it true:
+**suggestions are global, validation is contextual** — autocomplete draws from the
+whole pool, and only then does the game judge whether the hop exists. A per-challenge
+subgraph (an earlier prototype did this) hands the player the answer via autocomplete.
 
-Consequences:
+Zones: **curation/** (private, key-holder, builds corpus + dailies) → **docs/**
+(static, world-served) → **player browser** (no key, no backend; state in localStorage).
 
-1. **No player backend exists.** All game logic — rules, scoring, fuzzy matching —
-   runs client-side. Anything requiring a server-held secret or a runtime write is
-   v3 ("the server move"), not a patch.
-2. **The archive is nearly free.** A past puzzle is just an old file that still exists;
-   `?id=N` re-fetches it.
-3. **The curation tool is the only key-holder and the only writer.** Everything under
-   `docs/puzzles/` is produced by `curation/publish.py` (or hand-authored once, puzzle 001).
-4. **Answers must ship to the client** for matching to work, hence the obfuscation
-   stopgap (invariant 7) and its honest limits (§5).
+## 2. Invariants — each testable from the repo root (Git Bash syntax)
 
-## 2. Invariants (numbered, testable)
-
-Each: the rule, why, what breaks if violated, and a verification one-liner. Run one-liners
-from the repo root; they work in Git Bash. (PowerShell: `grep` is available via Git for
-Windows; if not, use `Select-String` equivalents.)
-
-**I1 — Key confinement.** No TMDB API access, key, or API URL anywhere under `docs/`.
-The only permitted TMDB reference in `docs/` is the attribution footer's link to
-`https://www.themoviedb.org/` in `docs/index.html`.
-*Why:* `docs/` is world-served by GitHub Pages; anything in it is public.
-*Breaks:* key leak → quota abuse, key revocation, terms violation.
-*Verify (must print nothing, exit 1):*
+**I1 — Key confinement.** No TMDB API access, key, or API URL under `docs/`. Only
+permitted reference: the attribution footer's link + wording in `docs/index.html`.
+*Breaks:* public key → quota abuse, revocation, terms violation.
+*Verify (must print nothing):*
 ```
 grep -rniE "api_key|tmdb_api_key|api\.themoviedb|image\.tmdb" docs/
 ```
 
-**I2 — Layering law (the exact import graph).** As of 2026-07-03, the complete set of
-imports across `docs/*.js` is:
-- `docs/match.js` — imports **nothing**.
-- `docs/game.js` — imports **only** `./match.js` (`matchGuess`).
-- `docs/daily.js`, `docs/theme.js`, `docs/stats.js`, `docs/frame.js`, `docs/cipher.js` —
-  import **nothing**.
-- `docs/app.js` — imports `game.js`, `daily.js`, `theme.js`, `stats.js`, `frame.js`,
-  `cipher.js` (not `match.js` directly), and does **ALL** DOM work.
-*Why:* rules and matching stay DOM-free so Node tests import them directly; `app.js`
-stays a thin render layer.
-*Breaks:* DOM in a logic module → Node test suites can't load it; rules in `app.js` →
-untestable behavior (app.js has NO automated tests).
-*Verify (must print exactly 7 import lines, all in app.js + game.js):*
+**I2 — Layering law (the exact import graph).** `docs/match.js` imports **nothing**;
+`docs/corpus.js` imports **only** `./match.js`; `docs/chain.js`, `daily.js`,
+`stats.js`, `solve.js` import **nothing** (`chain.js` *takes* a corpus as a
+constructor argument); `docs/app.js` imports the rest and does **ALL** DOM work.
+*Why:* rules/graph logic stay Node-importable for the framework-free test suites;
+`app.js` stays a thin render layer with no automated tests of its own.
+*Verify (all `import` lines are in app.js + the one in corpus.js):*
 ```
 grep -n "^import" docs/*.js
 ```
 
-**I3 — Pure-logic / no-DOM rule.** Every module except `app.js` must run under plain
-Node with no browser globals (exception: `stats.js` `loadStats`/`saveStats` touch
-`localStorage` inside try/catch; its `recordResult` is pure).
-*Why:* the whole JS test strategy (`node <name>.test.js`, no framework) depends on it.
-*Verify:* `node match.test.js && node game.test.js && node daily.test.js && node theme.test.js && node stats.test.js && node frame.test.js && node cipher.test.js`
+**I3 — Pure, DOM-free logic modules.** Every module except `app.js` runs under plain
+Node with no browser globals (exception: `stats.js` load/save touch `localStorage`
+inside try/catch; `recordResult` and friends are pure).
+*Verify:* run the JS suites listed in CLAUDE.md § Run & test — they import the
+modules directly and would throw on any DOM reference.
 
-**I4 — Self-contained puzzle files.** Each day is one JSON under `docs/puzzles/` plus its
-images under `docs/puzzles/images/`. A puzzle references nothing outside those (image
-paths are relative, e.g. `images/004-1.jpg`; `app.js` prefixes `puzzles/`).
-*Why:* the archive works because old files simply still exist; no cross-puzzle joins.
-*Breaks:* a shared mutable resource would make past puzzles editable-by-accident.
-*Verify:* `python -c "import json;p=json.load(open('docs/puzzles/004.json'));print(sorted(p))"` → `['date', 'id', 'images', 'rungs', 'theme']`
+**I4 — Global suggestions, contextual validation.** `corpus.js` `suggest*` scans the
+whole pool, never the legal candidates; `resolve` is deliberately asymmetric (in
+context: exact → typo → last-word; globally: last-word only when unique).
+*Breaks:* candidate-scoped suggestions = autocomplete leaks the answer (F2).
+*Verify:* `node corpus.test.js` (the asymmetry is asserted there), and read the
+comment block above `suggest` in `docs/corpus.js`.
 
-**I5 — Manifest is the sole daily index.** The client never guesses filenames: `app.js`
-fetches `puzzles/manifest.json` (cache-busted `?d=<todayISO>`), picks an entry via
-`daily.js` (`pickPuzzle`/`pickById`), then fetches that entry's `file`. The archive view
-is just a render of the manifest.
-*Why:* one atomic index = no orphaned days, free archive.
-*Breaks:* hard-coded puzzle fetches reintroduce the Phase-1 placeholder bug class.
-*Verify:* `grep -n "fetch(" docs/app.js` → exactly two fetches: the manifest and `'puzzles/' + entry.file`.
+**I5 — Challenges reference TMDB film ids, never array positions.** `start`/`goal`
+in `challenges.json` are TMDB ids; `from`/`to` are cached display labels only.
+*Why:* corpus rebuilds reorder indices; ids are stable, so published dailies survive.
+*Verify:* `python curation/challenge_gen.py --check` re-derives every daily's par
+AND labels from ids against the shipped corpus. Run it after any corpus rebuild.
 
-**I6 — Ledger never-repeat.** `curation/used_films.json` (git-tracked) records every film
-made into a puzzle; `ledger.add` refuses duplicate TMDB ids; Discover/Randomize exclude
-used ids. Only `id` is load-bearing (`used_ids`); `title`/`year`/`puzzle` are bookkeeping.
-`ledger.remove_by_puzzles` frees films when a *scheduled* (future) puzzle is cleared.
-*Why:* a repeated film kills the daily's novelty and the "never repeat" promise (DESIGN §1).
-*Verify:* `python curation/ledger.test.py` (12 tests) and
-`python -c "import json;l=json.load(open('curation/used_films.json'));ids=[r['id'] for r in l];print(len(ids)==len(set(ids)))"` → `True`
+**I6 — Par comes from the shipped corpus.** `challenge_gen.py` reads
+`docs/graph.json` — the same bytes the client plays — and BFS-asserts par at build.
+*Breaks:* generating from raw caches could promise a par the player can't reach.
+*Verify:* the module docstring says so; `--check` proves it for every published daily.
 
-**I7 — Cipher parity + sentinel scheme.** `docs/cipher.js` and `curation/cipher.py` are
-byte-for-byte mirror implementations: repeating-key XOR (KEY `degrees-of-film`) over
-UTF-8, base64, prefixed with SENTINEL U+0001. Properties (both sides): **idempotent
-encode** (won't double-encode a sentinel-prefixed string) and **plaintext passthrough
-decode** (un-prefixed strings return untouched — so hand-authored/half-migrated data
-always works). Both test suites assert the same fixed cross-language vector:
-`obfuscate("The Dark Knight")` = SENTINEL + `MA0CUiEEAUZPLUMPDgQZ`.
-*Why:* publish encodes in Python, the client decodes in JS; drift = every player sees
-gibberish answers. The KEY is effectively **frozen** — changing it breaks every published
-puzzle.
-*Verify:* `node cipher.test.js && python curation/cipher.test.py` (19 + 22 tests green).
+**I7 — Fairness gates on pair selection.** `pick_pair` rejects franchise/sequel
+pairs (`too_similar`: shared significant title words) and requires more than one
+shortest route (`MIN_ROUTES = 2` distinct closing people) — one single path is a
+needle, not a daily.
+*Verify:* `python curation/challenge_gen.test.py`.
 
-**I8 — One puzzle per day (upsert semantics).** `curation/manifest.py` `upsert` replaces
-by BOTH `date` (one puzzle per day) and `id` (one entry per puzzle), then sorts by date.
-A reschedule therefore moves an entry rather than duplicating it — and a same-date publish
-**silently replaces** the incumbent (this is the mechanism behind the 2026-06-30 manifest
-collision incident; `publish.next_date()` auto-assigning the next free day is the fix).
-*Why:* `pickPuzzle` assumes at most one entry per date.
-*Verify:* `python curation/manifest.test.py` (13 tests) and
-`python -c "import json;m=json.load(open('docs/puzzles/manifest.json'));d=[e['date'] for e in m];print(len(d)==len(set(d)))"` → `True`
+**I8 — Solutions sidecar never ships.** `curation/challenge_solutions.json` is
+gitignored — this repo is **public**.
+*Verify:* `git check-ignore curation/challenge_solutions.json` prints the path.
 
-**I9 — Archive hides titles.** The archive view renders date + `#id` + accent swatch,
-never the film title; manifest `title` fields ship obfuscated (sentinel-prefixed) so
-devtools doesn't leak them either.
-*Why:* the film rung IS the puzzle; a visible title spoils every archived game.
-*Verify:* `python -c "import json;m=json.load(open('docs/puzzles/manifest.json'));print(all(e['title'].startswith(chr(1)) for e in m))"` → `True`
-(`chr(1)` is the U+0001 sentinel), and `grep -n "never the film title" docs/app.js` hits
-the buildArchive comment.
+**I9 — Share line 1 is FROZEN (2026-08-14).** Accountless leagues (Discord bots
+parsing group-chat shares) depend on it; line 1 may only ever *gain* content after
+the final `)`. Lines 2–4 may evolve. Grammar: CLAUDE.md § Share grammar;
+implementation: `shareText()` in `docs/app.js` (the FROZEN comment sits above it).
+The golf label uses `−` U+2212, not a hyphen.
+*Verify:* `grep -n "FROZEN" docs/app.js` hits the shareText comment.
 
-**I10 — Archived / Poser / Practice runs never touch daily stats.** The single guard is in
-`docs/app.js` `showEnd()`: `if (!isArchive && !poser && !isPractice)` wraps the only
-`recordResult`/`saveStats` call. Practice additionally holds back today's daily from its
-pool (`practicePool`).
-*Why:* the streak is the daily hook; easier/replayed runs polluting it destroys its meaning.
-*Verify:* `grep -n "recordResult" docs/app.js` → one import, one guarded call.
+**I10 — Curator's-note geodesic rule.** Notes ship publicly in `challenges.json`
+*before* their date, so: texture only — a note must never identify a film or person
+on any geodesic (endpoint titles are the prompt and are allowed). Enforced, not just
+discipline: `challenge_gen.py --check` runs `note_violations` against every possible
+par closer plus the solutions sidecar.
+*Verify:* `python curation/challenge_gen.py --check` (fails loudly on a leak).
 
-**I11 — TMDB attribution footer is mandatory.** `docs/index.html` ships a footer with the
-TMDB mark and the exact sentence "This product uses TMDB and the TMDB APIs but is not
-endorsed, certified, or otherwise approved by TMDB." (updated 2026-07-03 to TMDB's current
-terms phrasing). DESIGN §5 lists it as a ship-blocker; it never comes off.
-*Verify:* `grep -c "otherwise approved by TMDB" docs/index.html` → `1`
+**I11 — Replays never touch daily stats.** `app.js` sets
+`isReplay = Boolean(id) && entry.date !== todayISO()` — so `?id=N` for a *past*
+daily records via `recordArchive` (isolated per-id channel), and only a genuine
+today's-daily run reaches `recordResult`/the streak. A `?id` pointing at today
+deliberately counts as the daily.
+*Breaks:* replays polluting the streak destroys the daily hook.
+*Verify:* `grep -n "recordResult\|recordArchive" docs/app.js` → one guarded branch;
+`node stats.test.js` covers both channels.
 
-**I12 — IMMUTABLE PAST (owner rule, not code-enforced).** Never modify a published puzzle
-dated ≤ today — players played it; their shared results reference it. Edits (reschedule,
-re-crop, rung fixes via `/api/update`) are for **future-dated** puzzles only. The tooling
-will happily edit any id; the rule is discipline.
-*Why:* retroactive edits silently invalidate players' results and streak context.
-*Verify:* manual gate — before any edit, check the puzzle's `date` against today.
+**I12 — Immutable past (owner rule, not code-enforced).** Never modify a published
+daily dated ≤ today: players' shared lines reference its `#id` and par. Future-dated
+entries are fair game. The tooling will happily edit anything; the rule is discipline.
 
-**I13 — SPOILER DISCIPLINE (owner rule).** Nothing player-visible may leak an answer:
-archive titleless (I9), answers/captions/manifest-titles obfuscated (I7), home-page QUOTES
-only from films NOT in the puzzle set (`docs/app.js` QUOTES comment), share text
-spoiler-free, and — because commit messages are public on GitHub — content commits name
-puzzle NUMBER/date only ("Add puzzle NNN (YYYY-MM-DD)"), never the film title until its
-date passes. Two historical commits violated this (`bdca151` named puzzle 006's film in
-its subject; `3d7d17e` named puzzle 007's film before its date) — cited as the lesson;
-history was deliberately NOT rewritten.
-*Verify:* before pushing content, `git log --oneline -5` and read your message as a player would.
-Also cross-check the QUOTES list against `curation/used_films.json` titles:
-```
-python -c "import json,re;src=open('docs/app.js',encoding='utf-8').read();q=set(re.findall(r\"', '([^']+)'\\]\",src.split('const QUOTES')[1].split('];')[0]));l={r['title'] for r in json.load(open('curation/used_films.json'))};print(sorted(q&l) or 'OK')"
-```
-A home-page QUOTES spoiler issue (two quotes named puzzle films) was **FIXED `ee4ec54`,
-2026-07-03**; the probe above should print `OK`. The check is a standing guard — publishing
-a puzzle whose film is already quoted re-fires it. Full account: degreesoffilm-failure-archaeology entry 12.
+## 3. Date semantics — guarded, don't "fix"
 
-## 3. Data contracts
+`daily.js` `todayISO()` uses the **device-local** date; every player rolls over at
+their own midnight. This is deliberate (Wordle-alike convention; no server exists to
+hold a canonical clock). Changing it to UTC is a decision, not a bugfix — route it
+through `degreesoffilm-change-control`. Adjacent fact that makes it safe: `app.js`
+fetches `challenges.json?d=${todayISO()}`, so the challenge index is re-fetched at
+most once per local day and a stale CDN copy self-heals at rollover.
 
-All schemas verified against `docs/puzzles/004.json`, `docs/puzzles/manifest.json`,
-`curation/used_films.json`, and the writers (`publish.py`, `manifest.py`, `ledger.py`)
-as of 2026-07-03.
+## 4. Known weak points — stated plainly
 
-### 3.1 Puzzle JSON (`docs/puzzles/NNN.json`)
-
-Written by `publish.assemble_puzzle`. Keys in file order:
-
-| Field | Type | Obfuscated? | Notes |
+| # | Weak point | Why accepted | What would change it |
 |---|---|---|---|
-| `id` | int | — | Matches filename stem (`4` ↔ `004.json`) and the manifest entry `id`. |
-| `date` | `"YYYY-MM-DD"` | — | Omitted if falsy (publish only writes it when set). |
-| `theme` | `{accent, bg, bg2}` hex strings | — | Sampled from the still; `applyTheme` in app.js maps accent→`--amber`, bg→`--ink`, bg2→`--ink2` + gradient. Bone text stays fixed. |
-| `images` | `string[]` | — | Reveal tiers, most-zoomed FIRST; paths relative to `docs/puzzles/` (e.g. `images/004-1.jpg`). Tool authors 3; 001 has one (`images/001.jpg`). Last element = full frame. |
-| `rungs` | array (below) | partly | Rung 0 is always the Film rung. |
+| W1 | **Future dailies ship publicly** in `challenges.json` — a curious player can read tomorrow's pair. | The pair is the prompt, not the answer; a static site can't hide it. Same posture the dig took with its archive. | Only a server, which is off the table. |
+| W2 | **localStorage-only stats**: device-bound, wiped with site data. | Zero infrastructure. Mitigation shipped: backup codes (`DOF1.` export/import in `stats.js`, merge = union keep-better + full recompute). | Accounts — not planned; codes are the answer. |
+| W3 | **No CI.** Green suites are a manual pre-push gate. | 9 suites run in seconds locally; solo project. | CI someday; until then "suites green before push" is discipline (see change-control). |
+| W4 | **Single curator.** One machine holds the key and the restock flow; published content keeps serving regardless. | Hobby scale. Long runway is the mitigation — see CLAUDE.md § Content operations. | A second keyed machine, or nothing. |
+| W5 | **CDN staleness.** GitHub Pages' edge can serve stale files. `challenges.json` self-heals daily via the `?d=` date key (§3); `graph.json` is fetched un-busted and relies on revalidation — a just-restocked daily could briefly meet a cached older graph. | Ids are stable (I5) and `--check` keeps old dailies valid across rebuilds, so the window is narrow and self-heals. | Version-keyed graph fetch, if it ever actually bites. |
 
-Per rung:
+## 5. "Before you add X here" — decision table
 
-| Field | Type | Obfuscated? | Notes |
-|---|---|---|---|
-| `role` | string | no | `Film`, `Cast`, `Director`, `Cinematographer`, `Composer`, `Editor`, `Production Designer`. |
-| `prompt` | string | no | Player-facing question. |
-| `answers` | `string[]` | **YES** | All accepted forms (alt titles, name variants). `answers[0]` is the canonical form: it's what multiple choice and the end-screen reveal display — keep it the display-quality one. |
-| `decoys` | `string[]` | no (by design) | ~3 same-category wrong answers. Feeds I-Need-Help + Poser. Rung without decoys can't be helped and is dropped from Poser. |
-| `image` | string, optional | no | Credit image path (e.g. `images/004-r2.jpg`). Film rung never has one. Missing → client holds the full frame. |
-| `caption` | string, optional | **YES** | "Name as Character" for cast, name only for crew — it names the answer, hence obfuscated. |
+Rules of thumb: needs the TMDB key or writes files → `curation/`. Data consumed at
+play time → a field in `graph.json`/`challenges.json` (remember: it ships to
+everyone, forever, in a public repo). Pure client logic → the right `docs/*.js`
+module + `app.js` glue. Needs a play-time secret, runtime write, or cross-device
+state → **nowhere; stop** (F1).
 
-Obfuscation boundary: exactly `answers[]` + `caption` per rung (see `cipher._map_rungs`,
-mirrored by `docs/cipher.js` `decodeRungs`, called once in `app.js` `loadAndStart`).
-If you add a new answer-revealing field, you MUST add it to **both** `_map_rungs` (Python)
-and `decodeRungs` (JS) or it ships in plaintext / renders as gibberish.
-
-### 3.2 Manifest entry (`docs/puzzles/manifest.json`)
-
-Array of `{date, id, file, title, accent}` (`manifest.FIELDS`), sorted by date.
-`title` = `cipher.obfuscate(movie.title)` — **obfuscated**; `accent` duplicated from the
-theme so the archive can show swatches without fetching puzzles. Upsert semantics: I8.
-
-### 3.3 Ledger record (`curation/used_films.json`)
-
-Array of `{id, title, year, puzzle}` — **plaintext** (private zone, never served).
-`id` = TMDB movie id (the only field logic reads); `puzzle` = the puzzle id it became;
-`year` is a string for tool-published entries but int `2007` in the hand-authored 001
-record — harmless, nothing parses it.
-
-### 3.4 Image filename conventions (`docs/puzzles/images/`)
-
-| Pattern | Meaning | Written by |
+| You want to add… | Where | Invariants touched |
 |---|---|---|
-| `NNN-1.jpg`, `NNN-2.jpg`, `NNN-3.jpg` | Reveal tiers, tightest first; `-3` is the full frame | `images.save_tiers` (`f"{stem}-{i}.jpg"`) |
-| `NNN-rK.jpg` | Credit image for rung K (1-based rung position; film rung K=1 gets none, so files start at `r2`) | `credits_images.rung_image_name` |
-| `001.jpg` | Legacy: puzzle 001's single hand-authored frame | hand-authored |
-
-92 files as of 2026-07-03. `NNN` = zero-padded puzzle id (`publish.puzzle_stem`).
-
-## 4. Date semantics — a known spec/implementation divergence. Do not "fix" either side.
-
-- **DESIGN.md §4 says:** the client "picks the entry whose `date` matches today's
-  canonical date (a single global rollover, **not** the player's local clock — avoids
-  timezone desync)".
-- **The code does:** `docs/daily.js` `todayISO()` builds the date from
-  `getFullYear()/getMonth()/getDate()` — the **device-local** date. Every player rolls
-  over at their own local midnight; two players in different timezones can be on
-  different dailies for a few hours.
-
-Verified 2026-07-03 by reading both. This divergence is **accepted in practice**: local
-rollover is what Wordle-alikes do, nobody has complained, and there is no server to hold a
-canonical clock anyway. It is deliberately left unresolved. If you are tempted to align
-either direction (change the code to UTC, or change DESIGN to bless local time), that is a
-decision, not a bugfix — route it through `degreesoffilm-change-control`. Note the
-adjacent trap: streak math (`stats.js` `dayDiff`) parses dates as UTC midnights (correct,
-DST-proof) while the date *labels* are local — consistent as long as `todayISO` is the
-single source of the label, which it is.
-
-## 5. Known weak points — stated plainly
-
-| # | Weak point | Why accepted today | What would change it |
-|---|---|---|---|
-| W1 | **Obfuscation ≠ security.** The XOR key ships in `docs/cipher.js`; answers are also enumerable from public TMDB data. Anyone determined reads tomorrow's answers. | No leaderboard = no incentive to cheat anyone but yourself. Defeats only "open devtools and read it." | v3 server-side matching (answers never leave the backend) — see `degreesoffilm-server-move-campaign`. Do NOT harden the cipher; it's a fenced wrong path (enumerable answer space). |
-| W2 | **localStorage-only stats** (`'dof-stats-v1'`): device-bound, wiped by clearing site data, no sync. | Zero infrastructure; fine for a hobby daily. | v3 accounts + DB with import-on-first-login migration. |
-| W3 | **Pool-dry silent repeat.** `pickPuzzle` falls back to the most recent on/before today, else the earliest — a dry pool means the daily silently repeats the latest puzzle, never 404s. As of 2026-07-03 the pool runs through 2026-07-04. | Deliberate: an old puzzle beats an error page. Operational, not a bug. | Curate ahead (the schedule/runway view exists for this) — see `degreesoffilm-run-and-operate`. |
-| W4 | **No CI.** Green tests are a manual pre-push gate; nothing enforces them. | 16 suites run in seconds locally; solo project. | CI would help but is unprioritized; until then "tests green before push" is discipline (see `degreesoffilm-change-control`). |
-| W5 | **Single-curator ops.** One machine holds the key and the publishing flow; the daily dies with the curator's laptop (content already published keeps serving). | Hobby scale. | Server move / hosted curation, or simply curating a long runway. |
-| W6 | **Haar face detection misses angled/dark faces**, so auto-crop can center on the wrong region. | The curator approves or re-drags every box — auto-crop is a suggestion, never auto-published. | FaceDetectorYN/heuristics exploration is a research track — see `degreesoffilm-research-frontier`. |
-| W7 | **Decoys and prompts are plaintext** in puzzle JSON. | By design: they're player-facing UI text, not the answer. A snoop learns four candidates, not which one. | Nothing planned; revisit only with server-side matching. |
-| W8 | **Local-clock rollover** (§4). | Accepted divergence. | A v3 server clock, decided through change control. |
-| W9 | **No automated tests for `docs/app.js`, `curation/app.py` endpoints, or `curation/static/index.html`.** | The layering law keeps them thin; logic lives in tested modules. | Manual browser verification on a fresh port is the gate — see `degreesoffilm-validation-and-qa`. |
-
-## 6. "Before you add X here" — decision table
-
-Zone rules of thumb: needs the TMDB key or writes files → Zone 1 (`curation/`). Pure data
-consumed at play time → published fields in Zone 2 (`docs/puzzles/`). Pure client logic →
-a new/existing `docs/*.js` module + `app.js` glue. Needs a secret at play time, a runtime
-write, or cross-device state → **v3, stop and read `degreesoffilm-server-move-campaign`**.
-
-| You want to add… | Zone / where | Invariants touched | Shape |
-|---|---|---|---|
-| New game mode (rules variant on existing puzzle data) | `docs/game.js` option (pure) + `docs/app.js` rendering — follow the Poser precedent: `Game(puzzle,{mode})` changes scoring only; trim/MC rendering in app.js | I2, I3, I10 (decide stats policy explicitly), I13 (share text) | static-v2 |
-| Movie Buff (all-TMDB title autocomplete) | Live TMDB from the browser is BANNED (key leak). Either prebaked popular-title index (static, research track) or server proxy | I1 | v3-shaped (or prebaked-static candidate) |
-| New rung type / role | `curation/build_rungs.py` ordering + decoys + schema; client renders rungs generically | I4, I7 (if it carries answer text), matcher contract (`match.test.js` first) | static-v2 |
-| New per-rung data field | `publish.assemble_puzzle` path; if it reveals the answer: BOTH `cipher._map_rungs` and `docs/cipher.js decodeRungs`, plus both cipher suites | I4, **I7 (both languages or it breaks)** | static-v2 |
-| New player stat | `docs/stats.js` (pure `recordResult` change + test) + `app.js` render | I3, I10 (keep the guard), W2 (device-bound) | static-v2 |
-| New curation step / endpoint | `curation/` module (pure core + thin CLI/endpoint per house pattern), wire into `app.py` | I1 (key stays per-request server-side), I6/I8 if it writes ledger/manifest | static-v2 |
-| New image kind | `curation/images.py` writer + a new filename convention (§3.4) + puzzle schema field | I4, §3.4 naming | static-v2 |
-| Change daily selection / rollover | `docs/daily.js` — but read §4 first | I5, §4 | change-control decision |
-| Leaderboard, accounts, score history, cross-device anything | Requires runtime writes + validated runs | I1, W1 (client-computed depth is forgeable) | **v3 only** |
-| Anything needing a secret at play time | Nowhere in v2. The key never reaches a player. | I1 | **v3 only** |
-| Editing a published puzzle | Future-dated only, via the edit flow | **I12**, I8 (upsert moves the entry), I6 (ledger untouched on update) | operational |
-
-## When NOT to use this skill
-
-- Setting up Node/Python/venv or fixing environment breakage → `degreesoffilm-build-and-env`.
-- Deciding PR-vs-direct, commit wording, landing checklists → `degreesoffilm-change-control`.
-- Running the game/curation tool or publishing a puzzle end-to-end → `degreesoffilm-run-and-operate`.
-- What a term means, TMDB data-model details, matcher/color/image math theory → `degreesoffilm-domain-reference`.
-- Looking up or changing a constant's value → `degreesoffilm-config-and-flags`.
-- A live symptom to triage → `degreesoffilm-debugging-playbook`; its history → `degreesoffilm-failure-archaeology`.
-- Measuring content health / running validators → `degreesoffilm-diagnostics-and-tooling`; evidence standards → `degreesoffilm-validation-and-qa`.
-- Executing the v3 move itself → `degreesoffilm-server-move-campaign`; open research problems → `degreesoffilm-research-frontier`.
+| Rules variant / new verdict | `chain.js` (pure, + `chain.test.js`); `app.js` only picks the words | I2, I3; decide stats policy explicitly (I11) |
+| New player stat | `stats.js` pure change + test, `app.js` render | I3, I11 (keep the replay guard), W2 |
+| Matcher / suggestion change | add a `match.cases.js` row FIRST; respect `resolve`'s asymmetry | I4; matcher contract |
+| New daily field | `challenge_gen.py` writer + `--check`; keep dailies tiny | I5; I10 if player-visible before its date |
+| New corpus field | `graph_build.py` encode + `corpus.js` decode + both suites | F2 (whole pool ships — mind the size), I2 |
+| Share change | `shareText()` — lines 2–4 only; line 1 append-only after final `)` | **I9** |
+| Leaderboard / accounts / cross-device | Needs a server. There is none. Posture decision via change-control; backup codes (W2) are the current answer | F1 |
+| Rollover / daily-selection change | `daily.js` — read §3 first | §3; decision, not bugfix |
+| Editing a published daily | Future-dated only | **I12**, I10 |
 
 ## Reusing this pattern beyond this project
 
-Transfers as a template: the three-zone "secret stays at build time, players get static
-files" architecture; sentinel-prefixed idempotent obfuscation with a shared cross-language
-test vector; manifest-as-sole-index with date-keyed upsert; pure-core/DOM-shell layering
-enforced by an import-graph invariant; "immutable published content" + spoiler-safe commit
-discipline for any daily-content game. Project-specific: TMDB, the rung/ladder schema, the
-exact cipher KEY, and every constant cited here.
+Transfers: "secret stays at build time, players get static files"; ship-the-whole-
+corpus so nothing shipped is an answer; pure-core/DOM-shell layering enforced by an
+import-graph invariant; frozen machine-parseable share line; immutable published
+content + spoiler-safe commits for any daily game. Project-specific: TMDB, the
+graph/challenge encodings, every constant cited here.
 
 ## Provenance and maintenance
 
-- Written 2026-07-03 against a clean `main` (HEAD `10668ca`). Every import, schema field,
-  constant, commit hash, and grep result above was verified by reading the named file or
-  running the command in this repo; test counts confirmed by running the suites
-  (cipher 19 JS + 22 py, game 34, match 25, daily 11, publish 36, manifest 13, ledger 12 — all green).
-- **Update 2026-07-04 (v3 Phase 1 spike, branch `v3-phase1-server-match`):** a fourth
-  zone is being introduced — `server/` (the /match Cloudflare Worker), which imports
-  `docs/match.js` UNCHANGED (deliberate: parity by reuse). `docs/game.js` gained
-  `applyVerdict(correct)` (`guess()` now delegates to it — same machine, no import
-  changes); `docs/app.js` gained the `MATCH_API` flag (off by default) + a 2 s-timeout
-  local fallback. Counts now: game 51, publish 39; new suites worker.test.js (17) +
-  push_answers.test.py (17); the matcher case table moved to `match.cases.js`.
-  The import-graph invariant is UNCHANGED for docs/ (match imports nothing; game
-  imports only match; game/match/cipher stay DOM- and network-free).
-- Drift-prone facts and their re-verification one-liners:
-  - Import graph (I2): `grep -n "^import" docs/*.js`
-  - Key confinement (I1): `grep -rniE "api_key|tmdb_api_key|api\.themoviedb|image\.tmdb" docs/` → nothing
-  - Cipher parity + frozen vector (I7): `node cipher.test.js && python curation/cipher.test.py`
-  - Manifest/ledger uniqueness (I6/I8): the two `python -c` one-liners in §2 → `True` twice
-  - Attribution (I11): `grep -c "otherwise approved by TMDB" docs/index.html` → `1`
-  - Pool runway (W3): `python -c "import json;m=json.load(open('docs/puzzles/manifest.json'));print(max(e['date'] for e in m))"`
-  - Puzzle schema (§3.1): re-read `docs/puzzles/004.json` + `curation/publish.py assemble_puzzle`
-- If a code change invalidates any fact here, update this file and this date in the same
-  session (see `degreesoffilm-docs-and-writing`).
+- Rewritten **2026-08-14**, re-verified after the degrees-of-separation rebuild
+  (dig-era content removed; the cipher, puzzle/manifest/ledger schemas, image
+  conventions, and Worker sections are gone — git holds that history). Every import,
+  guard, constant, and grep result above was verified by reading the named file or
+  running the command in this worktree.
+- Counts and inventories are deliberately NOT cached here — CLAUDE.md owns them
+  (corpus size, suite list, file layout, ruleset, share grammar, content ops).
+- Drift-prone facts and their re-verification one-liners: I1 grep; I2 grep; I5/I6/I10
+  `python curation/challenge_gen.py --check`; I8 `git check-ignore`; I9/I11 greps in
+  `docs/app.js`.
+- If a code change invalidates any fact here, update this file and this date in the
+  same session (see `degreesoffilm-docs-and-writing`).

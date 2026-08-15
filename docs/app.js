@@ -634,7 +634,7 @@ function renderCountdown(replay) {
 }
 
 // --- share ------------------------------------------------------------------
-// Line 1 is a FROZEN grammar (DESIGN.md "Share grammar") — accountless leagues
+// Line 1 is a FROZEN grammar (CLAUDE.md "Share grammar") — accountless leagues
 // parse it; never reformat. Line 3 is the route silhouette: the run's shape with
 // honesty markers, never its names. Spoiler-safe by construction.
 
