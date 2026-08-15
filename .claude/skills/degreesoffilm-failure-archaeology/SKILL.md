@@ -39,6 +39,7 @@ that exist only in session-handoff docs (not reconstructible from git alone) are
 | 20 | "Near-miss feedback is meaningless in a small-world graph" | FALSIFIED by measurement (6,800 samples) — and shipped |
 | 21 | "The game is fun; retention polish can wait" | FIXED — "feels like a one-off" verdict → the Comeback Loop, built and launched same day |
 | 22 | "Spoiler-gated links / community-pulse Worker / accounts" | KILLED (2026-08-14 planning pass), each with a recorded revival trigger |
+| 23 | "The button works, ship it" | RULE-CREATED (2026-08-15 TDZ incident) — module state above boot(); verification asserts the page's primary content, not just the feature |
 
 ## The chronicle
 
@@ -471,6 +472,24 @@ there is no answer to hide. Do not reintroduce a secrecy layer for shipped data.
   line 1 — line 1 may only ever gain content after the final `)`.
 - **Unless** the recorded trigger fires: real organic sharing at scale (Worker),
   or the owner reopens accounts (his call alone).
+
+### 23. The invite-button TDZ — a caught error hid a broken home card from verification
+
+- **Symptom/Idea:** Launch-eve 2026-08-15: the live home card rendered "Couldn't load
+  today's connection. Cannot access 'inviteFile' before initialization" for ~30 min
+  after the mobile-share fix (PR #36) deployed. The owner caught it, not the checks.
+- **Root cause / finding:** `boot()` is invoked at the TOP of `docs/app.js` (line ~46);
+  PR #36 declared `let inviteFile` mid-module, so `renderHome()` hit the temporal dead
+  zone. The throw was caught into the today-card's error handler — no console error —
+  and the pre-merge browser check asserted the BUTTON under test, which worked (bound
+  before the throw), while the card beside it was already broken.
+- **Evidence:** hotfix PR #37 (`6370e99`, state hoisted to the module-state block);
+  incident record in project_state.md 2026-08-15.
+- **Status:** FIXED, rule adopted.
+- **Do not** declare module state below the `boot()` call in app.js, and do not sign
+  off a browser verification that only inspects the feature under change — **assert the
+  page's primary content too** (home: the today-card; play: the chain; end: the card).
+- **Unless** app.js's boot-at-top structure changes (then re-derive the rule).
 
 ## Patterns across entries
 

@@ -5,6 +5,17 @@
 
 _Last updated: **2026-08-15, launch-prep session (evening)**._
 
+## 🚑 HOTFIX — TDZ regression from PR #36, MERGED 2026-08-15 (PR #37, `6370e99`)
+
+PR #36 declared `let inviteFile` mid-module, below the top-of-file `boot()` call —
+`renderHome()` hit the temporal dead zone and the LIVE home card showed "Couldn't load
+today's connection. Cannot access 'inviteFile' before initialization" until the hotfix
+landed (~30 min exposure). Why verification missed it: the error was caught into the
+today-card and the check looked at the BUTTON under test, not the card beside it.
+**Rule adopted: browser verification asserts the page's primary content, not just the
+feature under change.** Recorded as failure-archaeology entry 23. Fix: state hoisted to
+the module-state block above `boot()`.
+
 ## 🩹 MOBILE SHARE FIX — MERGED 2026-08-15 (PR #36, `d089f39`)
 
 Owner reported the share button flaky on mobile. Root causes, both fixed: **(1) expired
