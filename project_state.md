@@ -3,7 +3,26 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-15, redesign session (small hours)**._
+_Last updated: **2026-08-15, corpus-expansion session**._
+
+## 📈 CORPUS EXPANDED — pool floor widened 800/6.5 → 500/6.0 (this branch)
+
+Owner-directed ("pull more movies in for autofill + connections"). **Measured before
+building** (one `discover` call per candidate floor; throwaway probe, deleted): a grid of
+floors was priced and the owner picked **500 votes / 6.0 avg** from real numbers. Result:
+**6,566 films / 16,379 people / 80,767 edges, 345 KB gz** (was 3,682 / 9,791 / 42,948 @
+190 KB) — 1.8× films, 1.9× edges; the newly admitted famous-but-middling blockbusters are
+prime connective tissue. Harvest fetched 2,925 new credit sets (append-only cache).
+**Schedule repair:** the denser graph shortened 14 future dailies' pars (12 par-3→2,
+2 par-4→shorter; **all five past dailies survived untouched** — immutable past never came
+into play). The 14 broken were deleted and regenerated at their same dates on the weekly
+arc (ids #65–#78; Saturdays kept par 4). Final `--check`: **64 dailies, 0 broken.**
+The harvest.test.py floor tripwire was moved to (500, 6.0) with the decision documented.
+Worst-case matcher scan at 16,379 names: **~3 ms** (measured in-browser). challenges.json
+still 8.2 KB. Docs + skills (domain-reference, validation-and-qa, external-positioning)
+updated to the new numbers; caches + 64-entry sidecar copied back to the main checkout's
+`curation/`. Note the site is now **~360 KB total** (was ~200 KB) — the owner accepted the
+trade explicitly when picking the floor.
 
 ## 🎨 MERGED — the "Matinee" light-theme redesign + brand identity (PR #32, 2026-08-15)
 

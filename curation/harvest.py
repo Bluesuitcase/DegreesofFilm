@@ -6,9 +6,11 @@ This is step 1 of the Degrees pipeline:
     graph_build.py  ->  docs/graph.json                              (pure)
     challenge_gen.py -> docs/challenges.json                         (pure)
 
-The pool floor (DESIGN §1) is TMDB films with vote_count >= 800 AND vote_average >= 6.5
-— roughly 3,700 films people have actually heard of. Beyond that floor, hops stop being
-recognisable and the game stops being fun, so the floor is the corpus boundary.
+The pool floor is TMDB films with vote_count >= 500 AND vote_average >= 6.0 — roughly
+6,600 films people have actually heard of (widened from 800/6.5 on 2026-08-15 to grow
+autocomplete and the connection graph; the famous-but-middling blockbusters this admits
+are prime connective tissue). Beyond the floor, hops stop being recognisable and the
+game stops being fun, so the floor is the corpus boundary.
 
 Both caches are append-only jsonl and gitignored: re-running fetches only what's new,
 so a refresh months later costs a few hundred calls, not thousands.
@@ -30,8 +32,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 FILMS_CACHE = os.path.join(HERE, "films_cache.jsonl")
 PEOPLE_CACHE = os.path.join(HERE, "people_harvest_cache.jsonl")
 
-POOL_MIN_VOTES = 800
-POOL_MIN_AVG = 6.5
+POOL_MIN_VOTES = 500
+POOL_MIN_AVG = 6.0
 MAX_PAGES = 500
 CAST_TOP = 12                        # top billing; 12 gives margin over the visible cast
 CREW_JOBS = ("Director", "Director of Photography", "Original Music Composer",
