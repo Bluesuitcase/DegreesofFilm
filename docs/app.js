@@ -84,6 +84,7 @@ async function loadCorpus() {
 
 async function renderHome() {
   show('home');
+  $('invite-btn').onclick = () => inviteGame($('invite-btn'));
   daily = await loadDailies();
   const today = pickPuzzle(daily, todayISO());
   if (!today) {
@@ -461,6 +462,7 @@ function renderEndCard(rec, opts = {}) {
     <p class="countdown" id="end-count"></p>
     <div class="row endrow">
       <button class="btn-primary" id="share-btn">Share</button>
+      <button class="btn-ghost" id="end-invite" data-tip="Send the game itself, not your score">Share the game</button>
       <a class="btn-ghost" href="?archive">Archive</a>
       <a class="btn-ghost" href="?history">Scorecard</a>
     </div>
@@ -480,6 +482,7 @@ function renderEndCard(rec, opts = {}) {
   const text = shareText(rec, stats);
   $('share-text').textContent = text;
   $('share-btn').onclick = () => share(text);
+  $('end-invite').onclick = () => inviteGame($('end-invite'));
 
   $('play').classList.add('hidden');
   $('end').classList.remove('hidden');
@@ -679,6 +682,42 @@ async function share(text) {
   } catch {
     $('share-note').textContent = 'Copy failed — select the text above instead.';
   }
+}
+
+// Share the GAME (not a result): native share sheet with the animated invite
+// card attached where the platform allows files, otherwise text+url, otherwise
+// copy the link. A cancelled sheet is not an error.
+const INVITE_TEXT = 'Degrees of Film — a daily film puzzle. Two films: chain them '
+  + 'through the people who made them, in as few degrees as you can. ' + SITE;
+
+async function inviteGame(btn) {
+  try {
+    if (navigator.canShare) {
+      try {
+        const blob = await (await fetch('invite.gif')).blob();
+        const file = new File([blob], 'degrees-of-film.gif', { type: 'image/gif' });
+        if (navigator.canShare({ files: [file] })) {
+          return await navigator.share({ files: [file], text: INVITE_TEXT });
+        }
+      } catch { /* no card — fall through to plain share */ }
+    }
+    if (navigator.share) {
+      return await navigator.share({ title: 'Degrees of Film', text: INVITE_TEXT, url: SITE });
+    }
+  } catch { return; /* sheet dismissed */ }
+  try {
+    await navigator.clipboard.writeText(INVITE_TEXT);
+    flashLabel(btn, 'Link copied!');
+  } catch {
+    flashLabel(btn, 'Copy the address bar ↑');
+  }
+}
+
+function flashLabel(btn, msg) {
+  if (!btn) return;
+  const was = btn.textContent;
+  btn.textContent = msg;
+  setTimeout(() => { btn.textContent = was; }, 1600);
 }
 
 // --- archive + scorecard --------------------------------------------------
