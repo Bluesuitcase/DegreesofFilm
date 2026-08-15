@@ -5,6 +5,15 @@
 
 _Last updated: **2026-08-15, launch-prep session (evening)**._
 
+## 🎞 GIF-SHARE RACE FIX — MERGED 2026-08-15 (PR #38, `a947ebd`)
+
+Owner report: shares arrived as the static PNG. Cause: a fast tap beat the 68 KB
+invite.gif prefetch → silent fallback to text+url → the chat rendered the og.png unfurl.
+The tap now races the in-flight prefetch against a 700 ms beat (inside the gesture
+window; the earlier bug was an UNBOUNDED await) before choosing which share to send.
+Platform floor stays: no file-share support → text+link+og unfurl. If a platform
+rejects GIF files specifically, the next lever is an MP4 card variant (not built).
+
 ## 🚑 HOTFIX — TDZ regression from PR #36, MERGED 2026-08-15 (PR #37, `6370e99`)
 
 PR #36 declared `let inviteFile` mid-module, below the top-of-file `boot()` call —
