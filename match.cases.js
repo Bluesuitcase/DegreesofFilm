@@ -1,7 +1,6 @@
 // The matcher contract, as data: every case is [guess, answers, expected, label].
-// Shared by match.test.js (local contract), worker.test.js (server parity — GATE 1
-// check 3 replays this exact table against the /match endpoint), and any future
-// live-endpoint gate script. Add cases HERE, never fork the table.
+// Consumed by match.test.js. Add cases HERE, never fork the table — and add a case
+// BEFORE touching the matching algorithm.
 
 // Answer sets mirror docs/puzzles/001.json
 const film      = ["No Country for Old Men", "No es pais para viejos"];

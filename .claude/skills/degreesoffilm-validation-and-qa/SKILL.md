@@ -1,6 +1,6 @@
 ---
 name: degreesoffilm-validation-and-qa
-description: The evidence bar for the Degrees of Film repo — what "proven" means before any change lands. Load this when you just made a change and must decide "is this enough evidence?", when asking "which tests do I run for file X?", "how do I add a test here?", or "is tests-pass sufficient?"; before landing ANY change (there is no CI — green suites are a manual gate); after touching the matcher (match.js — contract-first rule), game rules (game.js), or the cipher (docs/cipher.js / curation/cipher.py — BOTH languages' suites required); when doing pre-publish content QA on a new puzzle; or when tempted to weaken/delete a failing assertion. Contains the full 16-suite inventory with per-file reverse map, the house test-writing pattern (JS + Python skeletons), the golden/certified inventory (frozen cipher vector, puzzle 001, the scoring curve), and the per-puzzle content QA checklist.
+description: The evidence bar for the Degrees of Film repo — what "proven" means before any change lands. Load this when a change was just made and the question is "is this enough evidence?"; when asking "which tests do I run for file X?" or "how do I add a test here?"; before landing ANY change (there is no CI — green suites are a manual gate); after touching the matcher (docs/match.js — contract-first rule via match.cases.js), the chain rules (docs/chain.js), the corpus encoding (docs/corpus.js / curation/graph_build.py), or challenge generation (curation/challenge_gen.py); when doing pre-publish content QA on new dailies; or when tempted to weaken/delete a failing assertion. Contains the 9-suite inventory with the per-file reverse map, the house test-writing pattern (JS + Python skeletons), the golden inventory (the match.cases.js contract table, the frozen share line-1 grammar, the two --check validators), and the content-ops QA gate.
 ---
 
 # Degrees of Film — validation and QA
@@ -13,151 +13,125 @@ how to add tests in the house style, and what content must pass before it publis
 ## 1. The evidence bar — when is a change proven?
 
 A change is proven when ALL of the applicable lines below hold. Skipping one because
-"it's a small change" is how this repo's costliest incidents happened.
+"it's a small change" is how repos like this accumulate silent breakage.
 
 | # | Evidence | Applies to | How |
 |---|---|---|---|
-| E1 | **Relevant suites green** | every change | Reverse map in §2 — run the suites for each file you touched. When in doubt, run all 16 (they finish in seconds). |
+| E1 | **Relevant suites green** | every change | Reverse map in §2 — run the suites for each file you touched. When in doubt, run all 9 (they finish in seconds, offline, no key). |
 | E2 | **New test, red→green** | any changed/new behavior | Write the test FIRST, watch it FAIL against the old code, then make it pass. A test that never failed proves nothing — it may be asserting the bug. State "failed before, passes after" in your handoff. |
-| E3 | **Fresh-port browser check** | any player-visible change (`docs/`) | Serve `docs/` on a port you have NOT used this session (`python -m http.server 8010 --directory docs`) and exercise the change. The browser caches ES modules per origin:port; a stale port shows you the OLD code and produces false "it works"/"still broken" verdicts. This trap has a documented history — see degreesoffilm-debugging-playbook. |
-| E4 | **Content validator green** | any content change (puzzle publish/edit, manifest, ledger) | `python .claude/skills/degreesoffilm-diagnostics-and-tooling/scripts/validate_content.py` — the read-only integrity instrument (see degreesoffilm-diagnostics-and-tooling for the interpretation guide). Run it before AND after. |
+| E3 | **Browser check** | any player-visible change (`docs/`) | Serve `docs/` (the `docs` entry in `.claude/launch.json`, port 8010, or `python -m http.server 8010 --directory docs` — `file://` won't work, the game uses `fetch`) and exercise the change. Beware ES-module caching per origin:port — a stale tab can show OLD code and produce false verdicts; hard-reload or use a fresh port. |
+| E4 | **Content validators green** | any content change (corpus rebuild, daily publish/edit, note) | `python curation/challenge_gen.py --check` (and `python curation/graph_build.py --check` after a corpus rebuild). §4–5. |
 
 **"Tests pass" alone is NOT evidence for uncovered behavior.** The suites cover the
 pure modules only. The following have **zero automated tests** — for them, E3-style
-manual verification is the *only* gate (found by reading every suite, 2026-07-03):
+manual verification is the *only* gate (found by listing `docs/*.js` against the
+suites, re-verified 2026-08-14):
 
-- `docs/app.js` — all DOM glue: view routing (`?play`/`?archive`/`?practice`/…),
-  `poserPuzzle` ladder trim, `renderChoices`, `applyTheme`, share text, ROASTS/QUOTES,
-  the showEnd stat-isolation guards, the image `onerror` fallback chain.
-- `docs/index.html`, `docs/style.css` — markup ids the JS binds to; the theme CSS vars.
-- `curation/app.py` — every endpoint. The wiring from HTTP payload → `publish.publish()`
-  is untested even though `publish()` itself is.
-- `curation/static/index.html` — the entire curation UI (schedule strip, crop drag,
-  Randomize preview flow, editor).
-- `curation/tmdb.py` — no suite at all (it is the network client). `discover.test.py`
-  and `decoys.test.py` import it transitively, so a *syntax* error fails them at import
-  time, but its behavior (paging, error mapping, key loading) is only verified by
-  running the live tool.
-- `docs/stats.js` `loadStats`/`saveStats` — the localStorage halves; only the pure
-  `defaultStats`/`recordResult` are covered by `stats.test.js`.
-- The curation CLI entry points (`__main__` blocks) and the migration scripts
-  `curation/backfill_credit_images.py`, `curation/obfuscate_puzzles.py`.
-- `curation/images.py`'s network path (downloading a TMDB image) — only the pure
-  box/energy/color math and local-Pillow crops are tested.
+- `docs/app.js` — ALL DOM glue: routes (`?play`/`?id=N`/`?archive`/`?history`),
+  rendering, `shareText()` (the frozen grammar's implementation, §4), animations,
+  the localStorage wiring for run persistence.
+- `docs/index.html`, `docs/style.css` — markup ids the JS binds to; the theme vars.
+- `docs/stats.js` `loadStats`/`saveStats` — the localStorage halves. Only the pure
+  functions (`recordResult`, `recordArchive`, `exportRecord`/`importRecord`, …) are
+  covered by `stats.test.js`.
+- `curation/tmdb.py` — the network client, no suite. `harvest.test.py` imports it
+  transitively (via `harvest`), so a *syntax* error fails at import time, but its
+  behavior (paging, key loading) is only verified by a live harvest.
+- The curation `__main__` blocks' network paths (`harvest.py`'s TMDB sweep).
 
-If your change lives in one of those, say so explicitly in your report and describe the
-manual verification you did. Do not imply test coverage that does not exist.
+Every other `docs/*.js` module has a dedicated suite: match, corpus, chain, solve,
+daily, stats. If your change lives in an untested surface, say so explicitly in your
+report and describe the manual verification you did. Do not imply coverage that does
+not exist.
 
 ## 2. Test inventory and reverse map
 
-18 suites. No framework, no npm scripts (`package.json` is only `{"type":"module"}`),
-no network, no API key. Every suite prints `PASS`/`FAIL` lines, ends with
+**9 suites.** No framework, no npm scripts (`package.json` is only `{"type":"module"}`),
+no network, no API key, no venv. Every suite prints `PASS`/`FAIL` lines, ends with
 `N passed, M failed`, and exits non-zero on any failure. All commands run from the
-repo root. Counts below were measured by running all 18 on **2026-07-04** (all green);
-counts drift as tests are added — a LOWER count than stated here is a red flag (§6).
+repo root. **Do not trust cached counts — run them; each suite prints its own count**
+(CLAUDE.md and the suites own the numbers; they drift every wave).
 
-| Suite | Module(s) under test | What it actually guards | Count | Command |
-|---|---|---|---|---|
-| `match.test.js` | `docs/match.js` | **The fairness contract**: 25 guess→match/reject rows (exact, typo tolerance, foreign titles ± diacritics, surname-only, wrong-surname rejection, empty/nonsense). Mirrors puzzle 001's real answers. **The case table itself lives in `match.cases.js`** (since 2026-07-04, shared with worker.test.js) — add cases THERE. | 25 | `node match.test.js` |
-| `game.test.js` | `docs/game.js` | Scoring curve rungs 1–12 asserted verbatim; scripted playthroughs: strikeout at 3 wrong, skip cap (6th skip ends run), win state, I-Need-Help (score-0, attempt burn, no-decoy denial, MAX_HELPS cap), Poser flat +1; `applyVerdict` (v3 server-verdict path) semantics + guess-vs-verdict parity run. | 51 | `node game.test.js` |
-| `worker.test.js` | `server/worker.js` (+ `docs/match.js`) | The /match Worker in-process (stub KV env): **full match.cases.js parity (25/25)**, wrong-guess body is exactly `{correct:false}` (no answer material), canonical on correct, 400/404/405 validation, pinned CORS + preflight, rate-limit 429/pass. | 17 | `node worker.test.js` |
-| `daily.test.js` | `docs/daily.js` | `pickPuzzle` date logic (exact / most-recent-prior / earliest / gap-day / empty), `todayISO` zero-padding, `pickById` for the archive. | 11 | `node daily.test.js` |
-| `theme.test.js` | `docs/theme.js` | `parseHex` (3/6-digit, garbage rejection), luminance ordering, `onAccentText` dark-ink-vs-bone contrast picks. | 15 | `node theme.test.js` |
-| `stats.test.js` | `docs/stats.js` (pure part) | `recordResult`: streak extend/reset/max, same-day idempotence, histogram, input non-mutation. NOT load/save. | 17 | `node stats.test.js` |
-| `frame.test.js` | `docs/frame.js` | `pickCreditFrame`: reveal tier widening + clamp (incl. single-tier 001 case), credit image + caption, full-frame fallback, overshoot clamp, no-frames edge. | 16 | `node frame.test.js` |
-| `cipher.test.js` | `docs/cipher.js` | Decodes the **Python-produced fixed vector** (§4), round-trips ASCII/Unicode, sentinel prefix, plaintext passthrough, idempotence, `decodeRungs` scope (answers+caption yes, decoys/prompt no). | 19 | `node cipher.test.js` |
-| `buff.test.js` (2026-07-11) | `docs/buff.js` | Movie Buff autocomplete core: keys via the shipped `normalize()` (article/diacritic handling), prefix-before-word-boundary ranking, min-2-char guard, limit, the one-element people-entry shape. | 13 | `node buff.test.js` |
-| `chain.test.js` (2026-07-13) | `docs/chain.js` | Graph-mode engine: legit chain wins at par, direct 1-degree close, the three forgery shapes (wrong credit / skipped hop / out-of-graph), strike-out, single-use films+people, `back()` semantics (degree spent, person blocked), matcher-contract carryover (single-token surnames only). | 27 | `node chain.test.js` |
-| `build_rungs.test.py` | `curation/build_rungs.py` | Ladder shape: cast by **billing not popularity** (a synthetic film where they disagree), director at rung 4, fixed deep-crew order, writer excluded, co-directors collapse to one rung, `max_cast` trim, original-title alternate. | 16 | `python curation/build_rungs.test.py` |
-| `ledger.test.py` | `curation/ledger.py` | Never-repeat ledger: dedupe by film id, `remove_by_puzzles` free-the-films split, id-required, save/reload round-trip (temp dirs). | 12 | `python curation/ledger.test.py` |
-| `discover.test.py` | `curation/discover.py` | Pool floor inclusive at ≥800 votes / ≥6.5 avg, used-film exclusion, `pick_random_unused` with an injected fake rng. | 11 | `python curation/discover.test.py` |
-| `decoys.test.py` | `curation/decoys.py` | `pick_decoys` pure core: excludes the correct answer case-insensitively, dedupes, respects n/exclude-set, tolerates short pools + blank names. | 6 | `python curation/decoys.test.py` |
-| `manifest.test.py` | `curation/manifest.py` | Upsert semantics: date-sorted, same-date REPLACE (one puzzle/day — the collision class), reschedule drops the stale entry, `clear_scheduled` keeps today+past, save/reload. | 13 | `python curation/manifest.test.py` |
-| `publish.test.py` | `curation/publish.py` (+ `cipher`) | `next_id` scan, `assemble_puzzle` obfuscates answers but not decoys, full `publish()` into **temp dirs** (puzzle+ledger+manifest writes, obfuscated titles, dedupe), `next_date` collision avoidance, `upcoming_schedule`, `runway`, `answers_sink` hook (fed once, plaintext, right id). | 39 | `python curation/publish.test.py` |
-| `push_answers.test.py` | `curation/push_answers.py` + `backfill_answers.py` | The /match answers artifact: payload shape (answers only, ladder order), `wrangler kv bulk` entry format (value is a JSON string), upsert dedupe/non-mutation, `file_sink` temp-dir round-trip, backfill decodes obfuscated puzzles + skips missing files. | 17 | `python curation/push_answers.test.py` |
-| `credits_images.test.py` | `curation/credits_images.py` | `caption_for` (cast "Name as Character", crew name-only, Film blank), `NNN-rK.jpg` naming, `attach_person_meta` headshot mapping, `finalize_rung_images` with an **injected fake save** — helper fields stripped, headshot-less rungs skipped. | 22 | `python curation/credits_images.test.py` |
-| `cipher.test.py` | `curation/cipher.py` | The SAME fixed vector as `cipher.test.js` (parity lock, §4), round-trips, sentinel, passthrough, idempotence, None handling, `encode_rungs`/`decode_rungs` non-mutation + scope. | 22 | `python curation/cipher.test.py` |
-| `images.test.py` | `curation/images.py` | Tier expansion + clamping, `best_window` edge-energy (hot-block/tie/oversize), `box_around` clamps, `deweight_bands`, accent/background color clamps, Pillow `crop_tiers`/`auto_crop_box` (+face flag)/`sample_accent`, `box_iou` (auto-crop acceptance metric), `detect_faces` no-face path (degrades to `[]` without cv2 — suite passes either way). | 37 | `.venv/Scripts/python curation/images.test.py` |
-| `title_index.test.py` (2026-07-11) | `curation/title_index.py` | Movie Buff title index pure core: dedupe by id, [title,year] shaping, truncation, ledger-coverage gap detection (case-insensitive, year-aware). | 10 | `python curation/title_index.test.py` |
-| `people_index.test.py` (2026-07-11) | `curation/people_index.py` | People index: popular-source dedupe (id AND name), credits-harvest extraction (cast trim + rung crew jobs only), popularity ranking, spoiler-safe rung-coverage report. | 12 | `python curation/people_index.test.py` |
-| `graph_extract.test.py` (2026-07-13) | `curation/graph_extract.py` | Graph build (metadata join, adjacency inversion, labels), bipartite BFS distances (0/2/4/None), k-edge neighborhoods, compact subgraph serialization. | 11 | `python curation/graph_extract.test.py` |
-| `challenge_gen.test.py` (2026-07-13) | `curation/challenge_gen.py` | Alternating `bfs_path`, exact-par `pick_pair`, challenge assembly (endpoints/par/solution spine), solution-label alternation, broken-par assertion raises. | 9 | `python curation/challenge_gen.test.py` |
+| Suite | Module(s) guarded | Command |
+|---|---|---|
+| `match.test.js` | `docs/match.js` — the fairness contract; **the case table lives in `match.cases.js`** | `node match.test.js` |
+| `daily.test.js` | `docs/daily.js` — `pickPuzzle` date logic, `pickById` | `node daily.test.js` |
+| `stats.test.js` | `docs/stats.js` (pure half) — streak, scorecard, golf labels, handicap, backup codes | `node stats.test.js` |
+| `corpus.test.js` | `docs/corpus.js` — decoding, resolution, suggestions; **plus real-asset invariants against the shipped `docs/graph.json`** (structural only, never a specific title, so a rebuild can't break it) | `node corpus.test.js` |
+| `chain.test.js` | `docs/chain.js` — verdicts, forged chains, `back()`, par (against a synthetic Corpus) | `node chain.test.js` |
+| `solve.test.js` | `docs/solve.js` — shortest route, geodesic count, obscurity | `node solve.test.js` |
+| `harvest.test.py` | `curation/harvest.py` (pure parts) | `python curation/harvest.test.py` |
+| `graph_build.test.py` | `curation/graph_build.py` — prune, rank, encode, validate | `python curation/graph_build.test.py` |
+| `challenge_gen.test.py` | `curation/challenge_gen.py` — BFS path, pair picking, par arc, note rule | `python curation/challenge_gen.test.py` |
 
-Run-everything one-liners (Git Bash, from repo root):
+Plus two shipped-artifact validators (not suites, same green-required standing):
+`python curation/graph_build.py --check` and `python curation/challenge_gen.py --check` (§4).
+
+Run-everything one-liners (Git Bash, repo root):
 
 ```bash
-for t in match game daily theme stats frame cipher worker buff chain; do node $t.test.js || echo "** $t FAILED"; done
-for t in build_rungs ledger discover decoys manifest publish credits_images cipher push_answers title_index people_index graph_extract challenge_gen; do python curation/$t.test.py || echo "** $t FAILED"; done
-.venv/Scripts/python curation/images.test.py    # .venv/bin/python on macOS/Linux
+for t in match daily stats corpus chain solve; do node $t.test.js || echo "** $t FAILED"; done
+for t in harvest graph_build challenge_gen; do python curation/$t.test.py || echo "** $t FAILED"; done
 ```
 
 ### Reverse map — changed file X ⇒ run suites Y
 
-Derived from the actual import graph (verified 2026-07-03: `docs/game.js` imports only
-`match.js`; `docs/app.js` imports game/daily/theme/stats/frame/cipher;
-`curation/publish.py` imports cipher+ledger+manifest; `curation/credits_images.py`
-imports build_rungs; `curation/discover.py` and `decoys.py` import tmdb).
+Derived from the actual import graph (re-read 2026-08-14: `docs/match.js` imports
+nothing; `docs/corpus.js` imports only `match.js`; `docs/chain.js` and `docs/solve.js`
+import nothing and take a corpus; `chain.test.js`/`solve.test.js` build fixtures via
+`Corpus`, so they load corpus.js and match.js transitively;
+`curation/challenge_gen.py` imports `graph_build`; `curation/harvest.py` imports `tmdb`).
 
 | Changed file | Run | Also required |
 |---|---|---|
-| `docs/match.js` | `match.test.js` + `game.test.js` (game imports match) | **Contract-first rule, §3** |
-| `docs/game.js` | `game.test.js` | Fresh-port browser check (E3) |
+| `docs/match.js` | `match.test.js` + `corpus.test.js` (`corpus.resolve` builds on normalize/levenshtein); `chain.test.js` + `solve.test.js` load it transitively — run all four | **Contract-first rule, §3** |
+| `match.cases.js` | `match.test.js` | Adding rows is the §3 rule working; editing existing rows is change-control |
+| `docs/corpus.js` | `corpus.test.js` + `chain.test.js` + `solve.test.js` (both fixture through `Corpus`) | E3 |
+| `docs/chain.js` | `chain.test.js` (solve.js does NOT import chain) | E3 — rules changes are owner-sign-off territory |
+| `docs/solve.js` | `solve.test.js` | E3 (end-card reveal is player-visible) |
 | `docs/daily.js` | `daily.test.js` | E3 |
-| `docs/theme.js` | `theme.test.js` | E3 |
-| `docs/stats.js` | `stats.test.js` | E3 — load/save halves are untested |
-| `docs/frame.js` | `frame.test.js` | E3 |
-| `docs/cipher.js` | `cipher.test.js` **AND** `python curation/cipher.test.py` | Parity is cross-language; one green side proves nothing |
-| `curation/cipher.py` | `curation/cipher.test.py` **AND** `node cipher.test.js` **AND** `curation/publish.test.py` (imports cipher) | §4 — the vector is frozen |
-| `docs/app.js` / `docs/index.html` / `docs/style.css` | — no suite exists — | **Manual gate only**: E3 fresh-port walk of every affected route; if QUOTES touched, run the content validator (it checks quotes-vs-ledger) |
-| `docs/puzzles/*.json`, `docs/puzzles/manifest.json` | — | E4 content validator; content changes also gate on §5 + IMMUTABLE PAST |
-| `curation/build_rungs.py` | `build_rungs.test.py` + `credits_images.test.py` (imports build_rungs) | |
-| `curation/ledger.py` | `ledger.test.py` + `publish.test.py` | |
-| `curation/manifest.py` | `manifest.test.py` + `publish.test.py` | |
-| `curation/publish.py` | `publish.test.py` | |
-| `curation/discover.py` | `discover.test.py` | |
-| `curation/decoys.py` | `decoys.test.py` | |
-| `curation/credits_images.py` | `credits_images.test.py` | |
-| `curation/images.py` | `.venv/Scripts/python curation/images.test.py` | |
-| `curation/tmdb.py` | `discover.test.py` + `decoys.test.py` (import-time smoke only) | **Manual gate**: run the live tool against one endpoint |
-| `curation/app.py`, `curation/static/index.html` | — no suite exists — | **Manual gate only**: run the tool, poke SAFE-READ-ONLY endpoints (table in degreesoffilm-diagnostics-and-tooling); never point live-write endpoints at committed content |
-| `curation/used_films.json` | — | E4 content validator (ledger↔manifest crosscheck) |
+| `docs/stats.js` | `stats.test.js` | E3 — the load/save localStorage halves are untested |
+| `docs/app.js` / `index.html` / `style.css` | — no suite exists — | **Manual gate only**: E3 walk of every affected route; if `shareText()` touched, §4 G2 |
+| `docs/graph.json` (rebuilt) | `python curation/graph_build.py --check` + `node corpus.test.js` (real-asset invariants) | `python curation/challenge_gen.py --check` — a rebuild can drop a daily's endpoint from the pool |
+| `docs/challenges.json` | `python curation/challenge_gen.py --check` | Spoiler-safe commit (§5) |
+| `curation/harvest.py` | `harvest.test.py` | Network path: manual (one live harvest) |
+| `curation/graph_build.py` | `graph_build.test.py` + `challenge_gen.test.py` (imports graph_build) + `graph_build.py --check` | If you rebuilt graph.json: the `docs/graph.json` row above |
+| `curation/challenge_gen.py` | `challenge_gen.test.py` + `challenge_gen.py --check` | |
+| `curation/tmdb.py` | `harvest.test.py` (import-time smoke only) | **Manual gate**: run a live harvest against one endpoint |
 
 ## 3. How to add a test
 
 House style: **plain scripts, tiny `check` helper, PASS/FAIL lines, summary, non-zero
 exit.** No framework, no test runner, no new dependencies. Copy an existing suite.
 
-**JS skeleton** — this is the real `check` helper quoted from `game.test.js`:
+**JS skeleton** — the real `check` helper quoted from `chain.test.js`:
 
 ```js
-import { Game, scoreForRung, MAX_HELPS } from './docs/game.js';
+import { Corpus } from './docs/corpus.js';
+import { Chain, CHAIN_MAX_ATTEMPTS } from './docs/chain.js';
 
 let pass = 0, fail = 0;
 function check(label, got, want) {
-  const ok = JSON.stringify(got) === JSON.stringify(want);
+  const g = JSON.stringify(got), w = JSON.stringify(want);
+  const ok = g === w;
   ok ? pass++ : fail++;
-  console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${JSON.stringify(got)}, want ${JSON.stringify(want)})`}`);
+  console.log(`${ok ? 'PASS' : 'FAIL'}  ${label}${ok ? '' : `  (got ${g}, want ${w})`}`);
 }
-
-// ... check('label', actual, expected); ...
-
-console.log(`\n${pass} passed, ${fail} failed`);
-process.exit(fail ? 1 : 0);
 ```
 
 New JS suites live at the **repo root** as `<module>.test.js`, importing from
 `./docs/<module>.js` (the root `package.json`'s `"type": "module"` exists solely to
 make these imports work). Update CLAUDE.md's test list when you add one.
 
-**Python skeleton** — the real header + `check` helper quoted from `build_rungs.test.py`
-(identical helper across all eight suites):
+**Python skeleton** — the real header + `check` helper quoted from
+`curation/graph_build.test.py`:
 
 ```python
 import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from build_rungs import order_rungs, build_puzzle, order_cast  # noqa: E402
+import graph_build as gb  # noqa: E402
 
 passed = failed = 0
 
@@ -168,206 +142,117 @@ def check(label, got, want):
     passed, failed = passed + (1 if ok else 0), failed + (0 if ok else 1)
     print(f"{'PASS' if ok else 'FAIL'}  {label}"
           + ("" if ok else f"\n        got:  {got!r}\n        want: {want!r}"))
-
-# ... check("label", actual, expected) ...
-
-print(f"\n{passed} passed, {failed} failed")
-sys.exit(1 if failed else 0)
 ```
 
 New Python suites live in `curation/` as `<module>.test.py`. **They must stay
 network-free and key-free** — everything must run with no `curation/.env` and no
-TMDB. The established techniques, all visible in current suites:
-
-- **Temp dirs for file I/O** — `publish.test.py` runs a full `publish()` into
-  `tempfile.TemporaryDirectory()`; `ledger.test.py`/`manifest.test.py` do the same for
-  round-trips. Never write into `docs/` or `curation/used_films.json` from a test.
-- **Injected fakes for side effects** — `credits_images.test.py` passes a `fake_save`
-  callable instead of downloading headshots; `discover.test.py` injects a fake `rng`.
-- **Synthetic fixtures that make the property observable** — `build_rungs.test.py`
-  builds a cast whose billing order *disagrees* with popularity, so a popularity-sort
-  regression cannot pass silently.
-- Pillow-dependent tests go in `images.test.py` (run under the venv); pure math stays
-  runnable without it.
+TMDB. Established techniques, all visible in current suites: synthetic corpora built
+inline (`chain.test.js` hand-writes a 7-film `Corpus` whose comment explains why par
+really is 2); temp dirs for file I/O; never write into `docs/` from a test.
 
 **Where new logic must live to be testable:** in a pure module — no DOM, no `fetch`,
-no network, no localStorage in the logic path. That is the layering law
-(degreesoffilm-architecture-contract): `docs/app.js` and `curation/app.py` are thin
-glue precisely so everything decision-shaped is importable by these suites. If you
-find yourself wanting to test something inside `app.js`/`app.py`, the fix is to
-extract it into a pure module first, not to build a DOM/HTTP test harness.
+no localStorage in the logic path. That is the layering law (CLAUDE.md +
+degreesoffilm-architecture-contract): `docs/app.js` is thin glue precisely so
+everything decision-shaped is importable by these suites. If you want to test
+something inside `app.js`, extract it into a pure module first — do not build a DOM
+harness.
 
 > **NON-NEGOTIABLE — the matcher contract-first rule (from CLAUDE.md):**
-> `match.test.js` IS the specification of what feels fair to a player. Before touching
-> the algorithm in `docs/match.js`, add the new guess→should-match/should-reject row(s)
-> to the `cases` table, run the suite, and watch the new rows FAIL. Only then change
-> the algorithm, and land with the whole table green — the pre-existing rows are prior
-> fairness decisions (foreign titles, typo tolerance, surname-only, wrong-surname
-> rejection) and none of them may regress.
+> `match.cases.js` IS the specification of what feels fair to a player
+> (`[guess, answers, expected, label]` rows; `match.test.js` replays them). Before
+> touching the algorithm in `docs/match.js`, add the new row(s) to the table, run the
+> suite, watch them FAIL, then change the algorithm and land with the whole table
+> green. The pre-existing rows are prior fairness decisions (foreign titles, typo
+> tolerance, surname-only, wrong-surname rejection) and none may regress.
 
 ## 4. Golden inventory — frozen artifacts; changing them is change-control territory
 
-**G1 — the shared cipher fixed vector (FROZEN).** Both cipher suites assert the exact
-same payload so the two implementations cannot drift. From `cipher.test.js`:
+**G1 — the `match.cases.js` contract table.** The matcher contract as data. Rows are
+add-only in normal work; editing or deleting an existing row is a fairness-rules
+change (owner sign-off per degreesoffilm-change-control). The table survived the
+rebuild verbatim from the dig game — its answer fixtures still reference the retired
+puzzle 001, which is fine: they are test data, not live content.
 
-```js
-const S = String.fromCharCode(1);   // the U+0001 sentinel
-check('decodes the Python-produced vector for "The Dark Knight"',
-  decode(S + 'MA0CUiEEAUZPLUMPDgQZ'), 'The Dark Knight');
-```
+**G2 — the FROZEN share line-1 grammar** (CLAUDE.md "Share grammar"; implemented by
+`shareText()` in `docs/app.js`). Accountless leagues — Discord bots parsing
+group-chat shares — depend on line 1; changing it breaks every parser silently.
+Frozen 2026-08-14: line 1 may only ever GAIN content after the final `)`. **No suite
+guards this** (`app.js` is untested) — any `shareText()` edit gets a manual
+before/after diff of the emitted string against the grammar block in CLAUDE.md.
 
-From `curation/cipher.test.py`:
+**G3 — `python curation/challenge_gen.py --check`, the content golden.** Re-derives
+every published daily's par by BFS against the shipped corpus, confirms the cached
+titles still resolve, and HARD-enforces the curator's-note rule (a note must never
+name anything on any geodesic — checked against every possible closer plus the
+solutions sidecar). Green output ends `N dailies, 0 broken`. Run it after ANY corpus
+rebuild and before ANY content commit.
 
-```python
-check("obfuscate('The Dark Knight') is the shared vector",
-      obfuscate("The Dark Knight"), SENTINEL + "MA0CUiEEAUZPLUMPDgQZ")
-check("deobfuscate reverses the vector",
-      deobfuscate(SENTINEL + "MA0CUiEEAUZPLUMPDgQZ"), "The Dark Knight")
-```
+**G4 — `python curation/graph_build.py --check`.** Re-validates the shipped
+`docs/graph.json` (decode round-trip, counts, structure) and prints the corpus line
+(films/people/size). Pairs with `corpus.test.js`'s real-asset invariants, which
+assert structure from the JS side without pinning any title.
 
-(`cipher.test.js` additionally asserts a JS-only Unicode vector,
-`S + 'JQik2wkMFg=='` → `'Amélie'`.) The vector pins KEY `'degrees-of-film'` +
-SENTINEL U+0001 + the XOR/base64 scheme. **Every published puzzle file and every
-manifest title on disk is encoded with this exact scheme** — change the key or scheme
-and all live content becomes gibberish to the client. Treat the vector as effectively
-frozen; if these checks ever fail, the bug is on whichever side you just edited, not
-in the vector. (The real fix for the cipher's weakness is v3 server-side matching, not
-a stronger key — see degreesoffilm-architecture-contract.)
+## 5. Content QA — the gate before dailies publish
 
-**G2 — puzzle 001, the hand-authored golden** (`docs/puzzles/001.json`, No Country for
-Old Men — its answers are already public in `match.test.js` and CLAUDE.md, so naming
-it here is spoiler-safe). Verified on disk 2026-07-03:
+The commands and their order live in CLAUDE.md "Content operations" — don't duplicate
+them; this section is the *gate*:
 
-- Born plaintext in Phase 0; **now fully obfuscated** (the migration ran) and it IS in
-  the ledger (`{"id": 6977, "puzzle": 1}`) and the manifest — do not code
-  "001 is special" exceptions.
-- Still **single image tier** (`images/001.jpg` only) — the live exercise of frame.js's
-  reveal clamp ("single-tier puzzles stay put"; asserted in `frame.test.js`).
-- Its Editor rung has **no `image`/`caption`** ("Roderick Jaynes" is a Coen pseudonym
-  with no TMDB headshot) — the live exercise of the hold-the-full-frame fallback.
-- `match.test.js`'s answer sets mirror its rungs — the matcher contract and the golden
-  puzzle validate each other.
-
-**G3 — the scoring curve.** `game.test.js` asserts the exact sequence:
-
-```js
-const curve = [1,2,3,4,5,6,7,8,9,10,11,12].map(scoreForRung);
-check('score curve rungs 1-12', curve, [1,2,3,4,5,7,9,11,13,15,16,17]);
-```
-
-`1,2,3,4,5,7,9,11,13,15,16,17` = rung value n plus a deep-dig bonus starting at rung 6,
-capped at +5 from rung 10. Any scoring change makes this row red — that is the alarm
-working, not an obstacle; rebalancing the curve is a player-facing rules change
-(owner sign-off per degreesoffilm-change-control).
-
-**G4 — the `validate_ladder.py` 5-film stress set** (describe only — it hits live TMDB
-and needs the key; do NOT run it as a QA step). `curation/validate_ladder.py` is the
-kept throwaway de-risk script whose `FILMS` list stresses the ladder premise across
-ensemble / blockbuster / two foreign-language: *No Country for Old Men* (2007),
-*Pulp Fiction* (1994), *The Dark Knight* (2008), *Parasite* (2019), *Pan's Labyrinth*
-(2006). Its historical verdict — popularity sort buried Heath Ledger's Joker at rung
-13 → **billing order adopted** — is why `build_rungs.test.py` has an explicit
-billing-beats-popularity fixture. Re-run it only if the ordering rule itself is being
-reconsidered (settled battle: degreesoffilm-failure-archaeology).
-
-## 5. Content QA checklist — per puzzle, before publish
-
-Run this during the review step of the publishing runbook (the runbook itself, with
-the point-of-no-return marked, lives in degreesoffilm-run-and-operate). All rungs and
-answers are curator-eyes-only — inspect with
-`python .claude/skills/degreesoffilm-diagnostics-and-tooling/scripts/puzzle_report.py <id>`
-(SPOILER-REVEALING; never paste output anywhere public).
-
-1. **Rung order is sane** — lead cast at the top, director ≈ rung 3–4, technical crew
-   (DP/composer/editor/PD) deepest. The tool drafts by billing order; **a human MUST
-   review edge cases** — star cameos billed low, ensemble oddities, posthumous-legend
-   billing. The draft is a starting point, not a verdict.
-2. **Every rung has ≥1 answer, with the variants a fair player would type** — foreign/
-   original titles for the film rung, name forms (e.g. "Josh"/"Joshua Brolin"),
-   pseudonyms plus real names (001's Editor rung accepts both "Roderick Jaynes" and
-   the Coens). Variants live in `answers[]`, never in matcher logic.
-3. **Decoys are plausible, same-category, and NOT accidentally correct** — check each
-   decoy against the rung's full `answers` list (an alternate name form sneaking into
-   the decoys makes the rung unwinnable-feeling). Zero decoys on a rung is *legal* —
-   I-Need-Help is simply unavailable there (real example: puzzle 5 rung 12, Production
-   Designer, has 0 decoys — verified 2026-07-03) — but it should be a decision, not
-   an oversight.
-4. **The tier-1 crop reveals no title, credit text, or watermark.** Auto-crop
-   de-weights top/bottom bands but does not read text — eyeball it.
-5. **Tiers 2–3 don't spoil** — the widened crops appear after wrong guesses; if the
-   full frame contains the title card, the reveal hands over the answer.
-6. **Headshots present-or-fallback** — every cast/crew rung either has its `NNN-rK.jpg`
-   on disk or intentionally holds the full frame (missing TMDB headshot). `[MISSING]`
-   in puzzle_report = broken; `(none)` = the fallback, fine.
-7. **The date is the intended free day** — publish auto-fills the next free day;
-   confirm it matches your plan, and that you are not editing anything dated ≤ today
-   (**IMMUTABLE PAST** — players played it; the tooling won't stop you, discipline must).
-8. **A spoiler-safe commit message is planned** — puzzle number + date only
-   ("Add puzzle NNN (YYYY-MM-DD)"), never the film title until its date has passed.
-   Commit history is public (two historical commits violated this; see
-   degreesoffilm-change-control).
-9. **Validator green** — `validate_content.py` passes before you push (E4).
-
-Standing check (not per-puzzle, but this checklist's spirit): the home-page QUOTES must
-never name a film in the puzzle set. A prior violation was **FIXED `ee4ec54`, 2026-07-03**;
-the validator's quotes-vs-ledger group (`validate_content.py`, E4) now PASSES and re-fires
-if a QUOTES edit or a newly-published film re-introduces an overlap — trust the validator,
-not this note. Full account: degreesoffilm-failure-archaeology entry 12.
+1. **Generate:** `python curation/challenge_gen.py --days N` (the weekly par arc is
+   the default; solutions go to the gitignored sidecar).
+2. **Verify:** `python curation/challenge_gen.py --check` green — every daily's par
+   re-derived, titles resolve, any curator's notes pass the never-name-a-connector
+   rule. Write notes by hand; `--check` is the enforcement, not a substitute for
+   reading your own note.
+3. **Spoiler-safe commit:** this repo is PUBLIC. Never name a future daily's chain in
+   a commit message; `curation/challenge_solutions.json` is gitignored and must stay
+   that way. (Shipping future *pairs* in `challenges.json` is accepted posture — the
+   pair is the prompt, not the answer.)
+4. **After any corpus rebuild** (`graph_build.py`), re-run `--check` — film ids are
+   stable, but this catches a daily whose endpoint fell out of the pool.
 
 ## 6. Acceptance thresholds
 
-- **All 16 suites green, always, before landing anything.** There is no "unrelated
-  failure" exemption — with no CI, a tolerated red suite is indistinguishable from a
-  broken repo, and the next person cannot tell your pre-existing failure from their
-  new one. If a suite is red for a reason you didn't cause, STOP and fix or escalate
+- **All 9 suites green, always, before landing anything.** No "unrelated failure"
+  exemption — with no CI, a tolerated red suite is indistinguishable from a broken
+  repo. If a suite is red for a reason you didn't cause, STOP and fix or escalate
   before landing; never land on top of red.
 - **Never weaken or delete an assertion to get to green** without explicit sign-off
   through degreesoffilm-change-control. Existing assertions encode prior decisions
-  (fairness rows in match.test.js, the scoring curve, billing-beats-popularity,
-  same-date-upsert). A red assertion is a question — "did you mean to change this
-  behavior?" — and the answer belongs to the owner for anything player-facing.
-- **Count drift: up is fine, down is suspicious.** New tests raise the `N passed`
-  numbers past the table in §2 — good; update the table's date when you notice.
-  A count LOWER than the table means tests were deleted or are silently not running
-  (e.g. an import error swallowed) — investigate before anything else.
-- **Content thresholds:** validator exit 0 (WARNs are visible-but-allowed unless
-  `--strict`); every manifest entry ↔ ledger record 1:1; zero missing referenced
-  images; every obfuscated string decodes.
-- **Evidence in handoffs:** when you report a change as done (project_state.md, PR
-  body), state which suites you ran and the red→green fact for new tests. "All tests
-  pass" without naming them is below the bar here.
+  (fairness rows, verdict semantics, `back()`'s no-refund rule, the note rule). A red
+  assertion is a question — "did you mean to change this behavior?" — and the answer
+  belongs to the owner for anything player-facing.
+- **Count drift: up is fine, down is suspicious.** Each suite prints its own count;
+  the last-known total lives in project_state.md. A count LOWER than last session's
+  means tests were deleted or silently not running (an import error swallowed) —
+  investigate before anything else.
+- **Content thresholds:** both `--check` commands exit 0; `challenge_gen --check`
+  reports `0 broken`.
+- **Evidence in handoffs:** when reporting a change done (project_state.md, PR body),
+  name which suites you ran and the red→green fact for new tests. "All tests pass"
+  without naming them is below the bar here.
 
 ## When NOT to use this skill
 
-- Running the game/curation tool, or the publish runbook itself → **degreesoffilm-run-and-operate**
-- The validator/report scripts' interpretation guides, endpoint safety, git forensics → **degreesoffilm-diagnostics-and-tooling**
-- A live bug to triage (symptom → cause) → **degreesoffilm-debugging-playbook**
-- Whether/how a change may land, commit/PR conventions → **degreesoffilm-change-control**
-- What an invariant is and why (layering law, cipher parity, key confinement) → **degreesoffilm-architecture-contract**
-- Environment setup (Node/venv/pins) → **degreesoffilm-build-and-env**
-- Matching/TMDB/image-math theory behind the tested behavior → **degreesoffilm-domain-reference**
-- Looking up a constant's value/location → **degreesoffilm-config-and-flags**
+- Whether/how a change may land, commit/PR conventions, rollback → **degreesoffilm-change-control**
+- What an invariant is and why (layering law, key confinement, zone boundaries) → **degreesoffilm-architecture-contract**
+- Session handoffs, doc ownership, spoiler-safe writing conventions → **degreesoffilm-docs-and-writing**
+- Matching/TMDB theory behind the tested behavior, glossary → **degreesoffilm-domain-reference**
+- Public claims, attribution, share-string external posture → **degreesoffilm-external-positioning**
 - Why a past approach was rejected → **degreesoffilm-failure-archaeology**
-
-## Reusing this pattern beyond this project
-
-Transferable as a template: the evidence-bar table (suites + red→green + fresh-runtime
-manual gate + content validator); a per-source-file reverse map derived from the import
-graph; framework-free PASS/FAIL test scripts with a shared `check` helper; cross-language
-parity locked by a shared fixed vector; a golden-artifact inventory with an explicit
-FROZEN list; and "count down = suspicious" as a CI-less tripwire. Project-specific: the
-suite names/counts, the cipher scheme, puzzle 001, and the content checklist items.
+- How to PROVE a design claim from first principles → **degreesoffilm-proof-and-analysis-toolkit**
+- What to build next / research-grade ideas → **degreesoffilm-research-frontier**
+- Turning a hunch into an accepted result → **degreesoffilm-research-methodology**
 
 ## Provenance and maintenance
 
-- Written 2026-07-03. All 16 suites RUN that day from the repo root — every count in §2
-  is from those runs (all green, 0 failed). Skeletons and golden quotes copied verbatim
-  from `game.test.js`, `build_rungs.test.py`, `cipher.test.js`, `curation/cipher.test.py`,
-  `curation/validate_ladder.py`. Import graph, coverage gaps, puzzle-001 state,
-  puzzle-5-rung-12 zero decoys, and the live QUOTES violation (HEAD `10668ca`) verified
-  by direct reads/greps the same day.
-- Re-verify counts: the three run-everything one-liners in §2. Re-verify the vector:
-  `node cipher.test.js && python curation/cipher.test.py`. Re-verify the QUOTES note:
-  `python .claude/skills/degreesoffilm-diagnostics-and-tooling/scripts/validate_content.py`.
-- If you add a suite, change a count, or extract logic from app.js/app.py into a tested
-  module, update §2 (and §1's gap list) plus this date in the same session.
+- Written 2026-07-03 for the dig game (16 suites). **Rewritten 2026-08-14, re-verified
+  after the degrees rebuild:** all 9 suites RUN that day from the repo root (268
+  assertions, all green), both `--check` validators RUN green (`graph_build --check`:
+  3,682 films / 9,791 people / 190 KB gz; `challenge_gen --check`: 64 dailies, 0
+  broken). Import graph re-read from the source files; skeletons quoted verbatim from
+  `chain.test.js` and `curation/graph_build.test.py`; untested-surface list rebuilt by
+  listing `docs/*.js` against the suites.
+- Re-verify: the two run-everything one-liners in §2 + both `--check` commands.
+- If you add a suite or extract logic from `app.js` into a tested module, update §2
+  (and §1's gap list) plus this date in the same session. Per-suite assertion counts
+  are deliberately NOT cached here — the suites print them.
