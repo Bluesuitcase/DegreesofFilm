@@ -3,7 +3,27 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-14, corpus-refresh + skill-re-verification session (late evening, post-launch)**._
+_Last updated: **2026-08-15, redesign session (small hours)**._
+
+## 🎨 IN FLIGHT — the "Matinee" light-theme redesign (this branch)
+
+The owner asked for a lighter, more inviting look ("I don't do dark mode"). Researched color
+psychology (warm off-whites cut glare vs pure white while keeping contrast; warm hues read
+inviting; NYT-games register), mocked **three directions** (Matinee cream+gold /
+Ticket-Stub cream+teal / Sunny-Marquee white+yellow) on a comparison page, owner picked
+**A · Matinee: warm cream paper + marquee gold**. Implemented in `docs/style.css`:
+`:root` swapped to the Matinee palette and the vars **semantically renamed**
+(`--ink`→`--paper` ground, `--ink2`→`--card`, `--bone`→`--ink` text — old names would lie
+in a light theme); text-role accents moved amber→`--amber-deep` (#96660a) for WCAG contrast
+on cream; hovers darken instead of brighten; tooltip/shadow/calendar-silver retuned;
+confetti retoned in `app.js`; `favicon.svg` rethemed (paper ground, gold links). Also swept
+**dead dig-era CSS** (.frame/.mark/.rail/.rung/.roast/.quote/.modes cards/.again + more —
+verified unreferenced by index.html+app.js): style.css 367→300 lines. Verified in the
+browser via computed styles (pane hidden → screenshots unavailable, per the gotcha):
+body/paper/ink/amber correct on home + play, **today's daily #5 played end-to-end through
+the real UI to a win** — end card fully themed (deep-gold hero, cream share box, countdown,
+obscurity, reveal). 6 JS suites green. **og.png stays dark for now** (regenerating needs a
+Pillow one-off; a dark social card is acceptable — follow-up if wanted).
 
 ## ▶ Start here next session
 

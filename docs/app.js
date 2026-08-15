@@ -499,7 +499,7 @@ function renderMyChain(rec) {
 // revisiting your result shouldn't re-fire the party.
 function celebrate() {
   if (!MOTION_OK) return;
-  const colors = ['#eba53c', '#caa64f', '#ece7dd'];
+  const colors = ['#e09b28', '#96660a', '#b5462e'];
   for (let i = 0; i < 36; i++) {
     const c = document.createElement('div');
     c.className = 'confetti';
