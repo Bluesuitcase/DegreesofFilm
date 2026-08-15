@@ -3,6 +3,51 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
+_Last updated: **2026-08-14, session end (post-launch)**._
+
+## ▶ Start here next session
+
+1. **The game is LIVE** at https://bluesuitcase.github.io/DegreesofFilm/ — the
+   degrees-of-separation rebuild WITH the complete Comeback Loop (Waves 1–3, all built and
+   merged 2026-08-14). **Work happens on `main` now**; the rebuild branch
+   (`claude/session-context-634bc2`) is merged, its worktree and this session's
+   (`continue-previous-work-056e60`, which holds only an uncommitted `rebuild` launch.json
+   entry) can be pruned with `git worktree remove` whenever convenient.
+2. **Read `CLAUDE.md` next** — it is current for the rebuilt game (ruleset, share grammar,
+   content ops, curator's-note rule). The `degreesoffilm-*` skill survivors are still
+   dig-stale in their inventory facts; trust `CLAUDE.md` + this file over them.
+3. **Run everything from the repo root:** serve `docs/` on any port to play locally; suites
+   are `node {match,daily,stats,corpus,chain,solve}.test.js` + `python
+   curation/{harvest,graph_build,challenge_gen}.test.py` — **9 suites, 268 assertions, all
+   green at session end.** Publishing content = `python curation/challenge_gen.py --days N`
+   (weekly par arc is the default; `--check` re-verifies everything incl. curator notes).
+4. **The canonical to-do is the OPEN ITEMS list below.** Nothing is blocked on code.
+
+## ⏭ Open items (in order)
+
+1. **Share the game** — owner move. The whole loop (glyph shares, route comparison,
+   obscurity, frozen line-1 grammar for group-chat bots) is built for a group chat that
+   doesn't have it yet. First real signal: does anyone come back on day 3?
+2. **Watch the first par-4 Saturday land** (2026-08-15, pilot curator's note attached) —
+   the first live test of the difficulty arc.
+3. **Restock by ~2026-09-06** — runway is 34 dailies through 2026-09-13. Ideally refresh
+   the corpus first (caches date from 2026-07-11): `harvest.py` → `graph_build.py` →
+   `challenge_gen.py --days 30` → `--check`.
+4. **Soft-fail caddy** (the only unbuilt Comeback Loop item) — gated on measured DNF rates
+   from real players (<~10% → skip forever) + owner sign-off (rules change).
+5. **Skill-library re-verification pass** — the 11 surviving `degreesoffilm-*` skills carry
+   dig-era inventory; process content is fine. Low urgency.
+6. Wave-2-era follow-ups parked in the plan: role glyphs in the share (needs a harvest
+   schema change + corpus rebuild), PWA manifest, in-game rules access from `?play`.
+
+**Cloudflare: fully torn down 2026-08-14** (owner-requested) — the orphaned `dof-match`
+Worker and its `ANSWERS` KV namespace were deleted via the API; the endpoint 404s. The
+project is now purely static files. `curation/.env` still holds the TMDB key (needed for
+harvests) and the now-unused Cloudflare token (rotate/revoke at leisure).
+
+**The launch, the plan, and the build record follow below in reverse order — history, not
+instructions.**
+
 ## 🚀 MERGED AND LIVE — 2026-08-14, end of the same evening
 
 **PR #29 was rebase-merged into `main` (`87699a9` → `ce6b4dd`) on the owner's explicit
@@ -126,21 +171,12 @@ from a still, then dig through its credits) was **retired and deleted** at the o
 **committed as `3da6a94`** on branch `claude/session-context-634bc2` (368 files, +2,080/−13,703)
 — **pushed as [PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29), NOT merged, NOT live.**_
 
-## ▶ Start here next session
+## ~~Start here next session~~ (2026-08-11 version — SUPERSEDED by the top of this file)
 
-1. **Read this file, then `CLAUDE.md`.** Ignore the skill library where it disagrees with them
-   (see "Skill library — mid-migration" below).
-2. **The one open question is whether the game is fun.** It has never been played by anyone but
-   me. Serve it — `python -m http.server 8010 --directory docs` from the worktree, or the `docs`
-   entry in `.claude/launch.json` — and play today's daily.
-3. **Then merge or don't.** The branch is pushed and
-   **[PR #29](https://github.com/Bluesuitcase/DegreesofFilm/pull/29) is open against `main`** —
-   review it there. Merging is player-facing and destructive (the live site loses the dig and its
-   21 puzzles), so it's deliberately left unmerged. Rebase-merge per `degreesoffilm-change-control`
-   (`main` had not moved, so it's a clean 2-commit fast-forward). Pushing `docs/` to `main`
-   auto-deploys to GitHub Pages.
-4. The worktree is at `.claude/worktrees/session-context-634bc2`. The two gitignored TMDB caches
-   were copied into it and are ~2.5 MB.
+The rebuild-era checklist that lived here (playtest gate → merge decision) completed on
+2026-08-14: playtest done, verdict acted on, PR #29 merged, site live. The gitignored TMDB
+caches referenced below now matter only for the next corpus refresh — copies live in the
+repo root's `curation/` after the merge.
 
 ## What the game is now
 
