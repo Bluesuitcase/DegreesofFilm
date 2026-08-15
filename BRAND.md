@@ -132,9 +132,18 @@ The entire UI derives from nine CSS variables. Hex values are canonical:
 5. **The share string's first line is a frozen grammar** — if art incorporates a sample
    share, copy the format exactly as shown above.
 
-## Current assets (for reference)
+## Current assets (adopted 2026-08-15 from the "Movie Trivia Game Graphics" design project)
 
-- `docs/favicon.svg` — the chain-links mark described above (original, current).
-- `docs/og.png` — 1200×630 social card, dark ground, chain motif (original, pre-redesign;
-  candidates for replacement should follow this brief).
+The logo concept is **"chain into degree"**: an open gold chain link, an ink connector bar
+climbing at 30°, resolving into a gold degree ring. Play, connection, and score in one mark.
+
+- `docs/favicon.svg` — the mark on a rounded card tile (browser tab).
+- `docs/logo-mark.svg` — the bare mark (masthead, next to the wordmark).
+- `docs/logo-lockup.svg` — mark over the letterspaced wordmark (external/promo use).
+- `docs/og.png` — 1200×630 social card, cream ground, mark + tagline
+  ("Two films. Chain them. Beat par.") + a Film → ? → ? → Film pill chain.
+- `docs/badges/badge-{albatross,eagle,birdie,par,bogey,double-bogey,broken-chain}.svg` —
+  rank-tiered ticket-stub verdict badges for the end card: gold fills under par, quiet
+  card stubs at/over par, terracotta for a lost chain. Notches assume the cream ground.
+- `docs/confetti.svg` — chain-and-ring confetti scatter, shown on under-par end cards.
 - Live site: https://bluesuitcase.github.io/DegreesofFilm/

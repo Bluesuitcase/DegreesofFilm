@@ -433,8 +433,20 @@ function renderEndCard(rec, opts = {}) {
 
   if (ticker) { clearInterval(ticker); ticker = null; }
 
+  // Rank-tiered ticket-stub badge (brand sheet): gold fills under par, quiet
+  // stubs at/over, terracotta for a lost chain.
+  const diff = rec.degrees - rec.par;
+  const badge = !rec.won ? 'broken-chain'
+    : diff <= -3 ? 'albatross' : diff === -2 ? 'eagle' : diff === -1 ? 'birdie'
+    : diff === 0 ? 'par' : diff === 1 ? 'bogey' : 'double-bogey';
+  const scatter = rec.won && diff < 0
+    ? '<img class="scatter" src="confetti.svg" alt="" aria-hidden="true" />' : '';
+
   $('end').innerHTML = `
     <p class="eyebrow">${escapeHtml(rec.start)} → ${escapeHtml(rec.goal)}</p>
+    ${scatter}
+    <img class="verdict-badge" src="badges/badge-${badge}.svg"
+         alt="${rec.won ? (name || rel + ' vs par') : 'Broken chain'}" />
     <div class="hero">
       <span class="herodepth">${rec.won ? rec.degrees : '—'}</span>
       <label>${rec.won ? 'degrees' : 'chain broken'}</label>

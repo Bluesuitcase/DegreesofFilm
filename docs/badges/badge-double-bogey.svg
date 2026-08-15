@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 90" font-family="-apple-system,&#39;Segoe UI&#39;,Helvetica,Arial,sans-serif">
+  <rect x="1" y="1" width="238" height="88" rx="18" fill="#fcf8ef" stroke="#ddd2bc" stroke-width="2"></rect>
+  <line x1="170" y1="10" x2="170" y2="80" stroke="#ddd2bc" stroke-width="1.5" stroke-dasharray="2 5" stroke-linecap="round"></line>
+  <circle cx="170" cy="1" r="9" fill="#f5efe3"></circle><circle cx="170" cy="89" r="9" fill="#f5efe3"></circle>
+  <text x="88" y="44" text-anchor="middle" font-size="12" font-weight="600" letter-spacing="2.5" fill="#7a6f60">DOUBLE BOGEY+</text>
+  <text x="88" y="62" text-anchor="middle" font-size="8" font-weight="600" letter-spacing="2" fill="#7a6f60">VS PAR</text>
+  <text x="205" y="54" text-anchor="middle" font-size="26" font-weight="600" fill="#7a6f60" style="font-variant-numeric:tabular-nums">+2</text>
+</svg>

@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 280">
+<rect x="40" y="40" width="16" height="10" rx="5" fill="none" stroke="#e09b28" stroke-width="2.5" transform="rotate(-24 48 45)"></rect>
+<circle cx="110" cy="190" r="5.5" fill="none" stroke="#96660a" stroke-width="2.5"></circle>
+<rect x="170" y="60" width="16" height="10" rx="5" fill="none" stroke="#96660a" stroke-width="2.5" transform="rotate(30 178 65)"></rect>
+<rect x="240" y="210" width="16" height="10" rx="5" fill="none" stroke="#e09b28" stroke-width="2.5" transform="rotate(-10 248 215)"></rect>
+<circle cx="300" cy="90" r="5.5" fill="none" stroke="#e09b28" stroke-width="2.5"></circle>
+<rect x="360" y="230" width="16" height="10" rx="5" fill="none" stroke="#b5462e" stroke-width="2.5" transform="rotate(-35 368 235)"></rect>
+<circle cx="420" cy="50" r="5.5" fill="none" stroke="#96660a" stroke-width="2.5"></circle>
+<rect x="470" y="170" width="16" height="10" rx="5" fill="none" stroke="#e09b28" stroke-width="2.5" transform="rotate(-50 478 175)"></rect>
+<circle cx="530" cy="80" r="5.5" fill="none" stroke="#e09b28" stroke-width="2.5"></circle>
+<circle cx="90" cy="110" r="5.5" fill="none" stroke="#e09b28" stroke-width="2.5"></circle>
+<circle cx="200" cy="150" r="5.5" fill="none" stroke="#b5462e" stroke-width="2.5"></circle>
+<rect x="330" y="160" width="16" height="10" rx="5" fill="none" stroke="#96660a" stroke-width="2.5" transform="rotate(8 338 165)"></rect>
+<rect x="500" y="240" width="16" height="10" rx="5" fill="none" stroke="#96660a" stroke-width="2.5" transform="rotate(40 508 245)"></rect>
+<circle cx="560" cy="180" r="5.5" fill="none" stroke="#b5462e" stroke-width="2.5"></circle>
+<rect x="140" y="250" width="16" height="10" rx="5" fill="none" stroke="#e09b28" stroke-width="2.5" transform="rotate(20 148 255)"></rect>
+<rect x="430" y="120" width="16" height="10" rx="5" fill="none" stroke="#e09b28" stroke-width="2.5" transform="rotate(-8 438 125)"></rect>
+<rect x="260" y="30" width="16" height="10" rx="5" fill="none" stroke="#96660a" stroke-width="2.5" transform="rotate(45 268 35)"></rect>
+<circle cx="550" cy="30" r="5.5" fill="none" stroke="#96660a" stroke-width="2.5"></circle>
+</svg>
