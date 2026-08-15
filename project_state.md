@@ -13,8 +13,10 @@ daily #4, zero console errors, new OG meta present. The old dig is retired from 
 The rebuild worktree/branch (`claude/session-context-634bc2`) is merged and can be cleaned up;
 **work now happens from `main`.** Still open, in order: (1) **share the game** — the loop is
 built for a group chat, it needs one; (2) watch the first par-4 Saturday (2026-08-15, pilot
-curator's note attached) land with real players; (3) **delete the orphaned Cloudflare Worker**
-(`dof-match.bluesuitcase.workers.dev`) from the dashboard — owner task; (4) corpus refresh
+curator's note attached) land with real players; (3) ~~delete the orphaned Cloudflare Worker~~ **DONE
+2026-08-14 late evening, owner-requested:** `dof-match` script + its `ANSWERS` KV namespace
+deleted via the API (scoped token in `curation/.env`, which the account still holds along
+with the TMDB key); endpoint verified 404. Nothing remains on Cloudflare; (4) corpus refresh
 (caches from 2026-07-11) then `graph_build` + `challenge_gen --check`; (5) the soft-fail caddy
 stays gated on measured DNF rates + owner sign-off; (6) skill-library re-verification pass
 (post-rebuild staleness). Runway: 34 dailies through 2026-09-13 — restock by ~09-06.
