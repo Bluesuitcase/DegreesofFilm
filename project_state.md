@@ -5,7 +5,7 @@
 
 _Last updated: **2026-08-15, corpus-expansion session**._
 
-## 📈 CORPUS EXPANDED — pool floor widened 800/6.5 → 500/6.0 (this branch)
+## 📈 CORPUS EXPANDED — pool floor widened 800/6.5 → 500/6.0 (PR #33, MERGED 2026-08-15 as `7dc07b3`)
 
 Owner-directed ("pull more movies in for autofill + connections"). **Measured before
 building** (one `discover` call per candidate floor; throwaway probe, deleted): a grid of
