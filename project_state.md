@@ -5,6 +5,16 @@
 
 _Last updated: **2026-08-15, launch-prep session (evening)**._
 
+## 🔗 SHARE-THE-GAME BUTTON — MERGED 2026-08-15 (PR #35, `a423a33`)
+
+The game shares itself: "Share this game" on the home CTA row + "Share the game" on the
+end card (tooltip: "Send the game itself, not your score"). Web Share API with
+`docs/invite.gif` (68 KB animated Matinee invite card, fetched only on tap) attached
+where the platform allows files; text+url sheet otherwise; clipboard fallback with
+button-label feedback in every path (including copy-blocked). Dismissed sheet = non-event.
+BRAND.md documents the asset. Browser-verified both buttons + worst-case fallback; 6 JS
+suites green.
+
 ## 🚪 LAUNCH PREP — the owner shares the game 2026-08-16 (PR #34, MERGED 2026-08-15 as `891a6fe`)
 
 Three owner-requested moves for tomorrow's share: **(1) easy first daily** — tomorrow's
