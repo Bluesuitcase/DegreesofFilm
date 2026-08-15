@@ -3,7 +3,23 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-14, second session (evening)**. **THE OWNER PLAYTEST HAPPENED — the
+## 🚀 MERGED AND LIVE — 2026-08-14, end of the same evening
+
+**PR #29 was rebase-merged into `main` (`87699a9` → `ce6b4dd`) on the owner's explicit
+"merge", and GitHub Pages deployed within a minute.** The LIVE site at
+https://bluesuitcase.github.io/DegreesofFilm/ now serves the rebuilt degrees-of-separation
+game **with the complete Comeback Loop (Waves 1–3)** — verified live: home renders today's
+daily #4, zero console errors, new OG meta present. The old dig is retired from production.
+The rebuild worktree/branch (`claude/session-context-634bc2`) is merged and can be cleaned up;
+**work now happens from `main`.** Still open, in order: (1) **share the game** — the loop is
+built for a group chat, it needs one; (2) watch the first par-4 Saturday (2026-08-15, pilot
+curator's note attached) land with real players; (3) **delete the orphaned Cloudflare Worker**
+(`dof-match.bluesuitcase.workers.dev`) from the dashboard — owner task; (4) corpus refresh
+(caches from 2026-07-11) then `graph_build` + `challenge_gen --check`; (5) the soft-fail caddy
+stays gated on measured DNF rates + owner sign-off; (6) skill-library re-verification pass
+(post-rebuild staleness). Runway: 34 dailies through 2026-09-13 — restock by ~09-06.
+
+_Previous update: **2026-08-14, second session (evening)**. **THE OWNER PLAYTEST HAPPENED — the
 gate is passed with a verdict:** "I like it, but it's missing something… feels like a one-off
 rather than I-need-to-come-back-and-play-this-again-asap." That verdict was put through a
 12-agent research workflow + 3 adversarial critics, merged with the owner's brief (Wordle is
