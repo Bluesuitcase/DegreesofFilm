@@ -75,6 +75,8 @@ remains on Cloudflare.)
 DESIGN.md              Original spec for the retired dig game — HISTORICAL, superseded by the
                        "Degrees" section at its top. This file + project_state.md are current.
 CLAUDE.md              This file (how the code works).
+BRAND.md               Brand & design brief (the Matinee identity) — self-contained, for
+                       designers and design tools; keep it true when the theme changes.
 project_state.md       Running session handoff — read FIRST.
 package.json           Just { "type": "module" }.
 match.cases.js         The matcher contract as data: [guess, answers, expected, label] rows.
