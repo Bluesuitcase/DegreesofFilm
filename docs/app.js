@@ -36,6 +36,7 @@ let trail = [];          // this run's glyph story: 🔗 hop · 🟥 burn · ↩
 let ticker = null;       // countdown interval
 let lastChain = -1;      // chain length at the previous render (animates the new pill)
 let burnFlash = false;   // this render should crack the freshly spent attempt dot
+let inviteFile = null;   // prefetched invite card: File once ready · false = unavailable · null = not tried
 
 // Sequencing that hides content before animating it is gated on this — with
 // motion reduced, everything simply appears.
@@ -694,9 +695,9 @@ const INVITE_TEXT = 'Degrees of Film — a daily film puzzle. Two films: chain t
 
 // Mobile share sheets demand navigator.share() inside the tap's user-gesture
 // window — downloading the card AFTER the tap expires it. So the card is
-// prefetched when a share button appears, and the tap shares instantly with
-// whatever is ready (card if prefetched, plain text+url if not).
-let inviteFile = null;   // File once ready · false = unavailable · null = not tried
+// prefetched when a share button appears (state lives with the module state
+// above — boot() runs before this section of the module), and the tap shares
+// instantly with whatever is ready (card if prefetched, plain text+url if not).
 function prefetchInviteCard() {
   if (inviteFile !== null || !navigator.canShare) return;
   inviteFile = false;
