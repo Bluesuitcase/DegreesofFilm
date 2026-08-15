@@ -5,7 +5,7 @@
 
 _Last updated: **2026-08-15, launch-prep session (evening)**._
 
-## 🚪 LAUNCH PREP — the owner shares the game 2026-08-16 (this branch)
+## 🚪 LAUNCH PREP — the owner shares the game 2026-08-16 (PR #34, MERGED 2026-08-15 as `891a6fe`)
 
 Three owner-requested moves for tomorrow's share: **(1) easy first daily** — tomorrow's
 slot (2026-08-16) was regenerated as a **par-2 between two top-200-popularity films**
