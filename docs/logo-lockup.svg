@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 360 150" font-family="-apple-system,&#39;Segoe UI&#39;,Helvetica,Arial,sans-serif">
+  <g transform="translate(148,10) scale(1.15)">
+    <rect x="3" y="26" width="22" height="14" rx="7" fill="none" stroke="#e09b28" stroke-width="4.5"></rect>
+    <rect x="20" y="22" width="14" height="6" rx="3" fill="#2e2620" transform="rotate(-30 27 25)"></rect>
+    <circle cx="40" cy="14" r="9" fill="none" stroke="#e09b28" stroke-width="4.5"></circle>
+  </g>
+  <text x="183" y="118" text-anchor="middle" font-size="19" font-weight="600" letter-spacing="5.3" fill="#2e2620">DEGREES OF FILM</text>
+</svg>

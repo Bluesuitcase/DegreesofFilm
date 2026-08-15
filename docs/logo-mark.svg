@@ -1,7 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
-  <!-- Degrees of Film: a chain link climbing into a degree ring. Original art
-       (Matinee brand sheet, 2026-08-15). -->
-  <rect width="64" height="64" rx="20" fill="#fcf8ef" stroke="#ddd2bc" stroke-width="1"></rect>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="4 8 56 44">
   <rect x="7" y="34" width="22" height="14" rx="7" fill="none" stroke="#e09b28" stroke-width="4.5"></rect>
   <rect x="24" y="30" width="14" height="6" rx="3" fill="#2e2620" transform="rotate(-30 31 33)"></rect>
   <circle cx="44" cy="22" r="9" fill="none" stroke="#e09b28" stroke-width="4.5"></circle>
