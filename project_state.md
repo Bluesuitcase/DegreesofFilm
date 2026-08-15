@@ -3,7 +3,24 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-15, launch-prep session (evening)**._
+_Last updated: **2026-08-15, session end (launch eve — owner shares the game 2026-08-16)**._
+
+## ▶ Start here next session (2026-08-15 version)
+
+1. **The owner shared the game with a group on 2026-08-16** — the first real players.
+   Everything below this line was built and merged for that moment. First questions next
+   session: how did the launch land? Any bug reports? **Does anyone come back on day 3?**
+2. **Current state:** corpus 6,566 films / 16,379 people / 80,767 edges (floor 500/6.0);
+   **74 dailies through 2026-10-13** (+10 backdated archive games); Matinee light theme +
+   brand identity live; share-the-game button live and **owner-verified sharing the
+   animated GIF correctly from mobile** after three same-evening fixes (PRs #36–#38:
+   tooltip tap-trap + gesture-window prefetch, TDZ hotfix, prefetch race).
+3. **Docs and skills are current** — CLAUDE.md, BRAND.md, the re-verified skill library
+   (+ failure-archaeology entries 18–23), and the global mirror all updated same-session.
+4. **Open items:** watch the launch (evidence for the gated soft-fail caddy accrues from
+   real players now); restock by **~2026-10-06** (harvest picks up the 500/6.0 floor
+   automatically); TMDB-terms re-read stays a gate before any *public* (beyond
+   friends) push; parked: role glyphs, PWA manifest, in-game rules from `?play`.
 
 ## 🎞 GIF-SHARE RACE FIX — MERGED 2026-08-15 (PR #38, `a947ebd`)
 
@@ -13,6 +30,7 @@ The tap now races the in-flight prefetch against a 700 ms beat (inside the gestu
 window; the earlier bug was an UNBOUNDED await) before choosing which share to send.
 Platform floor stays: no file-share support → text+link+og unfurl. If a platform
 rejects GIF files specifically, the next lever is an MP4 card variant (not built).
+**OWNER-VERIFIED on device: "it works now, the gif is sharing correctly."**
 
 ## 🚑 HOTFIX — TDZ regression from PR #36, MERGED 2026-08-15 (PR #37, `6370e99`)
 
@@ -111,7 +129,7 @@ the real UI to a win** — end card fully themed (deep-gold hero, cream share bo
 obscurity, reveal). 6 JS suites green. **og.png stays dark for now** (regenerating needs a
 Pillow one-off; a dark social card is acceptable — follow-up if wanted).
 
-## ▶ Start here next session
+## ~~Start here next session~~ (2026-08-14 version — SUPERSEDED by the top of this file)
 
 1. **The game is LIVE** at https://bluesuitcase.github.io/DegreesofFilm/ — the
    degrees-of-separation rebuild WITH the complete Comeback Loop (Waves 1–3, all built and
@@ -136,9 +154,8 @@ Pillow one-off; a dark social card is acceptable — follow-up if wanted).
 
 ## ⏭ Open items (in order)
 
-1. **Share the game** — owner move. The whole loop (glyph shares, route comparison,
-   obscurity, frozen line-1 grammar for group-chat bots) is built for a group chat that
-   doesn't have it yet. First real signal: does anyone come back on day 3?
+1. ~~Share the game~~ **HAPPENING 2026-08-16** — launch prep merged (easy opener,
+   15-game archive, share buttons + invite cards). Watch: does anyone come back on day 3?
 2. **Watch the first par-4 Saturday land** (2026-08-15, pilot curator's note attached) —
    the first live test of the difficulty arc.
 3. ~~Restock by ~2026-09-06~~ **DONE 2026-08-14 (see the refresh record below)** — corpus
