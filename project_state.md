@@ -3,7 +3,21 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-15, corpus-expansion session**._
+_Last updated: **2026-08-15, launch-prep session (evening)**._
+
+## 🚪 LAUNCH PREP — the owner shares the game 2026-08-16 (this branch)
+
+Three owner-requested moves for tomorrow's share: **(1) easy first daily** — tomorrow's
+slot (2026-08-16) was regenerated as a **par-2 between two top-200-popularity films**
+(`--par 2 --top 200`) so newcomers' first game is warm; the old par-3 pair was discarded
+unplayed. **(2) archive stocked for day one** — ten backdated games (#80–#89,
+2026-08-01 → 2026-08-10, pars 2,2,3 mix) fill the archive so a hooked newcomer has
+**15 games** to keep playing. These were never live dailies — they're archive filler by
+design, replay-channel only, no streak impact. **(3) personal share card** — 1200×630
+Matinee-brand invite PNG (Pillow one-off via the main-checkout `.venv`; script in the
+session scratchpad; no real film/person names per BRAND.md) delivered to the owner —
+it is NOT in the repo; the og.png unfurl still covers pasted links. `--check`: **74
+dailies, 0 broken**; affected suites green; archive browser-verified (15 rows).
 
 ## 📈 CORPUS EXPANDED — pool floor widened 800/6.5 → 500/6.0 (PR #33, MERGED 2026-08-15 as `7dc07b3`)
 
