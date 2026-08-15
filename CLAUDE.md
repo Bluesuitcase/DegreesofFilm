@@ -25,7 +25,7 @@ Live at **https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` 
 ## The one idea that makes it work
 
 **Ship the whole graph once, not a puzzle at a time.** `docs/graph.json` is the entire pool —
-3,682 films, 9,791 people, 42,948 credited-on edges — in 190 KB gzip, cached by the browser after
+6,566 films, 16,379 people, 80,767 credited-on edges — in 345 KB gzip, cached by the browser after
 the first play. Everything follows from that:
 
 - A daily challenge is **~50 bytes** (`{id, date, start, goal, par}` with TMDB film ids). All 64
@@ -34,10 +34,10 @@ the first play. Everything follows from that:
   pool; the game then tells you whether that hop actually exists. An earlier prototype shipped a
   per-challenge subgraph and drew autocomplete from it, which handed the player the answer.
 - Nothing about today's answer is in the shipped data, because the shipped data is everything.
-- No images anywhere. The whole site is ~200 KB.
+- No images anywhere. The whole site is ~360 KB, and almost all of it is the graph.
 
 Two prunes make the corpus small enough: people credited on only one film can never be a hop
-(67% of them — dropped), and the labels/adjacency are index-encoded with delta-hex gaps.
+(65% of them — dropped), and the labels/adjacency are index-encoded with delta-hex gaps.
 
 ## Run & test
 
@@ -100,7 +100,7 @@ docs/                  The entire static site = what gets hosted.
   solve.js             End-card analysis: BFS shortest routes, distinct-route count, obscurity
                        score. Pure logic, no DOM.
   stats.js             localStorage streak + scorecard; recordResult is pure.
-  graph.json           THE CORPUS: {v, ids, films, people, cast} — 190 KB gz. Built by
+  graph.json           THE CORPUS: {v, ids, films, people, cast} — 345 KB gz. Built by
                        curation/graph_build.py. Fetched only when you actually play.
   challenges.json      {v, daily:[{id, date, start, goal, par, from, to}]} — every daily.
 curation/              PRIVATE — never served. Holds the TMDB key (.env, gitignored).
@@ -151,12 +151,12 @@ stay DOM-free so the Node tests import them directly.
 - `corpus.resolve` is the new layer, and its asymmetry is deliberate:
   - **In context** (the handful of legal hops): exact → typo → last-word. "Bardem" or "Fiction"
     is unambiguous among a dozen candidates.
-  - **Globally** (9,791 names): exact → typo → last-word **only if exactly one name in the pool
+  - **Globally** (16,379 names): exact → typo → last-word **only if exactly one name in the pool
     ends that way**. Otherwise "smith" would silently resolve to whichever Smith ranks highest.
   - Index order is rank order (popularity), so "first hit wins" means "most famous hit wins" —
     that's how duplicate titles like *Heat (1995)* vs *Heat (1986)* resolve, and why context beats
     rank when the lower-ranked one is the legal hop.
-- Worst case (a guess matching nothing, scanning all 9,791 names) measures **~5 ms**.
+- Worst case (a guess matching nothing, scanning all 16,379 names) measures **~3 ms**.
 
 ## Share grammar (FROZEN — never reformat line 1)
 

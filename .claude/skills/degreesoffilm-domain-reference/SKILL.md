@@ -45,7 +45,7 @@ anywhere. `CLAUDE.md` is the ruleset of record.
 | **back()** | Abandon the current person and return to the previous film. The degree stays spent and the person stays blocked — no refunds, like a golf stroke (`docs/chain.js` `back`). |
 | **near-miss** | Temperature on a burned guess: graph distance d=1 (with a witness *year*, never a name) / d=2 / d=3+, depth-capped at 2 so three burns can't triangulate (`docs/chain.js` `nearMiss`). |
 | **corpus** | `docs/graph.json` `{v, ids, films, people, cast}` — the *entire* pool in one cached download, so a challenge is ~50 bytes and the shipped data says nothing about today's answer. Built by `curation/graph_build.py`, loaded by `docs/corpus.js`. Current counts/size: `CLAUDE.md` or `python curation/graph_build.py --check`. |
-| **pool floor** | Corpus admission bar: TMDB `vote_count >= 800 AND vote_average >= 6.5` (`curation/harvest.py` `POOL_MIN_VOTES` / `POOL_MIN_AVG`). |
+| **pool floor** | Corpus admission bar: TMDB `vote_count >= 500 AND vote_average >= 6.0` (`curation/harvest.py` `POOL_MIN_VOTES` / `POOL_MIN_AVG`; widened from 800/6.5 on 2026-08-15). |
 | **prune / connector** | A person credited on fewer than 2 distinct pool films can never be a hop, so they're dropped (~67% of harvested people) — `graph_build.py` `MIN_FILMS_PER_PERSON`, `connector_ids`. Films left with no connector drop too. |
 | **delta-hex encoding** | Each film's cast ships as comma-separated hex gaps between ascending person indices (`"3,1,2b"`). Encoder `graph_build.encode_deltas`; the four-line decoder is mirrored in both languages (`graph_build.decode_deltas` ↔ `corpus.js` `decodeDeltas`). |
 | **rank order** | Array index order *is* popularity order for both films and people, so "first hit wins" means "most famous wins" and no rank field ships (`corpus.js` header; `graph_build.rank_people`). |
@@ -74,7 +74,7 @@ The surviving pipeline uses exactly **two endpoints**, both from
 
 | Endpoint | Used for | Fields consumed |
 |---|---|---|
-| `GET /discover/movie` | Sweep every film clearing the pool floor (`vote_count.gte=800`, `vote_average.gte=6.5`, `sort_by=popularity.desc`, `include_adult=false`), paging to at most 500 pages | `results[].{id, title, release_date}`, `total_pages` |
+| `GET /discover/movie` | Sweep every film clearing the pool floor (`vote_count.gte=500`, `vote_average.gte=6.0`, `sort_by=popularity.desc`, `include_adult=false`), paging to at most 500 pages | `results[].{id, title, release_date}`, `total_pages` |
 | `GET /movie/{id}?append_to_response=credits` | One call per new film for its key credits | `credits.cast[:12].{id, name, popularity}`; `credits.crew[].{id, name, popularity}` where `job` ∈ Director, Director of Photography, Original Music Composer, Editor, Production Design |
 
 "Key credits" = the **top 12 billed cast** (the cast array's own order is

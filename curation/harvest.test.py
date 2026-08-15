@@ -46,7 +46,9 @@ check("entries without an id are skipped",
       harvest.extract_people({"credits": {"cast": [{"name": "Nameless"}]}}), [])
 
 # The pool floor is the corpus boundary — pin it so a silent edit is caught.
-check("pool floor unchanged", (harvest.POOL_MIN_VOTES, harvest.POOL_MIN_AVG), (800, 6.5))
+# Widened 800/6.5 → 500/6.0 on 2026-08-15 (owner-chosen, measured first: 6.6k films,
+# 345 KB gz). A change here must be deliberate and re-measured, never incidental.
+check("pool floor unchanged", (harvest.POOL_MIN_VOTES, harvest.POOL_MIN_AVG), (500, 6.0))
 
 print(f"\n{passed} passed, {failed} failed")
 raise SystemExit(1 if failed else 0)

@@ -115,7 +115,7 @@ is dead (its history is in git). What ships now is **factual credits data**, TMD
 
 | Asset | Detail | Where |
 |---|---|---|
-| The corpus | 3,682 film titles + years, 9,791 people's names, 42,948 credited-on edges — the entire pool, index-encoded, in a **public repo** | `docs/graph.json` |
+| The corpus | 6,566 film titles + years, 16,379 people's names, 80,767 credited-on edges — the entire pool, index-encoded, in a **public repo** | `docs/graph.json` |
 | Dailies | Film-id pairs + par + cached endpoint titles; optional one-sentence curator's notes (authored, texture-only) | `docs/challenges.json` |
 | Site art | `og.png` (original artwork) and `favicon.svg` — `docs/index.html` carries an explicit comment that **TMDB imagery must never appear** in the unfurl art | `docs/index.html` lines 9–10 |
 
@@ -159,7 +159,7 @@ Take these, verbatim, to qualified counsel — do not attempt to answer them in-
 
 State these as **claims with in-repo evidence**, never as "first/only":
 
-- **The whole graph ships once** — the entire pool (188–190 KB gz) is the shipped data;
+- **The whole graph ships once** — the entire pool (~345 KB gz) is the shipped data;
   a daily is ~50 bytes; no server, no backend, ~200 KB site (`docs/graph.json`,
   `CLAUDE.md` "The one idea").
 - **Par/golf scoring against a BFS-computed shortest chain** — par is provably the

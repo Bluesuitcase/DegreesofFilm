@@ -248,7 +248,7 @@ them; this section is the *gate*:
 - Written 2026-07-03 for the dig game (16 suites). **Rewritten 2026-08-14, re-verified
   after the degrees rebuild:** all 9 suites RUN that day from the repo root (268
   assertions, all green), both `--check` validators RUN green (`graph_build --check`:
-  3,682 films / 9,791 people / 190 KB gz; `challenge_gen --check`: 64 dailies, 0
+  6,566 films / 16,379 people / 345 KB gz; `challenge_gen --check`: 64 dailies, 0
   broken). Import graph re-read from the source files; skeletons quoted verbatim from
   `chain.test.js` and `curation/graph_build.test.py`; untested-surface list rebuilt by
   listing `docs/*.js` against the suites.

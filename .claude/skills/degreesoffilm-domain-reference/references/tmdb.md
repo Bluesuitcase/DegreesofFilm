@@ -40,8 +40,8 @@ Callers: `harvest.refresh_films` (and the pure-order helper `pool_film_ids`).
 |---|---|---|
 | `sort_by` | `popularity.desc` | The sweep order **is** the corpus's film rank — `graph_build.py` preserves it, and the client's "first hit wins" resolution and autocomplete depend on it |
 | `include_adult` | `"false"` | Excludes adult titles |
-| `vote_count.gte` | 800 (`POOL_MIN_VOTES`) | Pool floor: "is it known" |
-| `vote_average.gte` | 6.5 (`POOL_MIN_AVG`) | Pool floor: "is it good" |
+| `vote_count.gte` | 500 (`POOL_MIN_VOTES`) | Pool floor: "is it known" |
+| `vote_average.gte` | 6.0 (`POOL_MIN_AVG`) | Pool floor: "is it good" |
 | `page` | 1..min(total_pages, 500) | 20 results/page; `MAX_PAGES = 500` matches TMDB's hard paging cap (as of training data) |
 
 Fields consumed from `results[]`: `id`, `title`, `release_date` (year only);
