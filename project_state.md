@@ -9,10 +9,13 @@ _Last updated: **2026-08-14, corpus-refresh session (late evening, post-launch)*
 
 1. **The game is LIVE** at https://bluesuitcase.github.io/DegreesofFilm/ — the
    degrees-of-separation rebuild WITH the complete Comeback Loop (Waves 1–3, all built and
-   merged 2026-08-14). **Work happens on `main` now**; the rebuild branch
-   (`claude/session-context-634bc2`) is merged, its worktree and this session's
-   (`continue-previous-work-056e60`, which holds only an uncommitted `rebuild` launch.json
-   entry) can be pruned with `git worktree remove` whenever convenient.
+   merged 2026-08-14), **plus the corpus refresh + restock (PR #30, merged and verified live
+   the same night — Pages serves 64 dailies / the 3,682-film graph).** Work happens on
+   `main`. **Worktrees/branches pruned 2026-08-14 late evening:** all stale worktrees
+   deregistered + emptied (four zero-byte root folders remain pinned as other sessions'
+   CWDs — they'll rmdir once those close or after a reboot), all merged local branches and
+   the remote rebuild branch deleted. Only `main` + the corpus-refresh session's worktree
+   (`project-state-review-0347aa`) remain.
 2. **Read `CLAUDE.md` next** — it is current for the rebuilt game (ruleset, share grammar,
    content ops, curator's-note rule). The `degreesoffilm-*` skill survivors are still
    dig-stale in their inventory facts; trust `CLAUDE.md` + this file over them.
