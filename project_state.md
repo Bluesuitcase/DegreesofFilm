@@ -3,7 +3,7 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-14, corpus-refresh session (late evening, post-launch)**._
+_Last updated: **2026-08-14, corpus-refresh + skill-re-verification session (late evening, post-launch)**._
 
 ## ▶ Start here next session
 
@@ -17,8 +17,10 @@ _Last updated: **2026-08-14, corpus-refresh session (late evening, post-launch)*
    the remote rebuild branch deleted. Only `main` + the corpus-refresh session's worktree
    (`project-state-review-0347aa`) remain.
 2. **Read `CLAUDE.md` next** — it is current for the rebuilt game (ruleset, share grammar,
-   content ops, curator's-note rule). The `degreesoffilm-*` skill survivors are still
-   dig-stale in their inventory facts; trust `CLAUDE.md` + this file over them.
+   content ops, curator's-note rule, immutable past). The `degreesoffilm-*` skill library
+   was **re-verified 2026-08-14** (10 skills, every fact checked against the repo) — it is
+   trustworthy again; if a code change invalidates a skill fact, update the skill the same
+   session.
 3. **Run everything from the repo root:** serve `docs/` on any port to play locally; suites
    are `node {match,daily,stats,corpus,chain,solve}.test.js` + `python
    curation/{harvest,graph_build,challenge_gen}.test.py` — **9 suites, 268 assertions, all
@@ -38,8 +40,8 @@ _Last updated: **2026-08-14, corpus-refresh session (late evening, post-launch)*
    restock by ~2026-10-06.**
 4. **Soft-fail caddy** (the only unbuilt Comeback Loop item) — gated on measured DNF rates
    from real players (<~10% → skip forever) + owner sign-off (rules change).
-5. **Skill-library re-verification pass** — the 11 surviving `degreesoffilm-*` skills carry
-   dig-era inventory; process content is fine. Low urgency.
+5. ~~Skill-library re-verification pass~~ **DONE 2026-08-14 (see the record below)** — 10
+   skills recast for the rebuilt game; graph-mode-campaign retired (campaign complete).
 6. Wave-2-era follow-ups parked in the plan: role glyphs in the share (needs a harvest
    schema change + corpus rebuild), PWA manifest, in-game rules access from `?play`.
 
@@ -50,6 +52,27 @@ harvests) and the now-unused Cloudflare token (rotate/revoke at leisure).
 
 **The launch, the plan, and the build record follow below in reverse order — history, not
 instructions.**
+
+## 📚 SKILL LIBRARY RE-VERIFIED — 2026-08-14, late evening (after the corpus refresh)
+
+Open item 5 done: the 10 surviving `degreesoffilm-*` skills were recast for the rebuilt
+game (one editing agent per skill, every kept fact verified against this repo; net −800
+lines). Pattern per `writing-for-agents`: dig-era content cut, environment-caches (test
+counts, file lists) replaced with pointers to CLAUDE.md/the code, descriptions retargeted
+to live triggers, worked examples swapped for current ones (corpus-size table, small-world
+experiment, match.cases.js contract, par `--check`). **Deleted:** `graph-mode-campaign`
+(campaign complete — its subject became the product) and `_BUILD-STATE.md` (historical).
+**failure-archaeology grew** (453→585) with five rebuild-era entries: the dig retirement,
+the subgraph-autocomplete leak, the small-world falsification, the "one-off" verdict → the
+Comeback Loop, and the KILLED list. Side fixes the pass surfaced: CLAUDE.md gained
+`solve.js`/`solve.test.js` (previously unlisted), the **immutable-past rule** (now formally
+stated), and dropped its mid-migration banner; stale comments fixed in `match.cases.js`
+(dead worker.test.js reference) and `docs/app.js:637` (frozen grammar now cites CLAUDE.md).
+Noted for the owner (from external-positioning's re-verification): shipping the full
+TMDB-derived credits graph in a public repo is **bulk redistribution the old rights posture
+never evaluated** — flagged in that skill as an open TMDB-terms question, with terms
+re-reading kept as a going-public gate. The global mirror `~/.claude/skills/` was synced to
+match. Suites all green after the pass.
 
 ## 🔄 CORPUS REFRESHED + RESTOCKED — 2026-08-14, late evening (after launch)
 
