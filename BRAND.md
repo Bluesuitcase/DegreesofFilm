@@ -146,4 +146,7 @@ climbing at 30°, resolving into a gold degree ring. Play, connection, and score
   rank-tiered ticket-stub verdict badges for the end card: gold fills under par, quiet
   card stubs at/over par, terracotta for a lost chain. Notches assume the cream ground.
 - `docs/confetti.svg` — chain-and-ring confetti scatter, shown on under-par end cards.
+- `docs/invite.gif` — 68 KB animated invite card (chain assembles → final link pops →
+  confetti; 1000×525, ~4 s loop). Attached by the in-game "Share this game" button via
+  the Web Share API where the platform allows files.
 - Live site: https://bluesuitcase.github.io/DegreesofFilm/
