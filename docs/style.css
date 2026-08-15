@@ -188,6 +188,11 @@ button.btn-ghost{cursor:pointer;font-family:inherit}
 }
 [data-tip]:hover::after,[data-tip]:focus-visible::after{opacity:1;transform:translate(-50%,0)}
 [data-tip]:hover::before,[data-tip]:focus-visible::before{opacity:1}
+/* Touch screens have no hover: the bubbles would eat the first tap (iOS shows
+   hover state before clicking anything that reveals content). Kill them there. */
+@media (hover:none){
+  [data-tip]::after,[data-tip]::before{display:none}
+}
 
 /* --- Degrees: today's card, the rules block, scorecard rows --- */
 .stats[hidden]{display:none}
