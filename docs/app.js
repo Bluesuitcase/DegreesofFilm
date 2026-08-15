@@ -85,6 +85,7 @@ async function loadCorpus() {
 async function renderHome() {
   show('home');
   $('invite-btn').onclick = () => inviteGame($('invite-btn'));
+  prefetchInviteCard();
   daily = await loadDailies();
   const today = pickPuzzle(daily, todayISO());
   if (!today) {
@@ -483,6 +484,7 @@ function renderEndCard(rec, opts = {}) {
   $('share-text').textContent = text;
   $('share-btn').onclick = () => share(text);
   $('end-invite').onclick = () => inviteGame($('end-invite'));
+  prefetchInviteCard();
 
   $('play').classList.add('hidden');
   $('end').classList.remove('hidden');
@@ -690,16 +692,27 @@ async function share(text) {
 const INVITE_TEXT = 'Degrees of Film — a daily film puzzle. Two films: chain them '
   + 'through the people who made them, in as few degrees as you can. ' + SITE;
 
+// Mobile share sheets demand navigator.share() inside the tap's user-gesture
+// window — downloading the card AFTER the tap expires it. So the card is
+// prefetched when a share button appears, and the tap shares instantly with
+// whatever is ready (card if prefetched, plain text+url if not).
+let inviteFile = null;   // File once ready · false = unavailable · null = not tried
+function prefetchInviteCard() {
+  if (inviteFile !== null || !navigator.canShare) return;
+  inviteFile = false;
+  fetch('invite.gif')
+    .then((r) => r.blob())
+    .then((blob) => {
+      const f = new File([blob], 'degrees-of-film.gif', { type: 'image/gif' });
+      if (navigator.canShare({ files: [f] })) inviteFile = f;
+    })
+    .catch(() => {});
+}
+
 async function inviteGame(btn) {
   try {
-    if (navigator.canShare) {
-      try {
-        const blob = await (await fetch('invite.gif')).blob();
-        const file = new File([blob], 'degrees-of-film.gif', { type: 'image/gif' });
-        if (navigator.canShare({ files: [file] })) {
-          return await navigator.share({ files: [file], text: INVITE_TEXT });
-        }
-      } catch { /* no card — fall through to plain share */ }
+    if (inviteFile) {
+      return await navigator.share({ files: [inviteFile], text: INVITE_TEXT });
     }
     if (navigator.share) {
       return await navigator.share({ title: 'Degrees of Film', text: INVITE_TEXT, url: SITE });
