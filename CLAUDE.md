@@ -86,7 +86,8 @@ chain.test.js          Chain-engine tests: verdicts, forged chains, back(), par,
 solve.test.js          End-card analysis tests: shortest routes, route counts, obscurity.
 docs/                  The entire static site = what gets hosted.
   index.html           Markup + element ids the JS binds to.
-  style.css            Dark "ink/bone/amber" theme. CSS vars in :root. Breakpoint at 600px.
+  style.css            Warm-light "paper/ink/amber" theme (the 2026-08 "Matinee" redesign).
+                       CSS vars in :root. Breakpoint at 600px.
   app.js               DOM glue ONLY. Fetches, renders, wires buttons. No rules here.
   chain.js             The game: alternating film/person hops, degrees vs par, verdicts, back().
                        Pure logic, no DOM.
