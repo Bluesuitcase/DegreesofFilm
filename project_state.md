@@ -5,7 +5,18 @@
 
 _Last updated: **2026-08-15, redesign session (small hours)**._
 
-## 🎨 IN FLIGHT — the "Matinee" light-theme redesign (this branch)
+## 🎨 MERGED — the "Matinee" light-theme redesign + brand identity (PR #32, 2026-08-15)
+
+**Merged as `888402c` on the owner's "merge it" — the light theme, BRAND.md, and the
+adopted brand identity are live.** The identity came from the owner's Claude Design
+project ("Movie Trivia Game Graphics", imported via the design MCP): the
+**chain-into-degree mark** (favicon + masthead `logo-mark.svg` + `logo-lockup.svg`),
+**seven ticket-stub verdict badges** on the end card (mapped from score-vs-par; terracotta
+broken-chain on a loss), an **under-par confetti scatter** (static — reduced-motion players
+finally get a celebration), and a **light 1200×630 og.png** replacing the dark card. The
+import also caught and fixed a real bug: the dead-CSS sweep had cut the bare `.eyebrow`
+rule, but app.js builds that class dynamically on the end card — restored. BRAND.md's
+asset section documents the adopted identity. Record below kept for the design rationale:
 
 The owner asked for a lighter, more inviting look ("I don't do dark mode"). Researched color
 psychology (warm off-whites cut glare vs pure white while keeping contrast; warm hues read
