@@ -36,7 +36,8 @@ let trail = [];          // this run's glyph story: 🔗 hop · 🟥 burn · ↩
 let ticker = null;       // countdown interval
 let lastChain = -1;      // chain length at the previous render (animates the new pill)
 let burnFlash = false;   // this render should crack the freshly spent attempt dot
-let inviteFile = null;   // prefetched invite card: File once ready · false = unavailable · null = not tried
+let inviteFile = null;    // prefetched invite card: File once ready · false = unavailable · null = not tried
+let invitePrefetch = null; // the in-flight prefetch, so a fast tap can briefly await it
 
 // Sequencing that hides content before animating it is gated on this — with
 // motion reduced, everything simply appears.
@@ -701,7 +702,7 @@ const INVITE_TEXT = 'Degrees of Film — a daily film puzzle. Two films: chain t
 function prefetchInviteCard() {
   if (inviteFile !== null || !navigator.canShare) return;
   inviteFile = false;
-  fetch('invite.gif')
+  invitePrefetch = fetch('invite.gif')
     .then((r) => r.blob())
     .then((blob) => {
       const f = new File([blob], 'degrees-of-film.gif', { type: 'image/gif' });
@@ -712,6 +713,12 @@ function prefetchInviteCard() {
 
 async function inviteGame(btn) {
   try {
+    // A fast tap can beat the 68 KB prefetch: give it a beat (well inside the
+    // mobile user-gesture window) rather than dropping straight to the
+    // text-only share and letting the og.png unfurl stand in for the card.
+    if (!inviteFile && invitePrefetch) {
+      await Promise.race([invitePrefetch, new Promise((r) => setTimeout(r, 700))]);
+    }
     if (inviteFile) {
       return await navigator.share({ files: [inviteFile], text: INVITE_TEXT });
     }
