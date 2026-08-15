@@ -3,7 +3,7 @@
 > **Running handoff doc. Read this first each session, and keep it updated.** Division of labor:
 > `CLAUDE.md` = how the code works (durable); **this file = where we are right now** (living).
 
-_Last updated: **2026-08-14, session end (post-launch)**._
+_Last updated: **2026-08-14, corpus-refresh session (late evening, post-launch)**._
 
 ## ▶ Start here next session
 
@@ -30,9 +30,9 @@ _Last updated: **2026-08-14, session end (post-launch)**._
    doesn't have it yet. First real signal: does anyone come back on day 3?
 2. **Watch the first par-4 Saturday land** (2026-08-15, pilot curator's note attached) —
    the first live test of the difficulty arc.
-3. **Restock by ~2026-09-06** — runway is 34 dailies through 2026-09-13. Ideally refresh
-   the corpus first (caches date from 2026-07-11): `harvest.py` → `graph_build.py` →
-   `challenge_gen.py --days 30` → `--check`.
+3. ~~Restock by ~2026-09-06~~ **DONE 2026-08-14 (see the refresh record below)** — corpus
+   refreshed + 30 dailies appended. **Runway is now 64 dailies through 2026-10-13; next
+   restock by ~2026-10-06.**
 4. **Soft-fail caddy** (the only unbuilt Comeback Loop item) — gated on measured DNF rates
    from real players (<~10% → skip forever) + owner sign-off (rules change).
 5. **Skill-library re-verification pass** — the 11 surviving `degreesoffilm-*` skills carry
@@ -47,6 +47,22 @@ harvests) and the now-unused Cloudflare token (rotate/revoke at leisure).
 
 **The launch, the plan, and the build record follow below in reverse order — history, not
 instructions.**
+
+## 🔄 CORPUS REFRESHED + RESTOCKED — 2026-08-14, late evening (after launch)
+
+Open item "restock by ~09-06" done early, on branch `claude/project-state-review-0347aa`:
+`harvest.py` (44 new films crossed the pool floor since 2026-07-11, 46 credit sets fetched) →
+`graph_build.py` (**3,682 films / 9,791 people / 42,948 edges, 190 KB gz** — was
+3,637/9,679/42,367 @ 188 KB) → `--check` on the rebuilt corpus (**all 34 published dailies
+survive, pars unchanged**) → `challenge_gen.py --days 30` (**64 dailies through 2026-10-13**,
+8.2 KB raw / 2.8 KB gz) → final `--check` 64/64 green. All 9 suites pass; browser-verified on
+:8010 (finished-state restore of daily #4 re-runs the route reveal against the NEW graph —
+zero console errors; all 9 scheduled Saturdays hold par 4). Diff is exactly
+`docs/graph.json` + `docs/challenges.json` plus these doc updates. CLAUDE.md corpus numbers
+refreshed to match. **Gitignored curation assets** (`films_cache.jsonl`,
+`people_harvest_cache.jsonl`, `challenge_solutions.json` — now 64 entries) were copied back
+to the **main checkout's `curation/`, their canonical home** — the old worktrees held the
+only sidecar copies and can now be pruned safely.
 
 ## 🚀 MERGED AND LIVE — 2026-08-14, end of the same evening
 
@@ -318,5 +334,7 @@ content (file lists, test counts, constants) is stale. Until that pass is done, 
   button path and JS-dispatched `keydown` both work. Not a product bug — verify with either.
 - **Screenshots time out** when the Browser pane isn't displayed; DOM/computed-style checks via
   `javascript_tool` are the reliable fallback (this was already true in July).
-- **Both TMDB caches were copied into this worktree** from the main checkout
-  (`films_cache.jsonl`, `people_harvest_cache.jsonl` — gitignored, ~2.5 MB).
+- **Gitignored curation assets live in the MAIN checkout's `curation/`**
+  (`films_cache.jsonl`, `people_harvest_cache.jsonl`, `challenge_solutions.json`, `.env`).
+  A worktree doesn't inherit them — copy all four in before running content ops, and copy
+  refreshed caches + the sidecar back after.
