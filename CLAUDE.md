@@ -25,11 +25,11 @@ Live at **https://bluesuitcase.github.io/DegreesofFilm/** (GitHub Pages, `main` 
 ## The one idea that makes it work
 
 **Ship the whole graph once, not a puzzle at a time.** `docs/graph.json` is the entire pool —
-3,637 films, 9,679 people, 42,367 credited-on edges — in 188 KB gzip, cached by the browser after
+3,682 films, 9,791 people, 42,948 credited-on edges — in 190 KB gzip, cached by the browser after
 the first play. Everything follows from that:
 
-- A daily challenge is **~50 bytes** (`{id, date, start, goal, par}` with TMDB film ids). All 30
-  currently scheduled fit in 1.9 KB.
+- A daily challenge is **~50 bytes** (`{id, date, start, goal, par}` with TMDB film ids). All 64
+  currently scheduled fit in 8.2 KB.
 - **Suggestions are global, validation is contextual.** You can type any film or person in the
   pool; the game then tells you whether that hop actually exists. An earlier prototype shipped a
   per-challenge subgraph and drew autocomplete from it, which handed the player the answer.
@@ -94,7 +94,7 @@ docs/                  The entire static site = what gets hosted.
   match.js             Fuzzy name matching (normalize/levenshtein/matchGuess). No imports.
   daily.js             Which challenge is today's (pickPuzzle/pickById). Pure, no DOM.
   stats.js             localStorage streak + scorecard; recordResult is pure.
-  graph.json           THE CORPUS: {v, ids, films, people, cast} — 188 KB gz. Built by
+  graph.json           THE CORPUS: {v, ids, films, people, cast} — 190 KB gz. Built by
                        curation/graph_build.py. Fetched only when you actually play.
   challenges.json      {v, daily:[{id, date, start, goal, par, from, to}]} — every daily.
 curation/              PRIVATE — never served. Holds the TMDB key (.env, gitignored).
@@ -145,12 +145,12 @@ stay DOM-free so the Node tests import them directly.
 - `corpus.resolve` is the new layer, and its asymmetry is deliberate:
   - **In context** (the handful of legal hops): exact → typo → last-word. "Bardem" or "Fiction"
     is unambiguous among a dozen candidates.
-  - **Globally** (9,679 names): exact → typo → last-word **only if exactly one name in the pool
+  - **Globally** (9,791 names): exact → typo → last-word **only if exactly one name in the pool
     ends that way**. Otherwise "smith" would silently resolve to whichever Smith ranks highest.
   - Index order is rank order (popularity), so "first hit wins" means "most famous hit wins" —
     that's how duplicate titles like *Heat (1995)* vs *Heat (1986)* resolve, and why context beats
     rank when the lower-ranked one is the legal hop.
-- Worst case (a guess matching nothing, scanning all 9,679 names) measures **~5 ms**.
+- Worst case (a guess matching nothing, scanning all 9,791 names) measures **~5 ms**.
 
 ## Share grammar (FROZEN — never reformat line 1)
 
